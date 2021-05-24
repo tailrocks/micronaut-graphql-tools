@@ -1,3 +1,4 @@
 rootProject.name = 'graphql-tools'
 
 include 'graphql-tools'
+include 'examples:basic'

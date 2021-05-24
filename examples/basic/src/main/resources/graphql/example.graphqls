@@ -1,0 +1,76 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  catalogSectionList(max: Int, options: CatalogSectionListOptions): CatalogSectionListPayload!
+
+  catalogSectionTopList: CatalogSectionListPayload!
+
+  userSignedIn: User
+}
+
+type Mutation {
+  emailValidate(input: EmailValidateInput!): EmailValidatePayload!
+}
+
+type CatalogSectionListPayload {
+  data: [CatalogSection!]!
+}
+
+type User {
+  email: String!
+  paymentMethodList: [PaymentMethod!]!
+}
+
+type PaymentMethod {
+  number: String!
+}
+
+type CatalogSection {
+  slug: ID!
+  name: String!
+  icon: Image
+  description(maxlength: Int!): String
+  overview(prefix: String, limit: Limit): String
+}
+
+type Image {
+  url: String!
+  width: Int!
+  height: Int!
+}
+
+type EmailValidatePayload {
+  data: EmailValidationStatus!
+}
+
+input EmailValidateInput {
+  email: String!
+}
+
+input Limit {
+  start: Int!
+  end: Int!
+}
+
+input CatalogSectionListOptions {
+  sort: Sort! = RANDOM
+  filter: FilterOptions
+}
+
+input FilterOptions {
+  skip: Int
+  offset: Int
+}
+
+enum Sort {
+  RANDOM
+  ALPHABETICALLY
+}
+
+enum EmailValidationStatus {
+  VALID
+  INVALID
+}

@@ -1,6 +1,6 @@
 package io.github.expatiat.micronaut.graphql.tools;
 
-import com.example.graphql.impl.annotation.GraphQLRootResolver;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.inject.BeanDefinition;
@@ -15,9 +15,9 @@ import javax.inject.Singleton;
 @Infrastructure
 public class GraphQLRootProcessor implements ExecutableMethodProcessor<GraphQLRootResolver> {
 
-    private final com.example.graphql.impl.GraphQLMappingContext graphQLMappingContext;
+    private final GraphQLMappingContext graphQLMappingContext;
 
-    public GraphQLRootProcessor(com.example.graphql.impl.GraphQLMappingContext graphQLMappingContext) {
+    public GraphQLRootProcessor(GraphQLMappingContext graphQLMappingContext) {
         this.graphQLMappingContext = graphQLMappingContext;
     }
 
