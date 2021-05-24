@@ -20,7 +20,7 @@ public class MicronautIntrospectionDataFetcher implements DataFetcher<Object> {
     public Object get(DataFetchingEnvironment environment) {
         String fieldName = environment.getField().getName();
 
-        BeanProperty<?, Object> property = beanIntrospection.getProperty(fieldName, Object.class)
+        BeanProperty<?, Object> property = beanIntrospection.getProperty(fieldName)
                 // TODO custom exception
                 .orElseThrow(() -> new RuntimeException("Property `" + fieldName + "` not found: " + beanIntrospection.getBeanType()));
 

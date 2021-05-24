@@ -697,6 +697,19 @@ public class GraphQLMappingContext {
     }
 
     private boolean isBuiltInType(Class clazz) {
+        if (clazz.equals(int.class)) {
+            return true;
+        } else if (clazz.equals(long.class)) {
+            return true;
+        } else if (clazz.equals(float.class)) {
+            return true;
+        } else if (clazz.equals(boolean.class)) {
+            return true;
+        } else if (clazz.equals(char.class)) {
+            return true;
+        } else if (clazz.equals(short.class)) {
+            return true;
+        }
         return SYSTEM_TYPES.containsValue(clazz);
     }
 

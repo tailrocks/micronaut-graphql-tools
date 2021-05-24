@@ -9,10 +9,10 @@ import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModel;
 public class Image {
 
     private final String url;
-    private final Integer width;
-    private final Integer height;
+    private final int width;
+    private final int height;
 
-    public Image(String url, Integer width, Integer height) {
+    public Image(String url, int width, int height) {
         this.url = url;
         this.width = width;
         this.height = height;
@@ -22,11 +22,11 @@ public class Image {
         return url;
     }
 
-    public Integer getWidth() {
+    public int getWidth() {
         return width;
     }
 
-    public Integer getHeight() {
+    public int getHeight() {
         return height;
     }
 
