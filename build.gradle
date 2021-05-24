@@ -9,7 +9,7 @@ buildscript {
 }
 
 subprojects { Project subproject ->
-    group "io.micronaut.xxx"
+    group "com.zhokhov.micronaut.graphql.tools"
 
     apply plugin: "io.micronaut.build.internal.common"
     apply plugin: "io.micronaut.build.internal.dependency-updates"
