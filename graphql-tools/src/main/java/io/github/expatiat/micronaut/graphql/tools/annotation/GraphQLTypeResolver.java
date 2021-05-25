@@ -21,7 +21,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Bean
 @Executable(processOnStartup = true)
 @DefaultScope(Singleton.class)
-public @interface GraphQLModelResolver {
+public @interface GraphQLTypeResolver {
 
     Class value();
 

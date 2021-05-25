@@ -1,6 +1,6 @@
 package io.github.expatiat.micronaut.graphql.tools;
 
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModelResolver;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.inject.BeanDefinition;
@@ -13,16 +13,16 @@ import javax.inject.Singleton;
  */
 @Singleton
 @Infrastructure
-public class GraphQLModelProcessor implements ExecutableMethodProcessor<GraphQLModelResolver> {
+public class GraphQLTypeProcessor implements ExecutableMethodProcessor<GraphQLTypeResolver> {
 
     private final GraphQLMappingContext graphQLMappingContext;
 
-    public GraphQLModelProcessor(GraphQLMappingContext graphQLMappingContext) {
+    public GraphQLTypeProcessor(GraphQLMappingContext graphQLMappingContext) {
         this.graphQLMappingContext = graphQLMappingContext;
     }
 
     public void process(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
-        graphQLMappingContext.registerModelExecutableMethod(beanDefinition, method);
+        graphQLMappingContext.registerTypeExecutableMethod(beanDefinition, method);
     }
 
 }

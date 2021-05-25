@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({ElementType.TYPE})
 @Introspected
-public @interface GraphQLModel {
+public @interface GraphQLType {
 
     Class value() default Void.class;
 

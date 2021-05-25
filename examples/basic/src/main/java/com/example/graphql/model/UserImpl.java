@@ -1,13 +1,13 @@
 package com.example.graphql.model;
 
 import com.example.graphql.api.User;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModel;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.core.annotation.NonNull;
 
 /**
  * @author Alexey Zhokhov
  */
-@GraphQLModel(User.class)
+@GraphQLType(User.class)
 public class UserImpl implements User {
 
     private final String email;

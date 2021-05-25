@@ -1,11 +1,11 @@
 package com.example.graphql.model;
 
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModel;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLType;
 
 /**
  * @author Alexey Zhokhov
  */
-@GraphQLModel
+@GraphQLType
 public class Image {
 
     private final String url;

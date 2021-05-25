@@ -18,11 +18,14 @@ public class GraphQLFactory {
 
     @Bean
     @Singleton
-    public GraphQL graphQL(GraphQLMappingContext graphQLMappingContext, TypeDefinitionRegistry typeRegistry) {
+    public GraphQL graphQL(GraphQLMappingContext graphQLMappingContext, TypeDefinitionRegistry typeRegistry,
+                           SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer) {
+        SchemaParserDictionary schemaParserDictionary = new SchemaParserDictionary();
+        schemaParserDictionaryCustomizer.customize(schemaParserDictionary);
+
+        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring(typeRegistry, schemaParserDictionary);
+
         SchemaGenerator schemaGenerator = new SchemaGenerator();
-
-        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring(typeRegistry);
-
         GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
 
         return GraphQL.newGraphQL(graphQLSchema).build();

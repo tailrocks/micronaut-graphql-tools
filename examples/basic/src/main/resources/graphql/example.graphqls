@@ -9,6 +9,18 @@ type Query {
   catalogSectionTopList: CatalogSectionListPayload!
 
   userSignedIn: User
+
+  unionTest: PayloadError
+}
+
+union PayloadError = SecurityError | ValidationError
+
+type SecurityError {
+  code: String!
+}
+
+type ValidationError {
+  code: Int!
 }
 
 type Mutation {

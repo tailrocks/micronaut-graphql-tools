@@ -1,7 +1,11 @@
 package com.example.graphql.config;
 
+import com.example.graphql.model.PayloadError;
+import com.example.graphql.model.SecurityError;
+import com.example.graphql.model.ValidationError;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import io.github.expatiat.micronaut.graphql.tools.SchemaParserDictionaryCustomizer;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.ResourceResolver;
@@ -26,6 +30,15 @@ public class GraphQLFactory {
                 resourceResolver.getResourceAsStream("classpath:graphql/example.graphqls").get()))));
 
         return typeRegistry;
+    }
+
+    @Bean
+    @Singleton
+    public SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer() {
+        return schemaParserDictionary -> schemaParserDictionary
+                .addType("SecurityError", SecurityError.class)
+                .addType("ValidationError", ValidationError.class)
+                .addUnion("PayloadError", PayloadError.class);
     }
 
 }

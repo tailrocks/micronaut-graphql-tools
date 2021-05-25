@@ -2,13 +2,13 @@ package com.example.graphql.model;
 
 import com.example.graphql.input.Limit;
 import graphql.schema.DataFetchingEnvironment;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModel;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLType;
 import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLParameterized;
 
 /**
  * @author Alexey Zhokhov
  */
-@GraphQLModel
+@GraphQLType
 public class CatalogSection {
 
     private final String slug;

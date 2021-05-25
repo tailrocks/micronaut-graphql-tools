@@ -1,15 +1,15 @@
-package com.example.graphql.resolver;
+package com.example.graphql.model.resolver;
 
 import com.example.graphql.model.CatalogSection;
 import com.example.graphql.model.Image;
 import graphql.schema.DataFetchingEnvironment;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModelResolver;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.core.annotation.Nullable;
 
 /**
  * @author Alexey Zhokhov
  */
-@GraphQLModelResolver(CatalogSection.class)
+@GraphQLTypeResolver(CatalogSection.class)
 public class CatalogSectionResolver {
 
     @Nullable

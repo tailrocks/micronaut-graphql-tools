@@ -1,12 +1,12 @@
 package com.example.graphql.model;
 
 import com.example.graphql.api.PaymentMethod;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLModel;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLType;
 
 /**
  * @author Alexey Zhokhov
  */
-@GraphQLModel(PaymentMethod.class)
+@GraphQLType(PaymentMethod.class)
 public class PaymentMethodImpl implements PaymentMethod {
 
     private final String number;

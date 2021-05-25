@@ -1,4 +1,19 @@
-package com.example.graphql.query;/**
-  * @author Alexey Zhokhov
-  */public class UnionTestQuery {
+package com.example.graphql.query;
+
+import com.example.graphql.model.PayloadError;
+import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLRootResolver;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * @author Alexey Zhokhov
+ */
+@GraphQLRootResolver
+public class UnionTestQuery {
+
+    public CompletionStage<PayloadError> unionTest() {
+        return CompletableFuture.completedFuture(null);
+    }
+
 }
