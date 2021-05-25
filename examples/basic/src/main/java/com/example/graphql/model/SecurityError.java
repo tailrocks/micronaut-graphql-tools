@@ -10,6 +10,10 @@ public class SecurityError implements PayloadError {
 
     private String code;
 
+    public SecurityError(String code) {
+        this.code = code;
+    }
+
     public String getCode() {
         return code;
     }

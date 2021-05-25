@@ -28,6 +28,8 @@ public class GraphQLFactory {
         SchemaGenerator schemaGenerator = new SchemaGenerator();
         GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
 
+        graphQLMappingContext.bindGraphQLSchema(graphQLSchema);
+
         return GraphQL.newGraphQL(graphQLSchema).build();
     }
 

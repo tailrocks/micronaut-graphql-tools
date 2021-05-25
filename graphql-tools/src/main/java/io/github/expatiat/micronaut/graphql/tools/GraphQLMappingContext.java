@@ -1,6 +1,7 @@
 package io.github.expatiat.micronaut.graphql.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.TypeResolutionEnvironment;
 import graphql.language.EnumTypeDefinition;
 import graphql.language.FieldDefinition;
 import graphql.language.InputObjectTypeDefinition;
@@ -13,7 +14,11 @@ import graphql.language.SchemaDefinition;
 import graphql.language.Type;
 import graphql.language.TypeDefinition;
 import graphql.language.TypeName;
+import graphql.language.UnionTypeDefinition;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLSchema;
+import graphql.schema.TypeResolver;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
@@ -99,6 +104,8 @@ public class GraphQLMappingContext {
 
     private Map<String, TypeDefinition> types;
 
+    private GraphQLSchema graphQLSchema;
+
     public GraphQLMappingContext(ApplicationContext applicationContext, ObjectMapper objectMapper) {
         this.applicationContext = applicationContext;
         this.objectMapper = objectMapper;
@@ -132,7 +139,21 @@ public class GraphQLMappingContext {
             processOperationTypeDefinition(operationTypeDefinition);
         }
 
+        rootRuntimeWiringBuilder.type("PayloadError", (it) -> {
+            it.typeResolver(new TypeResolver() {
+                @Override
+                public GraphQLObjectType getType(TypeResolutionEnvironment env) {
+                    return graphQLSchema.getObjectType("SecurityError");
+                }
+            });
+            return it;
+        });
+
         return rootRuntimeWiringBuilder.build();
+    }
+
+    public void bindGraphQLSchema(GraphQLSchema graphQLSchema) {
+        this.graphQLSchema = graphQLSchema;
     }
 
     void registerRootExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
@@ -253,9 +274,14 @@ public class GraphQLMappingContext {
                 applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
         ));
 
-        BeanIntrospection beanIntrospection = detectReturnType(beanDefinitionAndMethod.executableMethod.getReturnType());
+        if (!(fieldDefinition.getType() instanceof ListType) &&
+                types.get(getTypeName(fieldDefinition.getType())) instanceof UnionTypeDefinition) {
+            // TODO skip for now
+        } else {
+            BeanIntrospection beanIntrospection = detectReturnType(beanDefinitionAndMethod.executableMethod.getReturnType());
 
-        registerObjectType(getTypeName(fieldDefinition.getType()), beanIntrospection);
+            registerObjectType(getTypeName(fieldDefinition.getType()), beanIntrospection);
+        }
     }
 
     private List<ArgumentDetails> processInputArguments(
