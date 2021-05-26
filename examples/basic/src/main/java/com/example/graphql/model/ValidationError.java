@@ -10,12 +10,12 @@ public class ValidationError implements PayloadError {
 
     private Integer code;
 
-    public Integer getCode() {
-        return code;
+    public ValidationError(Integer code) {
+        this.code = code;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public Integer getCode() {
+        return code;
     }
 
 }

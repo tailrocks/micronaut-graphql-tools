@@ -2,6 +2,7 @@ package com.example.graphql.query;
 
 import com.example.graphql.model.PayloadError;
 import com.example.graphql.model.SecurityError;
+import com.example.graphql.model.ValidationError;
 import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 
 import java.util.concurrent.CompletableFuture;
@@ -13,9 +14,9 @@ import java.util.concurrent.CompletionStage;
 @GraphQLRootResolver
 public class UnionTestQuery {
 
-    public CompletionStage<PayloadError> unionTest() {
+    public CompletionStage<PayloadError> unionTypeTest(Boolean securityError) {
         return CompletableFuture.completedFuture(
-                new SecurityError("abc-xyz")
+                securityError ? new SecurityError("abc-xyz") : new ValidationError(123)
         );
     }
 

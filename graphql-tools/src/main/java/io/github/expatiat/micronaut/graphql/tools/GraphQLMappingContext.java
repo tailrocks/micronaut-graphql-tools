@@ -1,7 +1,6 @@
 package io.github.expatiat.micronaut.graphql.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.TypeResolutionEnvironment;
 import graphql.language.EnumTypeDefinition;
 import graphql.language.FieldDefinition;
 import graphql.language.InputObjectTypeDefinition;
@@ -16,9 +15,7 @@ import graphql.language.TypeDefinition;
 import graphql.language.TypeName;
 import graphql.language.UnionTypeDefinition;
 import graphql.schema.DataFetchingEnvironment;
-import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.TypeResolver;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
@@ -44,6 +41,7 @@ import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -104,15 +102,14 @@ public class GraphQLMappingContext {
 
     private Map<String, TypeDefinition> types;
 
-    private GraphQLSchema graphQLSchema;
-
     public GraphQLMappingContext(ApplicationContext applicationContext, ObjectMapper objectMapper) {
         this.applicationContext = applicationContext;
         this.objectMapper = objectMapper;
     }
 
     public RuntimeWiring generateRuntimeWiring(TypeDefinitionRegistry typeRegistry,
-                                               SchemaParserDictionary schemaParserDictionary) {
+                                               SchemaParserDictionary schemaParserDictionary,
+                                               Provider<GraphQLSchema> graphQLSchemaProvider) {
         ArgumentUtils.requireNonNull("typeRegistry", typeRegistry);
         ArgumentUtils.requireNonNull("schemaParserDictionary", schemaParserDictionary);
 
@@ -139,21 +136,15 @@ public class GraphQLMappingContext {
             processOperationTypeDefinition(operationTypeDefinition);
         }
 
-        rootRuntimeWiringBuilder.type("PayloadError", (it) -> {
-            it.typeResolver(new TypeResolver() {
-                @Override
-                public GraphQLObjectType getType(TypeResolutionEnvironment env) {
-                    return graphQLSchema.getObjectType("SecurityError");
-                }
-            });
-            return it;
-        });
+        List<UnionTypeDefinition> unionTypeDefinitions = (List) types.values().stream()
+                .filter(it -> it instanceof UnionTypeDefinition)
+                .collect(Collectors.toList());
+
+        for (UnionTypeDefinition unionTypeDefinition : unionTypeDefinitions) {
+            processUnionTypeDefinition(unionTypeDefinition, graphQLSchemaProvider);
+        }
 
         return rootRuntimeWiringBuilder.build();
-    }
-
-    public void bindGraphQLSchema(GraphQLSchema graphQLSchema) {
-        this.graphQLSchema = graphQLSchema;
     }
 
     void registerRootExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
@@ -261,7 +252,7 @@ public class GraphQLMappingContext {
             throw new RuntimeException("The method `" + fieldDefinition.getName() + "` not found in any GraphQL query resolvers");
         }
 
-        checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, 0);
+        checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, null);
 
         List<ArgumentDetails> argumentDetails = processInputArguments(
                 fieldDefinition, beanDefinitionAndMethod.executableMethod, null
@@ -348,6 +339,30 @@ public class GraphQLMappingContext {
         }
 
         return result;
+    }
+
+    private void processUnionTypeDefinition(UnionTypeDefinition unionTypeDefinition,
+                                            Provider<GraphQLSchema> graphQLSchemaProvider) {
+        rootRuntimeWiringBuilder.type(unionTypeDefinition.getName(), (typeWiring) -> {
+            List<String> graphQlTypes = unionTypeDefinition.getMemberTypes().stream()
+                    .map(it -> ((TypeName) it).getName())
+                    .collect(Collectors.toList());
+
+            Map<Class, String> objectTypes = new HashMap<>();
+
+            for (String graphQlType : graphQlTypes) {
+                MappingItem mappingItem = mappingRegistry.get(graphQlType);
+
+                if (mappingItem == null) {
+                    // TODO
+                    throw new RuntimeException("Mapping item not found for type: " + graphQlType);
+                }
+                objectTypes.put(mappingItem.beanIntrospection.getBeanType(), graphQlType);
+            }
+
+            typeWiring.typeResolver(new UnionTypeResolver(graphQLSchemaProvider, objectTypes));
+            return typeWiring;
+        });
     }
 
     @Nullable
@@ -446,15 +461,30 @@ public class GraphQLMappingContext {
     }
 
     private void checkInputValueDefinitions(FieldDefinition fieldDefinition, Executable executable,
-                                            int additionalRequiredArgs) {
+                                            @Nullable String sourceType) {
         if (fieldDefinition.getInputValueDefinitions().size() == 0 && executable.getArguments().length == 0) {
             return;
         }
 
-        int requiredArgs = fieldDefinition.getInputValueDefinitions().size() + additionalRequiredArgs;
+        int requiredArgs = fieldDefinition.getInputValueDefinitions().size() + (sourceType != null ? 1 : 0);
+
+        ArrayList<String> methodArgs = new ArrayList<>();
+
+        if (sourceType != null) {
+            methodArgs.add(sourceType + " " + sourceType.substring(0, 1).toLowerCase() + sourceType.substring(1));
+        }
+
+        methodArgs.addAll(
+                fieldDefinition.getInputValueDefinitions().stream()
+                        .map(it -> getTypeName(it.getType()) + " " + it.getName())
+                        .collect(Collectors.toList())
+        );
+
+        String methodArgsString = methodArgs.stream().collect(Collectors.joining(", "));
+
         if (requiredArgs > executable.getArguments().length) {
             // TODO custom exception
-            throw new RuntimeException("Too less arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " (excluded DataFetchingEnvironment)");
+            throw new RuntimeException("Too less arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " arg(s): " + methodArgsString + " (excluded DataFetchingEnvironment)");
         }
 
         int currentArgs = (int) Arrays.stream(executable.getArguments())
@@ -463,12 +493,12 @@ public class GraphQLMappingContext {
 
         if (currentArgs > requiredArgs) {
             // TODO custom exception
-            throw new RuntimeException("Too much arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " (excluded DataFetchingEnvironment)");
+            throw new RuntimeException("Too much arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " arg(s): " + methodArgsString + " (excluded DataFetchingEnvironment)");
         }
 
         if (requiredArgs > currentArgs) {
             // TODO custom exception
-            throw new RuntimeException("Too less arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " (excluded DataFetchingEnvironment)");
+            throw new RuntimeException("Too less arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " arg(s): " + methodArgsString + " (excluded DataFetchingEnvironment)");
         }
     }
 
@@ -516,7 +546,7 @@ public class GraphQLMappingContext {
                     // TODO validate parameters for executable method
 
                     // count with source argument
-                    checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, 1);
+                    checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, objectTypeDefinition.getName());
 
                     List<ArgumentDetails> argumentDetails = processInputArguments(
                             fieldDefinition, beanDefinitionAndMethod.executableMethod, interfaceClass
@@ -541,7 +571,7 @@ public class GraphQLMappingContext {
                 } else if (!beanMethods.isEmpty()) {
                     BeanMethod beanMethod = beanMethods.get(0);
 
-                    checkInputValueDefinitions(fieldDefinition, beanMethod, 0);
+                    checkInputValueDefinitions(fieldDefinition, beanMethod, null);
 
                     List<ArgumentDetails> argumentDetails = processInputArguments(
                             fieldDefinition, beanMethod, null

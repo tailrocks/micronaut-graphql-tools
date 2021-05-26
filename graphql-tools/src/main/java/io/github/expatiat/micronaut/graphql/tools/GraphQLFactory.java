@@ -23,12 +23,15 @@ public class GraphQLFactory {
         SchemaParserDictionary schemaParserDictionary = new SchemaParserDictionary();
         schemaParserDictionaryCustomizer.customize(schemaParserDictionary);
 
-        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring(typeRegistry, schemaParserDictionary);
+        GraphQLSchemaProvider graphQLSchemaProvider = new GraphQLSchemaProvider();
+
+        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring(typeRegistry, schemaParserDictionary,
+                graphQLSchemaProvider);
 
         SchemaGenerator schemaGenerator = new SchemaGenerator();
         GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
 
-        graphQLMappingContext.bindGraphQLSchema(graphQLSchema);
+        graphQLSchemaProvider.init(graphQLSchema);
 
         return GraphQL.newGraphQL(graphQLSchema).build();
     }
