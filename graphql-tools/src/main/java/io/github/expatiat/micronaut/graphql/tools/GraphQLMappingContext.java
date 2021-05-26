@@ -437,7 +437,7 @@ public class GraphQLMappingContext {
                     // TODO validate primitive type
 
                     // TODO process sub types
-                    throw new UnsupportedOperationException();
+                    //throw new UnsupportedOperationException();
                 } else if (fieldType instanceof TypeName) {
                     // TODO custom exception
                     processInputTypeDefinition((TypeName) fieldType, returnType, (requiredClass) -> new RuntimeException("Invalid type in property `" + property.get().getName() + "` (" + beanIntrospection.getBeanType() + "), required: " + requiredClass));
@@ -642,12 +642,17 @@ public class GraphQLMappingContext {
     }
 
     private void processReturnType(Type fieldType, Class returnType) {
-        if (isBuiltInType(returnType)) {
-            // TODO check is types are matched
-        } else if (returnType.isEnum()) {
-            registerEnumMapping(getTypeName(fieldType), returnType);
+        if (!(fieldType instanceof ListType) &&
+                types.get(getTypeName(fieldType)) instanceof UnionTypeDefinition) {
+            // TODO skip for now
         } else {
-            registerObjectType(getTypeName(fieldType), requireGraphQLModel(returnType));
+            if (isBuiltInType(returnType)) {
+                // TODO check is types are matched
+            } else if (returnType.isEnum()) {
+                registerEnumMapping(getTypeName(fieldType), returnType);
+            } else {
+                registerObjectType(getTypeName(fieldType), requireGraphQLModel(returnType));
+            }
         }
     }
 
@@ -881,6 +886,5 @@ public class GraphQLMappingContext {
             this.targetInterface = targetInterface;
         }
     }
-
 
 }
