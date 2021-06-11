@@ -191,7 +191,7 @@ public class GraphQLMappingContext {
             AnnotationValue<GraphQLType> annotationValue = introspection.getAnnotation(GraphQLType.class);
             Class modelInterface = annotationValue.get(AnnotationMetadata.VALUE_MEMBER, Class.class).get();
 
-            if (!modelInterface.equals(void.class)) {
+            if (!modelInterface.equals(Void.class)) {
                 if (!isUnion(modelInterface)) {
                     if (typeInterfaces.containsValue(modelInterface)) {
                         throw new RuntimeException("Found multiple implementations for: " + modelInterface);

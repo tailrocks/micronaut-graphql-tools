@@ -18,6 +18,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Introspected
 public @interface GraphQLType {
 
-    Class value() default void.class;
+    Class value() default Void.class;
 
 }
