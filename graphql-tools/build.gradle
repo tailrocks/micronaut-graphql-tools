@@ -1,3 +1,10 @@
+// TODO remove me later
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+// end TODO remove me later
+
 dependencies {
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
