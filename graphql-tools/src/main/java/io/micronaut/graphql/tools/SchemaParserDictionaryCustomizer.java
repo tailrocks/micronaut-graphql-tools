@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.graphql.service;
-
-import javax.inject.Singleton;
+package io.micronaut.graphql.tools;
 
 /**
  * @author Alexey Zhokhov
  */
-@Singleton
-public class EmailValidationService {
+public interface SchemaParserDictionaryCustomizer {
 
-    public boolean isValid(String email) {
-        return true;
-    }
+    void customize(SchemaParserDictionary schemaParserDictionary);
 
 }

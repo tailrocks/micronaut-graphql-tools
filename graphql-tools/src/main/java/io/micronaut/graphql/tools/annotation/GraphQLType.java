@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.graphql.service;
+package io.micronaut.graphql.tools.annotation;
 
-import javax.inject.Singleton;
+import io.micronaut.core.annotation.Introspected;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Alexey Zhokhov
  */
-@Singleton
-public class EmailValidationService {
+@Documented
+@Retention(RUNTIME)
+@Target({ElementType.TYPE})
+@Introspected
+public @interface GraphQLType {
 
-    public boolean isValid(String email) {
-        return true;
-    }
+    Class value() default Void.class;
 
 }

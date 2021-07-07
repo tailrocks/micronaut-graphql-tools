@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.graphql.service;
+package io.micronaut.graphql.tools;
 
-import javax.inject.Singleton;
+import graphql.schema.DataFetcher;
+import graphql.schema.idl.FieldWiringEnvironment;
+import graphql.schema.idl.WiringFactory;
 
 /**
  * @author Alexey Zhokhov
  */
-@Singleton
-public class EmailValidationService {
+public class DefaultWiringFactory implements WiringFactory {
 
-    public boolean isValid(String email) {
-        return true;
+    @Override
+    public DataFetcher getDefaultDataFetcher(FieldWiringEnvironment environment) {
+        throw new RuntimeException("Unprocessed type: " + environment.getParentType().getName());
     }
 
 }

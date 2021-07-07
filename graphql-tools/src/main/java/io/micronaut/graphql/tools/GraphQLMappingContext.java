@@ -1,4 +1,19 @@
-package io.github.expatiat.micronaut.graphql.tools;
+/*
+ * Copyright 2021 original authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.micronaut.graphql.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.language.EnumTypeDefinition;
@@ -19,9 +34,9 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLInput;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLType;
-import io.github.expatiat.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.annotation.GraphQLInput;
+import io.micronaut.graphql.tools.annotation.GraphQLType;
+import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.core.annotation.AnnotationClassValue;
@@ -58,7 +73,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.github.expatiat.micronaut.graphql.tools.BeanIntrospectionUtils.generateGetMethodName;
+import static io.micronaut.graphql.tools.BeanIntrospectionUtils.generateGetMethodName;
 
 /**
  * @author Alexey Zhokhov

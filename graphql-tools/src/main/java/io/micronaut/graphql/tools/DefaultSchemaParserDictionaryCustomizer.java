@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.graphql.service;
+package io.micronaut.graphql.tools;
+
+import io.micronaut.context.annotation.Requires;
 
 import javax.inject.Singleton;
 
@@ -21,10 +23,12 @@ import javax.inject.Singleton;
  * @author Alexey Zhokhov
  */
 @Singleton
-public class EmailValidationService {
+@Requires(missingBeans = {SchemaParserDictionaryCustomizer.class})
+public class DefaultSchemaParserDictionaryCustomizer implements SchemaParserDictionaryCustomizer {
 
-    public boolean isValid(String email) {
-        return true;
+    @Override
+    public void customize(SchemaParserDictionary schemaParserDictionary) {
+        // do nothing, can be overridden with another implementation
     }
 
 }
