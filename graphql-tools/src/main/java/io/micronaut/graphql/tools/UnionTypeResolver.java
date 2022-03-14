@@ -19,8 +19,8 @@ import graphql.TypeResolutionEnvironment;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.TypeResolver;
+import jakarta.inject.Provider;
 
-import javax.inject.Provider;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

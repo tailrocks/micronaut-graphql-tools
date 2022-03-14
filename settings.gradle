@@ -12,17 +12,5 @@ plugins {
 rootProject.name = 'graphql-tools-parent'
 
 include 'graphql-tools'
-include 'examples:basic'
-
-enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
-
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-    }
-    versionCatalogs {
-        mn {
-            from "io.micronaut:micronaut-bom:${providers.gradleProperty('micronautVersion').get()}"
-        }
-    }
-}
+include 'graphql-tools-bom'
+//include 'examples:basic'

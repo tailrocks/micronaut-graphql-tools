@@ -16,8 +16,7 @@
 package io.micronaut.graphql.tools;
 
 import io.micronaut.context.annotation.Requires;
-
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author Alexey Zhokhov

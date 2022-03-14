@@ -16,8 +16,7 @@
 package io.micronaut.graphql.tools;
 
 import graphql.schema.GraphQLSchema;
-
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 /**
  * @author Alexey Zhokhov

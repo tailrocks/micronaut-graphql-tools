@@ -15,13 +15,12 @@
  */
 package io.micronaut.graphql.tools;
 
-import io.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
+import io.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
-
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * @author Alexey Zhokhov

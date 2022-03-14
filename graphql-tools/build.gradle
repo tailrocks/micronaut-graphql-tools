@@ -1,25 +1,9 @@
-// TODO remove me later
 plugins {
-    id 'java-library'
-    id 'maven-publish'
+    id 'io.micronaut.build.internal.graphql-tools-module'
 }
-// end TODO remove me later
 
 dependencies {
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
+    api("com.graphql-java:graphql-java:$graphqlJavaVersion")
 
-    api "io.micronaut:micronaut-inject"
-    api "io.micronaut:micronaut-core"
-
-    api "io.micronaut.graphql:micronaut-graphql"
-
-    testImplementation("org.spockframework:spock-core:${spockVersion}") {
-        exclude module: 'groovy-all'
-    }
-    testImplementation "io.micronaut.test:micronaut-test-spock:$micronautTestVersion"
-}
-
-tasks.withType(Test) {
-    useJUnitPlatform()
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
