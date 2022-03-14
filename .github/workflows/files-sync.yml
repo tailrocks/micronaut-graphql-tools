@@ -8,10 +8,12 @@ jobs:
     if: github.repository == 'micronaut-projects/micronaut-project-template'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       max-parallel: 3
       matrix:
         repo:
           - acme
+          - aot
           - aws
           - azure
           - cache
@@ -54,8 +56,10 @@ jobs:
           - reactor
           - redis
           - rss
+          - rxjava2
           - rxjava3
           - security
+          - serialization
           - servlet
           - spring
           - sql
@@ -63,11 +67,11 @@ jobs:
           - views
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: source
       - name: Checkout target - default branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: micronaut-projects/micronaut-${{ matrix.repo }}
           path: target
@@ -83,7 +87,7 @@ jobs:
       - name: Sync workflows
         run: |
           mkdir -p target/.github/workflows/
-          rsync --verbose --verbose  --delete --archive -F "source/.github/workflows/" "target/.github/workflows/"
+          rsync --verbose --verbose  --archive -F "source/.github/workflows/" "target/.github/workflows/"
       - name: Copy files from source to target branches
         run: |
           while IFS= read -r file; do
@@ -93,19 +97,23 @@ jobs:
           done <<< "$FILES"
         env:
           FILES: |-
+            .gitignore
             .github/dependabot.yml
+            .github/ISSUE_TEMPLATE/bug_report.yaml
+            .github/ISSUE_TEMPLATE/config.yml
+            .github/ISSUE_TEMPLATE/new_feature.yaml
+            .github/ISSUE_TEMPLATE/other.yaml
             gradle/*
             gradlew*
-            .gitignore
-            ISSUE_TEMPLATE.md
             MAINTAINING.md
+            SECURITY.md
             LICENSE
             config/HEADER
             config/spotless.license.java
             config/checkstyle/checkstyle.xml
             config/checkstyle/suppressions.xml
       - name: Create Pull Request - ${{ steps.branch.outputs.branch }}
-        uses: peter-evans/create-pull-request@v3.9.2
+        uses: peter-evans/create-pull-request@v3.14.0
         with:
           path: target
           token: ${{ secrets.GH_TOKEN }}
@@ -117,6 +125,20 @@ jobs:
           labels: "relates-to: build"
           branch: sync-files-${{ steps.branch.outputs.branch }}
           base: ${{ steps.branch.outputs.branch }}
-
-
-
+          add-paths: |
+            .gitignore
+            .github/dependabot.yml
+            .github/ISSUE_TEMPLATE/bug_report.yaml
+            .github/ISSUE_TEMPLATE/config.yml
+            .github/ISSUE_TEMPLATE/new_feature.yaml
+            .github/ISSUE_TEMPLATE/other.yaml
+            .github/workflows/*
+            gradle/*
+            gradlew*
+            MAINTAINING.md
+            SECURITY.md
+            LICENSE
+            config/HEADER
+            config/spotless.license.java
+            config/checkstyle/checkstyle.xml
+            config/checkstyle/suppressions.xml
