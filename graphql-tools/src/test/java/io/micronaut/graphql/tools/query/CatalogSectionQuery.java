@@ -46,8 +46,8 @@ public class CatalogSectionQuery {
     @CheckNotNull
     @NonNull
     public CompletionStage<CatalogSectionListPayload> catalogSectionTopList() {
-        CatalogSection item1 = new CatalogSection("abc", "ABC", null, null);
-        CatalogSection item2 = new CatalogSection("xyz", "XYZ", null, null);
+        CatalogSection item1 = new CatalogSection("abc", "ABC", "a-c items", "Aaabbbccc");
+        CatalogSection item2 = new CatalogSection("xyz", "XYZ", "x-z items", "Xxxyyyzzz");
 
         return CompletableFuture.completedFuture(
                 new CatalogSectionListPayload(Arrays.asList(item1, item2))

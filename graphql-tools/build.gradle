@@ -3,16 +3,10 @@ plugins {
 }
 
 dependencies {
-    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
-    annotationProcessor("io.micronaut:micronaut-validation")
-
     api("com.graphql-java:graphql-java:${graphqlJavaVersion}")
-    api("io.micronaut:micronaut-http")
-    api("io.micronaut:micronaut-http-server")
-    api("io.micronaut:micronaut-inject")
+    api("io.micronaut:micronaut-jackson-databind")
 
-    testImplementation("io.micronaut:micronaut-http-client")
-    testImplementation("io.micronaut:micronaut-http-server-netty")
+    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
 }
 
 micronautBuild {

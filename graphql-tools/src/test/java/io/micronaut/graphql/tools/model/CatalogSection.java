@@ -48,13 +48,13 @@ public class CatalogSection {
 
     @GraphQLParameterized
     public String getDescription(Integer maxLength, DataFetchingEnvironment environment) {
-        return description;
+        return description.substring(0, maxLength);
     }
 
     @GraphQLParameterized
     public String overview(String prefix, Limit limit) {
         if (overview != null) {
-            return (prefix != null ? prefix : "") + overview;
+            return (prefix != null ? prefix : "") + overview.substring(limit.getStart(), limit.getEnd());
         }
         return null;
     }

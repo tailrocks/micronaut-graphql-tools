@@ -55,6 +55,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
+import io.micronaut.jackson.modules.BeanIntrospectionModule;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 
@@ -98,7 +99,7 @@ public class GraphQLMappingContext {
     }
 
     private final ApplicationContext applicationContext;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final List<BeanDefinitionAndMethods> rootResolvers = new ArrayList<>();
     private final Map<Class, List<BeanDefinitionAndMethods>> typeResolvers = new HashMap<>();
@@ -117,9 +118,10 @@ public class GraphQLMappingContext {
 
     private Map<String, TypeDefinition> types;
 
-    public GraphQLMappingContext(ApplicationContext applicationContext, ObjectMapper objectMapper) {
+    public GraphQLMappingContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.objectMapper = objectMapper;
+
+        objectMapper.registerModule(new BeanIntrospectionModule());
     }
 
     public RuntimeWiring generateRuntimeWiring(TypeDefinitionRegistry typeRegistry,

@@ -31,6 +31,9 @@ public class UserSignedInQueryImpl implements UserSignedInQuery {
     @Override
     @Nullable
     public User userSignedIn(DataFetchingEnvironment env) {
+        if (env == null) {
+            throw new NullPointerException();
+        }
         return new UserImpl("me@test.com");
     }
 

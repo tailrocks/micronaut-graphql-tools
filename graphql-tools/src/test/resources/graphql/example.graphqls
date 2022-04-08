@@ -4,9 +4,9 @@ schema {
 }
 
 type Query {
-  catalogSectionList(max: Int, options: CatalogSectionListOptions): CatalogSectionListPayload!
-
   catalogSectionTopList: CatalogSectionListPayload!
+
+  catalogSectionList(max: Int, options: CatalogSectionListOptions): CatalogSectionListPayload!
 
   userSignedIn: User
 
