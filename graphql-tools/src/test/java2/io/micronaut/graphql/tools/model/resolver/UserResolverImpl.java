@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.graphql.tools.api;
+package io.micronaut.graphql.tools.model.resolver;
 
 import graphql.schema.DataFetchingEnvironment;
-import io.micronaut.core.annotation.Nullable;
+import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.api.PaymentMethod;
+import io.micronaut.graphql.tools.api.User;
+import io.micronaut.graphql.tools.api.UserResolver;
+import io.micronaut.graphql.tools.model.PaymentMethodImpl;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
  * @author Alexey Zhokhov
  */
-public interface UserSignedInQuery {
-
-    @Nullable
-    User userSignedIn(DataFetchingEnvironment env);
-
-}

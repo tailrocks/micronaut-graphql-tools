@@ -1,81 +1,23 @@
 package io.micronaut.graphql.tools
 
 import graphql.GraphQL
-import io.micronaut.context.ApplicationContext
-import io.micronaut.test.extensions.spock.annotation.MicronautTest
-import jakarta.inject.Inject
-import spock.lang.Specification
+import io.micronaut.context.exceptions.DependencyInjectionException
 
-@MicronautTest
-class ApplicationSpec extends Specification {
-
-    @Inject ApplicationContext applicationContext
+class ApplicationSpec extends AbstractTest {
 
     void "test initialization"() {
+        given:
+            startContext()
+
         when:
             applicationContext.getBean(GraphQL.class)
 
         then:
-            true
-    }
-
-    void "test DataFetchingEnvironment passed to Query's field"() {
-        when:
-            def executionResult = applicationContext.getBean(GraphQL.class).execute("""
-{ 
-    userSignedIn {
-        email
-    }
-}
-""")
-
-        then:
-            executionResult.errors.isEmpty()
-            executionResult.dataPresent
-            executionResult.data["userSignedIn"]["email"] == "me@test.com"
-    }
-
-    void "test passing arguments to graphql type fields"() {
-        when:
-            def executionResult = applicationContext.getBean(GraphQL.class).execute("""
-{ 
-    catalogSectionTopList {
-        data {
-            slug
-            name
-            icon {
-                url
-                width
-                height
-            }
-            description3: description(maxlength: 3)
-            overview(prefix: "Pre", limit: { 
-                start: 1
-                end: 5
-            })
-        }
-    }
-}
-""")
-
-        then:
-            executionResult.errors.isEmpty()
-            executionResult.dataPresent
-            executionResult.data["catalogSectionTopList"]["data"]
-
-            executionResult.data["catalogSectionTopList"]["data"][0].slug == "abc"
-            executionResult.data["catalogSectionTopList"]["data"][0].name == "ABC"
-            executionResult.data["catalogSectionTopList"]["data"][0].icon.url == "http://google.com"
-            executionResult.data["catalogSectionTopList"]["data"][0].icon.width == 150
-            executionResult.data["catalogSectionTopList"]["data"][0].icon.height == 100
-            executionResult.data["catalogSectionTopList"]["data"][0].description3 == "a-c"
-            executionResult.data["catalogSectionTopList"]["data"][0].overview == "Preaabb"
-
-            executionResult.data["catalogSectionTopList"]["data"][1].slug == "xyz"
-            executionResult.data["catalogSectionTopList"]["data"][1].name == "XYZ"
-            executionResult.data["catalogSectionTopList"]["data"][1].icon == null
-            executionResult.data["catalogSectionTopList"]["data"][1].description3 == "x-z"
-            executionResult.data["catalogSectionTopList"]["data"][1].overview == "Prexxyy"
+            def e = thrown(DependencyInjectionException)
+            e.message == "Failed to inject value for parameter [typeRegistry] of method [graphQL] of class: graphql.GraphQL\n" +
+                    "\n" +
+                    "Message: No bean of type [graphql.schema.idl.TypeDefinitionRegistry] exists. Make sure the bean is not disabled by bean requirements (enable trace logging for 'io.micronaut.context.condition' to check) and if the bean is enabled then ensure the class is declared a bean and annotation processing is enabled (for Java and Kotlin the 'micronaut-inject-java' dependency should be configured as an annotation processor).\n" +
+                    "Path Taken: GraphQL.graphQL(GraphQLMappingContext graphQLMappingContext,TypeDefinitionRegistry typeRegistry,SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer) --> GraphQL.graphQL(GraphQLMappingContext graphQLMappingContext,[TypeDefinitionRegistry typeRegistry],SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer)"
     }
 
 }

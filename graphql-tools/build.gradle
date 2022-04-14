@@ -5,8 +5,19 @@ plugins {
 dependencies {
     api("com.graphql-java:graphql-java:${graphqlJavaVersion}")
     api("io.micronaut:micronaut-jackson-databind")
+    api mn.micronaut.inject
 
-    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
+    testImplementation mn.micronaut.inject.groovy
+    testImplementation mn.micronaut.inject.java
+    testImplementation mn.micronaut.test.spock
+    testImplementation mn.spock
+}
+
+test {
+    testLogging {
+        showStandardStreams = true
+        exceptionFormat = 'full'
+    }
 }
 
 micronautBuild {

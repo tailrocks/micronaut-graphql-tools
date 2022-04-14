@@ -4,11 +4,13 @@ schema {
 }
 
 type Query {
+  hello: String
+
+  userSignedIn: User
+
   catalogSectionTopList: CatalogSectionListPayload!
 
   catalogSectionList(max: Int, options: CatalogSectionListOptions): CatalogSectionListPayload!
-
-  userSignedIn: User
 
   unionTypeTest(securityError: Boolean!): PayloadError
 

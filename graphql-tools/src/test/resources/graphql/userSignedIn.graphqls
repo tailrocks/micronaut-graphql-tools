@@ -1,0 +1,16 @@
+schema {
+  query: Query
+}
+
+type Query {
+  userSignedIn: User
+}
+
+type User {
+  email: String!
+  paymentMethodList: [PaymentMethod!]!
+}
+
+type PaymentMethod {
+  number: String!
+}
