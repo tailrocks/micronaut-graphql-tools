@@ -18,12 +18,14 @@ jobs:
           - azure
           - cache
           - cassandra
+          - chatbots
           - coherence
           - core
           - couchbase
           - data
           - discovery-client
           - elasticsearch
+          - email
           - flyway
           - gcp
           - gradle-plugin
@@ -41,6 +43,7 @@ jobs:
           - kubernetes
           - liquibase
           - micrometer
+          - microstream
           - mongodb
           - mqtt
           - multitenancy
@@ -64,6 +67,8 @@ jobs:
           - spring
           - sql
           - test
+          - toml
+          - tracing
           - views
     steps:
       - name: Checkout source
@@ -88,6 +93,10 @@ jobs:
         run: |
           mkdir -p target/.github/workflows/
           rsync --verbose --verbose  --archive -F "source/.github/workflows/" "target/.github/workflows/"
+          rm -f target/.github/dependabot.yml
+          rm -f target/.github/stale.yml
+          rm -f target/.github/release-drafter.yml
+          rm -f target/workflows/dependency-update.yml
       - name: Copy files from source to target branches
         run: |
           while IFS= read -r file; do
@@ -98,7 +107,7 @@ jobs:
         env:
           FILES: |-
             .gitignore
-            .github/dependabot.yml
+            .github/renovate.json
             .github/ISSUE_TEMPLATE/bug_report.yaml
             .github/ISSUE_TEMPLATE/config.yml
             .github/ISSUE_TEMPLATE/new_feature.yaml
@@ -113,7 +122,7 @@ jobs:
             config/checkstyle/checkstyle.xml
             config/checkstyle/suppressions.xml
       - name: Create Pull Request - ${{ steps.branch.outputs.branch }}
-        uses: peter-evans/create-pull-request@v4.0.2
+        uses: peter-evans/create-pull-request@v4
         with:
           path: target
           token: ${{ secrets.GH_TOKEN }}
@@ -127,11 +136,8 @@ jobs:
           base: ${{ steps.branch.outputs.branch }}
           add-paths: |
             .gitignore
-            .github/dependabot.yml
-            .github/ISSUE_TEMPLATE/bug_report.yaml
-            .github/ISSUE_TEMPLATE/config.yml
-            .github/ISSUE_TEMPLATE/new_feature.yaml
-            .github/ISSUE_TEMPLATE/other.yaml
+            .github/*
+            .github/ISSUE_TEMPLATE/*
             .github/workflows/*
             gradle/*
             gradlew*
