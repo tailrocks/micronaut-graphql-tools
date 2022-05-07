@@ -1,3 +1,8 @@
 [versions]
-# empty
-kotlin = '1.6.0'
+graphql-java = "16.2"
+
+[libraries]
+# Micronaut
+micronaut-jackson-databind = { module = "io.micronaut:micronaut-jackson-databind" }
+
+graphql-java = { module = "com.graphql-java:graphql-java", version.ref = "graphql-java" }

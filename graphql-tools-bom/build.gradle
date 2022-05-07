@@ -4,6 +4,6 @@ plugins {
 
 dependencies {
     constraints {
-        api("com.graphql-java:graphql-java:$graphqlJavaVersion")
+        api(libs.graphql.java)
     }
 }
