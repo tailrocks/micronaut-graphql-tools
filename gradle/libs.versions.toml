@@ -1,5 +1,5 @@
 [versions]
-graphql-java = "16.2"
+graphql-java = "230521-nf-execution"
 
 [libraries]
 # Micronaut
