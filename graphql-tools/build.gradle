@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(libs.graphql.java)
+    api(libs.managed.graphql.java)
     api(libs.micronaut.jackson.databind)
     api(mn.micronaut.inject)
 
