@@ -12,6 +12,9 @@ import jakarta.inject.Singleton
 class CatalogSectionTopListSpec extends AbstractTest {
 
     void "test passing arguments to graphql type fields"() {
+        given:
+            startContext()
+
         when:
             def executionResult = applicationContext.getBean(GraphQL.class).execute("""
 { 

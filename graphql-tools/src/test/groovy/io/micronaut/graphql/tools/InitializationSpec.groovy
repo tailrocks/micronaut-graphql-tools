@@ -3,7 +3,7 @@ package io.micronaut.graphql.tools
 import graphql.GraphQL
 import io.micronaut.context.exceptions.DependencyInjectionException
 
-class ApplicationSpec extends AbstractTest {
+class InitializationSpec extends AbstractTest {
 
     void "test initialization"() {
         given:
