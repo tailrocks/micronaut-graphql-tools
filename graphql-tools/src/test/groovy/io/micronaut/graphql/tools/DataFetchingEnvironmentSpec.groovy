@@ -14,6 +14,7 @@ import io.micronaut.core.io.ResourceResolver
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.test.annotation.MockBean
 import jakarta.inject.Singleton
 import org.intellij.lang.annotations.Language
 
