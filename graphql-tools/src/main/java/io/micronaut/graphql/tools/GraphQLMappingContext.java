@@ -53,6 +53,8 @@ import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
+import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.jackson.modules.BeanIntrospectionModule;
@@ -146,8 +148,8 @@ public class GraphQLMappingContext {
             registerObjectType(entry.getKey(), beanIntrospection);
         }
 
-        SchemaDefinition schemaDefinition = typeRegistry.schemaDefinition().orElseThrow(() ->
-                new RuntimeException("TypeDefinitionRegistry with null SchemaDefinition"));
+        SchemaDefinition schemaDefinition = typeRegistry.schemaDefinition()
+                .orElseThrow(SchemaDefinitionEmptyException::new);
 
         for (OperationTypeDefinition operationTypeDefinition : schemaDefinition.getOperationTypeDefinitions()) {
             processOperationTypeDefinition(operationTypeDefinition);

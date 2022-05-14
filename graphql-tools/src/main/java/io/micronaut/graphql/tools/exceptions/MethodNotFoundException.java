@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools;
+package io.micronaut.graphql.tools.exceptions;
 
 import static java.text.MessageFormat.format;
 
