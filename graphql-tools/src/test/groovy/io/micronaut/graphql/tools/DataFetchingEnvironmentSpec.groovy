@@ -18,7 +18,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 
     void "test DataFetchingEnvironment passed to Query's field"() {
         given:
-            startContext()
+            startContext(SCHEMA)
 
         when:
             def executionResult = executeQuery("""
@@ -37,7 +37,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 
     void "test DataFetchingEnvironment passed to Resolver's field"() {
         given:
-            startContext()
+            startContext(SCHEMA)
 
         when:
             def executionResult = executeQuery("""
@@ -58,15 +58,8 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             executionResult.data.userSignedIn.paymentMethodList[1].number == '456'
     }
 
-    @Requires(property = "spec.name", value = "DataFetchingEnvironmentSpec")
-    @Factory
-    static class TypeDefinitionRegistryFactory {
-
-        @Bean
-        @Singleton
-        TypeDefinitionRegistry typeDefinitionRegistry() {
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static String SCHEMA = """
 schema {
   query: Query
 }
@@ -84,14 +77,6 @@ type PaymentMethod {
   number: String!
 }
 """
-
-            TypeDefinitionRegistry typeRegistry = new TypeDefinitionRegistry()
-            typeRegistry.merge(new SchemaParser().parse(schema))
-
-            return typeRegistry
-        }
-
-    }
 
     @Requires(property = 'spec.name', value = 'DataFetchingEnvironmentSpec')
     @GraphQLRootResolver
