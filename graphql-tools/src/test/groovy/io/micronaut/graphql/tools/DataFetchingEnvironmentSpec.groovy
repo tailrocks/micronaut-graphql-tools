@@ -1,25 +1,18 @@
 package io.micronaut.graphql.tools
 
-import graphql.GraphQL
 import graphql.schema.DataFetchingEnvironment
 import graphql.schema.idl.SchemaParser
 import graphql.schema.idl.TypeDefinitionRegistry
-import groovy.transform.CompileStatic
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Requires
-import io.micronaut.core.annotation.NonNull
-import io.micronaut.core.annotation.Nullable
-import io.micronaut.core.io.ResourceResolver
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
-import io.micronaut.test.annotation.MockBean
 import jakarta.inject.Singleton
 import org.intellij.lang.annotations.Language
 
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
+import static java.util.Arrays.asList
 
 class DataFetchingEnvironmentSpec extends AbstractTest {
 
@@ -28,7 +21,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             startContext()
 
         when:
-            def executionResult = applicationContext.getBean(GraphQL.class).execute("""
+            def executionResult = executeQuery("""
 { 
     userSignedIn {
         email
@@ -39,7 +32,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
         then:
             executionResult.errors.isEmpty()
             executionResult.dataPresent
-            executionResult.data.userSignedIn.email == "me@test.com"
+            executionResult.data.userSignedIn.email == 'me@test.com'
     }
 
     void "test DataFetchingEnvironment passed to Resolver's field"() {
@@ -47,7 +40,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             startContext()
 
         when:
-            def executionResult = applicationContext.getBean(GraphQL.class).execute("""
+            def executionResult = executeQuery("""
 { 
     userSignedIn {
         paymentMethodList {
@@ -61,8 +54,8 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             executionResult.errors.isEmpty()
             executionResult.dataPresent
             executionResult.data.userSignedIn.paymentMethodList.size() == 2
-            executionResult.data.userSignedIn.paymentMethodList[0].number == "123"
-            executionResult.data.userSignedIn.paymentMethodList[1].number == "456"
+            executionResult.data.userSignedIn.paymentMethodList[0].number == '123'
+            executionResult.data.userSignedIn.paymentMethodList[1].number == '456'
     }
 
     @Requires(property = "spec.name", value = "DataFetchingEnvironmentSpec")
@@ -100,18 +93,18 @@ type PaymentMethod {
 
     }
 
-    @Requires(property = "spec.name", value = "DataFetchingEnvironmentSpec")
+    @Requires(property = 'spec.name', value = 'DataFetchingEnvironmentSpec')
     @GraphQLRootResolver
     static class Query {
         User userSignedIn(DataFetchingEnvironment env) {
             if (env == null) {
                 throw new NullPointerException()
             }
-            return new User("me@test.com")
+            return new User('me@test.com')
         }
     }
 
-    @Requires(property = "spec.name", value = "DataFetchingEnvironmentSpec")
+    @Requires(property = 'spec.name', value = 'DataFetchingEnvironmentSpec')
     @GraphQLTypeResolver(User.class)
     static class UserResolver {
         List<PaymentMethod> paymentMethodList(User user, DataFetchingEnvironment env) {
@@ -121,9 +114,9 @@ type PaymentMethod {
             if (env == null) {
                 throw new NullPointerException()
             }
-            return Arrays.asList(
-                    new PaymentMethod("123"),
-                    new PaymentMethod("456")
+            return asList(
+                    new PaymentMethod('123'),
+                    new PaymentMethod('456')
             )
         }
     }

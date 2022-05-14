@@ -266,7 +266,7 @@ public class GraphQLMappingContext {
         BeanDefinitionAndMethod beanDefinitionAndMethod = findExecutableMethodByFieldName(fieldDefinition.getName());
 
         if (beanDefinitionAndMethod == null) {
-            throw new RuntimeException("The method `" + fieldDefinition.getName() + "` not found in any GraphQL query resolvers");
+            throw new MethodNotFoundException(fieldDefinition.getName());
         }
 
         checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, null);
