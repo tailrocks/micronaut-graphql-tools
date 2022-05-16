@@ -21,7 +21,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             startContext(SCHEMA)
 
         when:
-            def executionResult = executeQuery("""
+            def result = executeQuery("""
 { 
     userSignedIn {
         email
@@ -30,9 +30,9 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 """)
 
         then:
-            executionResult.errors.isEmpty()
-            executionResult.dataPresent
-            executionResult.data.userSignedIn.email == 'me@test.com'
+            result.errors.isEmpty()
+            result.dataPresent
+            result.data.userSignedIn.email == 'me@test.com'
     }
 
     void "test DataFetchingEnvironment passed to Resolver's field"() {
@@ -40,7 +40,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             startContext(SCHEMA)
 
         when:
-            def executionResult = executeQuery("""
+            def result = executeQuery("""
 { 
     userSignedIn {
         paymentMethodList {
@@ -51,11 +51,11 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 """)
 
         then:
-            executionResult.errors.isEmpty()
-            executionResult.dataPresent
-            executionResult.data.userSignedIn.paymentMethodList.size() == 2
-            executionResult.data.userSignedIn.paymentMethodList[0].number == '123'
-            executionResult.data.userSignedIn.paymentMethodList[1].number == '456'
+            result.errors.isEmpty()
+            result.dataPresent
+            result.data.userSignedIn.paymentMethodList.size() == 2
+            result.data.userSignedIn.paymentMethodList[0].number == '123'
+            result.data.userSignedIn.paymentMethodList[1].number == '456'
     }
 
     @Language("GraphQL")

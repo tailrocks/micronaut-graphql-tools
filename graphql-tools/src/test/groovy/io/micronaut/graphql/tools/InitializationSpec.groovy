@@ -7,7 +7,7 @@ class InitializationSpec extends AbstractTest {
 
     void "test initialization"() {
         given:
-            startContext()
+            startContext(null)
 
         when:
             applicationContext.getBean(GraphQL.class)
