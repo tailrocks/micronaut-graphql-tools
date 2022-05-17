@@ -291,7 +291,7 @@ type Query {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectArgumentCountException
             e.cause.message == """The method `${SchemaVerificationSpec5.name}\$${Query.simpleName}.username()` has too few arguments, provided: 0, required 1 arg(s): (ID uid)
-  GraphQL type: String
+  GraphQL type: Query
   GraphQL field: username
   Mapped class: ${SchemaVerificationSpec5.name}\$${Query.simpleName}
   Mapped method: username()"""
