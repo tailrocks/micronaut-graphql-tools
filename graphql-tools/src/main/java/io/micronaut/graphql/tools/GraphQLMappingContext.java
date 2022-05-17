@@ -54,6 +54,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException;
+import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException;
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException;
@@ -262,7 +263,7 @@ public class GraphQLMappingContext {
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), (typeWiring) -> {
             for (FieldDefinition fieldDefinition : typeDefinition.getFieldDefinitions()) {
-                processRootFieldDefinition(fieldDefinition, typeWiring);
+                processRootFieldDefinition(fieldDefinition, typeDefinition, typeWiring);
             }
 
             return typeWiring;
@@ -270,6 +271,7 @@ public class GraphQLMappingContext {
     }
 
     private void processRootFieldDefinition(FieldDefinition fieldDefinition,
+                                            ObjectTypeDefinition objectTypeDefinition,
                                             TypeRuntimeWiring.Builder runtimeWiringBuilder) {
         BeanDefinitionAndMethod beanDefinitionAndMethod = findExecutableMethodByFieldName(fieldDefinition.getName());
 
@@ -277,7 +279,7 @@ public class GraphQLMappingContext {
             throw new MethodNotFoundException(fieldDefinition.getName());
         }
 
-        checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, null);
+        checkInputValueDefinitions(fieldDefinition, objectTypeDefinition, beanDefinitionAndMethod.executableMethod);
 
         List<ArgumentDetails> argumentDetails = processInputArguments(
                 fieldDefinition, beanDefinitionAndMethod.executableMethod, null
@@ -520,19 +522,25 @@ public class GraphQLMappingContext {
         }
     }
 
-    private void checkInputValueDefinitions(FieldDefinition fieldDefinition, Executable executable,
-                                            @Nullable String sourceType) {
+    private void checkInputValueDefinitions(FieldDefinition fieldDefinition,
+                                            ObjectTypeDefinition objectTypeDefinition,
+                                            Executable executable) {
         if (fieldDefinition.getInputValueDefinitions().size() == 0 && executable.getArguments().length == 0) {
             return;
         }
 
-        int requiredArgs = fieldDefinition.getInputValueDefinitions().size() + (sourceType != null ? 1 : 0);
+        String sourceType = objectTypeDefinition.getName();
+
+        int requiredArgs = fieldDefinition.getInputValueDefinitions().size();
 
         ArrayList<String> methodArgs = new ArrayList<>();
 
+        // TODO still need???
+        /*
         if (sourceType != null) {
             methodArgs.add(sourceType + " " + sourceType.substring(0, 1).toLowerCase() + sourceType.substring(1));
         }
+         */
 
         methodArgs.addAll(
                 fieldDefinition.getInputValueDefinitions().stream()
@@ -540,11 +548,20 @@ public class GraphQLMappingContext {
                         .collect(Collectors.toList())
         );
 
-        String methodArgsString = methodArgs.stream().collect(Collectors.joining(", "));
+        String methodArgsString = methodArgs.isEmpty() ? null : "(" + methodArgs.stream()
+                .collect(Collectors.joining(", ")) + ")";
 
         if (requiredArgs > executable.getArguments().length) {
-            // TODO custom exception
-            throw new RuntimeException("Too less arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " arg(s): " + methodArgsString + " (excluded DataFetchingEnvironment)");
+            throw new IncorrectArgumentCountException(
+                    true,
+                    objectTypeDefinition.getName(),
+                    fieldDefinition.getName(),
+                    executable.getDeclaringType(),
+                    getExecutableMethodFullName(executable),
+                    executable.getArguments().length,
+                    requiredArgs,
+                    methodArgsString
+            );
         }
 
         int currentArgs = (int) Arrays.stream(executable.getArguments())
@@ -552,25 +569,45 @@ public class GraphQLMappingContext {
                 .count();
 
         if (currentArgs > requiredArgs) {
-            // TODO custom exception
-            throw new RuntimeException("Too much arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " arg(s): " + methodArgsString + " (excluded DataFetchingEnvironment)");
+            throw new IncorrectArgumentCountException(
+                    false,
+                    objectTypeDefinition.getName(),
+                    fieldDefinition.getName(),
+                    executable.getDeclaringType(),
+                    getExecutableMethodFullName(executable),
+                    currentArgs,
+                    requiredArgs,
+                    methodArgsString
+            );
         }
 
         if (requiredArgs > currentArgs) {
-            // TODO custom exception
-            throw new RuntimeException("Too less arguments in the method " + getExecutableMethodFullName(executable) + ", required " + requiredArgs + " arg(s): " + methodArgsString + " (excluded DataFetchingEnvironment)");
+            throw new IncorrectArgumentCountException(
+                    true,
+                    objectTypeDefinition.getName(),
+                    fieldDefinition.getName(),
+                    executable.getDeclaringType(),
+                    getExecutableMethodFullName(executable),
+                    currentArgs,
+                    requiredArgs,
+                    methodArgsString
+            );
         }
     }
 
     private String getExecutableMethodFullName(Executable executable) {
         if (executable instanceof ExecutableMethod) {
             ExecutableMethod executableMethod = (ExecutableMethod) executable;
-            return "`" + executableMethod.getMethodName() + "` (" + executableMethod.getDeclaringType() + ")";
+
+            String args = Arrays.stream(executableMethod.getArguments())
+                    .map(arg -> arg.getTypeString(false) + " " + arg.getName())
+                    .collect(Collectors.joining(","));
+            return executableMethod.getName() + "(" + args + ")";
         } else if (executable instanceof BeanMethod) {
             BeanMethod beanMethod = (BeanMethod) executable;
-            return "`" + beanMethod.getName() + "` (" + beanMethod.getDeclaringBean().getBeanType() + ")";
+            return beanMethod.getName();
         } else {
-            throw new UnsupportedOperationException("Unknown executable class: " + executable.getClass());
+            throw new UnsupportedOperationException("Unsupported executable class: " + executable.getClass());
         }
     }
 
@@ -606,7 +643,7 @@ public class GraphQLMappingContext {
                     // TODO validate parameters for executable method
 
                     // count with source argument
-                    checkInputValueDefinitions(fieldDefinition, beanDefinitionAndMethod.executableMethod, objectTypeDefinition.getName());
+                    checkInputValueDefinitions(fieldDefinition, objectTypeDefinition, beanDefinitionAndMethod.executableMethod);
 
                     List<ArgumentDetails> argumentDetails = processInputArguments(
                             fieldDefinition, beanDefinitionAndMethod.executableMethod, interfaceClass
@@ -631,7 +668,7 @@ public class GraphQLMappingContext {
                 } else if (!beanMethods.isEmpty()) {
                     BeanMethod beanMethod = beanMethods.get(0);
 
-                    checkInputValueDefinitions(fieldDefinition, beanMethod, null);
+                    checkInputValueDefinitions(fieldDefinition, objectTypeDefinition, beanMethod);
 
                     List<ArgumentDetails> argumentDetails = processInputArguments(
                             fieldDefinition, beanMethod, null

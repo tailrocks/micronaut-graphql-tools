@@ -2,44 +2,46 @@ package io.micronaut.graphql.tools.exceptions;
 
 public abstract class AbstractMappingException extends RuntimeException {
 
-    private final String graphQlTypeName;
-    private final String graphQlFieldName;
+    private final String graphQlType;
+    private final String graphQlField;
     private final Class mappedClass;
-    private final String mappedMethodName;
+    private final String mappedMethod;
     private final Class providedClass;
 
     public AbstractMappingException(
             String message,
-            String graphQlTypeName,
-            String graphQlFieldName,
+            String graphQlType,
+            String graphQlField,
             Class mappedClass,
-            String mappedMethodName,
+            String mappedMethod,
             Class providedClass
     ) {
         super(message);
-        this.graphQlTypeName = graphQlTypeName;
-        this.graphQlFieldName = graphQlFieldName;
+        this.graphQlType = graphQlType;
+        this.graphQlField = graphQlField;
         this.mappedClass = mappedClass;
-        this.mappedMethodName = mappedMethodName;
+        this.mappedMethod = mappedMethod;
+        // TODO move away from here
         this.providedClass = providedClass;
     }
 
-    public String getGraphQlFieldName() {
-        return graphQlFieldName;
+    public String getGraphQlField() {
+        return graphQlField;
     }
 
-    public String getGraphQlTypeName() {
-        return graphQlTypeName;
+    public String getGraphQlType() {
+        return graphQlType;
     }
 
     public Class getMappedClass() {
         return mappedClass;
     }
 
-    public String getMappedMethodName() {
-        return mappedMethodName;
+    public String getMappedMethod() {
+        return mappedMethod;
     }
 
+    // TODO move away from here
     public Class getProvidedClass() {
         return providedClass;
     }
@@ -48,11 +50,15 @@ public abstract class AbstractMappingException extends RuntimeException {
     public String getMessage() {
         StringBuilder builder = new StringBuilder(super.getMessage());
 
-        builder.append("\n  GraphQL type: ").append(graphQlTypeName);
-        builder.append("\n  GraphQL field: ").append(graphQlFieldName);
+        builder.append("\n  GraphQL type: ").append(graphQlType);
+        builder.append("\n  GraphQL field: ").append(graphQlField);
         builder.append("\n  Mapped class: ").append(mappedClass.getName());
-        builder.append("\n  Mapped method name: ").append(mappedMethodName);
-        builder.append("\n  Provided class: ").append(providedClass.getName());
+        builder.append("\n  Mapped method: ").append(mappedMethod);
+
+        // TODO move away from here
+        if (providedClass != null) {
+            builder.append("\n  Provided class: ").append(providedClass.getName());
+        }
 
         return builder.toString();
     }
