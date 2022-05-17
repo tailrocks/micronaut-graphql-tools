@@ -35,12 +35,11 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof SchemaDefinitionEmptyException
-            e.cause.message == 'Schema definition is not set. Make sure your GraphQL schema contains such ' +
-                    'definition:\n' +
-                    'schema {\n' +
-                    '  query: Query\n' +
-                    '  mutation: Mutation\n' +
-                    '}'
+            e.cause.message == """Schema definition is not set. Make sure your GraphQL schema contains such definition:
+  schema {
+    query: Query
+    mutation: Mutation
+  }"""
     }
 
     void "test Query method not found"() {
@@ -101,7 +100,7 @@ type Mutation {
             e.cause.methodName == 'hello'
     }
 
-    void "test mapping built-in GraphQL type to wrong class"() {
+    void "test mapping built-in GraphQL type to a wrong class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -149,7 +148,7 @@ type Query {
         }
     }
 
-    void "test mapping custom GraphQL type to wrong class"() {
+    void "test mapping custom GraphQL type to a wrong class"() {
         given:
             @Language("GraphQL")
             String schema = """
