@@ -1,16 +1,18 @@
 package io.micronaut.graphql.tools
 
-
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
+import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException
 import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException
-import io.micronaut.graphql.tools.exceptions.IncorrectMappingException
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException
 import org.intellij.lang.annotations.Language
 
 class SchemaVerificationSpec extends AbstractTest {
+
+    static final String SCHEMA_CONFIG_1 = "SchemaVerificationSpec#1"
+    static final String SCHEMA_CONFIG_2 = "SchemaVerificationSpec#2"
 
     void "test schema definition"() {
         given:
@@ -21,7 +23,7 @@ type Query {
 }
 """
 
-            startContext(schema)
+            startContext(schema, null)
 
         when:
             executeQuery("""
@@ -54,7 +56,7 @@ type Query {
 }
 """
 
-            startContext(schema)
+            startContext(schema, null)
 
         when:
             executeQuery("""
@@ -83,7 +85,7 @@ type Mutation {
 }
 """
 
-            startContext(schema)
+            startContext(schema, null)
 
         when:
             executeQuery("""
@@ -112,7 +114,7 @@ type Query {
 }
 """
 
-            startContext(schema, ['spec.name': 'SchemaVerificationSpec#1'])
+            startContext(schema, SCHEMA_CONFIG_1)
 
         when:
             def result = executeQuery("""
@@ -124,13 +126,22 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectBuiltInScalarMappingException
-            e.cause.message == 'Type String is mapped to incorrect class class java.lang.Integer, supported classes: java.lang.String'
+            e.cause.message == """The type `String` is mapped to incorrect class java.lang.Integer, supported classes: java.lang.String
+  GraphQL type: String
+  GraphQL field: hello
+  Mapped class: ${SchemaVerificationSpec.name}\$${Query1.simpleName}
+  Mapped method name: hello
+  Provided class: java.lang.Integer
+  Supported classes: java.lang.String"""
             e.cause.graphQlTypeName == 'String'
+            e.cause.graphQlFieldName == 'hello'
+            e.cause.mappedClass == Query1
+            e.cause.mappedMethodName == 'hello'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }
 
-    @Requires(property = 'spec.name', value = 'SchemaVerificationSpec#1')
+    @Requires(property = 'spec.name', value = SCHEMA_CONFIG_1)
     @GraphQLRootResolver
     static class Query1 {
         Integer hello() {
@@ -155,7 +166,7 @@ type User {
 }
 """
 
-            startContext(schema, ['spec.name': 'SchemaVerificationSpec#2'])
+            startContext(schema, SCHEMA_CONFIG_2)
 
         when:
             def result = executeQuery("""
@@ -166,23 +177,23 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof IncorrectMappingException
+            e.cause instanceof CustomTypeMappedToBuiltInClassException
             e.cause.message == """The field `currentUser` is mapped to built-in class class java.lang.Integer, but required custom Java class
   GraphQL type: User
   GraphQL field: currentUser
-  Mapped class: io.micronaut.graphql.tools.SchemaVerificationSpec\$Query2
+  Mapped class: ${SchemaVerificationSpec.name}\$${Query3.simpleName}
   Mapped method name: currentUser
   Provided class: java.lang.Integer"""
             e.cause.graphQlTypeName == 'User'
             e.cause.graphQlFieldName == 'currentUser'
-            e.cause.mappedClass == Query2
+            e.cause.mappedClass == Query3
             e.cause.mappedMethodName == 'currentUser'
             e.cause.providedClass == Integer
     }
 
-    @Requires(property = 'spec.name', value = 'SchemaVerificationSpec#2')
+    @Requires(property = 'spec.name', value = SCHEMA_CONFIG_2)
     @GraphQLRootResolver
-    static class Query2 {
+    static class Query3 {
         Integer currentUser() {
             return 0
         }

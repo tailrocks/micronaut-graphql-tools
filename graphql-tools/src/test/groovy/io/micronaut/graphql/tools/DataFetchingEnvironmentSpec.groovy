@@ -16,9 +16,11 @@ import static java.util.Arrays.asList
 
 class DataFetchingEnvironmentSpec extends AbstractTest {
 
+    static final String SCHEMA_CONFIG = "DataFetchingEnvironmentSpec#1"
+
     void "test DataFetchingEnvironment passed to Query's field"() {
         given:
-            startContext(SCHEMA)
+            startContext(SCHEMA, SCHEMA_CONFIG)
 
         when:
             def result = executeQuery("""
@@ -37,7 +39,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 
     void "test DataFetchingEnvironment passed to Resolver's field"() {
         given:
-            startContext(SCHEMA)
+            startContext(SCHEMA, SCHEMA_CONFIG)
 
         when:
             def result = executeQuery("""
@@ -78,7 +80,7 @@ type PaymentMethod {
 }
 """
 
-    @Requires(property = 'spec.name', value = 'DataFetchingEnvironmentSpec')
+    @Requires(property = 'spec.name', value = SCHEMA_CONFIG)
     @GraphQLRootResolver
     static class Query {
         User userSignedIn(DataFetchingEnvironment env) {
@@ -89,7 +91,7 @@ type PaymentMethod {
         }
     }
 
-    @Requires(property = 'spec.name', value = 'DataFetchingEnvironmentSpec')
+    @Requires(property = 'spec.name', value = SCHEMA_CONFIG)
     @GraphQLTypeResolver(User.class)
     static class UserResolver {
         List<PaymentMethod> paymentMethodList(User user, DataFetchingEnvironment env) {

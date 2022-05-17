@@ -53,8 +53,8 @@ import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException;
 import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException;
-import io.micronaut.graphql.tools.exceptions.IncorrectMappingException;
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException;
 import io.micronaut.inject.BeanDefinition;
@@ -374,7 +374,14 @@ public class GraphQLMappingContext {
         }
 
         for (int i = 0; i < inputs.size(); i++) {
-            Class inputClass = validateAndRegister(inputs.get(i), argumentClasses.get(i), executable, i + 1);
+            InputValueDefinition inputValueDefinition = inputs.get(i);
+            Class returnType = argumentClasses.get(i);
+            int position = i + 1;
+
+            TypeName typeName = (TypeName) skipNonNullType(inputValueDefinition.getType());
+
+            // FIXME
+            Class inputClass = processInputTypeDefinition(inputValueDefinition, typeName, returnType, null, null);
 
             result.add(new ArgumentDetails(inputs.get(i).getName(), inputClass));
         }
@@ -411,19 +418,11 @@ public class GraphQLMappingContext {
     }
 
     @Nullable
-    private Class validateAndRegister(InputValueDefinition inputValueDefinition, Class clazz,
-                                      Executable<Object, Object> executable,
-                                      int position) {
-        TypeName typeName = (TypeName) skipNonNullType(inputValueDefinition.getType());
-
-        // TODO custom exception
-        return processInputTypeDefinition(typeName, clazz, (incorrectBuiltInScalarMappingException) ->
-                incorrectBuiltInScalarMappingException.withMethodName(getExecutableMethodFullName(executable)).withPosition(position));
-    }
-
-    @Nullable
-    private Class processInputTypeDefinition(TypeName typeName, Class clazz,
-                                             Consumer<IncorrectBuiltInScalarMappingException> exceptionConsumer) {
+    private Class processInputTypeDefinition(InputValueDefinition inputValueDefinition,
+                                             TypeName typeName,
+                                             Class clazz,
+                                             Class mappedClass,
+                                             String mappedMethodName) {
         TypeDefinition typeDefinition = types.get(typeName.getName());
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
@@ -435,7 +434,18 @@ public class GraphQLMappingContext {
 
             return null;
         } else if (isBuiltInType(typeName)) {
-            validateBuiltInType(typeName.getName(), clazz, exceptionConsumer);
+            Set<Class> supportedClasses = SYSTEM_TYPES.get(typeName);
+
+            if (!supportedClasses.contains(clazz)) {
+                throw new IncorrectBuiltInScalarMappingException(
+                        typeName.getName(),
+                        inputValueDefinition.getName(),
+                        mappedClass,
+                        mappedMethodName,
+                        clazz,
+                        supportedClasses
+                );
+            }
 
             return null;
         } else {
@@ -445,17 +455,7 @@ public class GraphQLMappingContext {
 
     private void validateBuiltInType(String graphQlTypeName, Class providedClass,
                                      @Nullable Consumer<IncorrectBuiltInScalarMappingException> exceptionConsumer) {
-        Set<Class> requiredClass = SYSTEM_TYPES.get(graphQlTypeName);
 
-        if (!requiredClass.contains(providedClass)) {
-            IncorrectBuiltInScalarMappingException exception = new IncorrectBuiltInScalarMappingException(
-                    graphQlTypeName, providedClass, requiredClass
-            );
-            if (exceptionConsumer != null) {
-                exceptionConsumer.accept(exception);
-            }
-            throw exception;
-        }
     }
 
     private void processEnumTypeDefinition(EnumTypeDefinition typeDefinition, Class targetClass) {
@@ -477,6 +477,8 @@ public class GraphQLMappingContext {
 
         if (registerBeanIntrospectionMapping(objectTypeDefinition.getName(), beanIntrospection)) {
             for (InputValueDefinition inputValueDefinition : objectTypeDefinition.getInputValueDefinitions()) {
+                // TODO Maybe can be moved to some method???
+
                 Optional<BeanProperty<Object, Object>> property = beanIntrospection.getProperty(inputValueDefinition.getName());
 
                 if (!property.isPresent()) {
@@ -498,7 +500,7 @@ public class GraphQLMappingContext {
                     //throw new UnsupportedOperationException();
                 } else if (fieldType instanceof TypeName) {
                     // TODO custom exception
-                    processInputTypeDefinition((TypeName) fieldType, returnType, (requiredClass) -> new RuntimeException("Invalid type in property `" + property.get().getName() + "` (" + beanIntrospection.getBeanType() + "), required: " + requiredClass));
+                    processInputTypeDefinition(inputValueDefinition, (TypeName) fieldType, returnType, null, null);
                 } else {
                     throw new RuntimeException("Unknown field type: " + fieldType);
                 }
@@ -726,14 +728,23 @@ public class GraphQLMappingContext {
                 TypeName typeName = (TypeName) graphQlType;
 
                 if (isBuiltInType(typeName)) {
-                    validateBuiltInType(getTypeName(graphQlType), returnType, exceptionConsumer -> {
-                        exceptionConsumer.withMethodName(fieldDefinition.getName());
-                    });
+                    Set<Class> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType));
+
+                    if (!supportedClasses.contains(returnType)) {
+                        throw new IncorrectBuiltInScalarMappingException(
+                                typeName.getName(),
+                                fieldDefinition.getName(),
+                                mappedClass,
+                                mappedMethodName,
+                                returnType,
+                                supportedClasses
+                        );
+                    }
                 } else if (returnType.isEnum()) {
                     registerEnumMapping(getTypeName(graphQlType), returnType);
                 } else {
                     if (isBuiltInType(returnType)) {
-                        throw new IncorrectMappingException(
+                        throw new CustomTypeMappedToBuiltInClassException(
                                 typeName.getName(),
                                 fieldDefinition.getName(),
                                 mappedClass,

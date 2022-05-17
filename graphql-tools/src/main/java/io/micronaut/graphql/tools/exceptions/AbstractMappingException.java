@@ -1,6 +1,6 @@
 package io.micronaut.graphql.tools.exceptions;
 
-public class IncorrectMappingException extends RuntimeException {
+public abstract class AbstractMappingException extends RuntimeException {
 
     private final String graphQlTypeName;
     private final String graphQlFieldName;
@@ -8,18 +8,15 @@ public class IncorrectMappingException extends RuntimeException {
     private final String mappedMethodName;
     private final Class providedClass;
 
-    public IncorrectMappingException(
+    public AbstractMappingException(
+            String message,
             String graphQlTypeName,
             String graphQlFieldName,
             Class mappedClass,
             String mappedMethodName,
             Class providedClass
     ) {
-        super(String.format(
-                "The field `%s` is mapped to built-in class %s, but required custom Java class",
-                graphQlFieldName,
-                providedClass
-        ));
+        super(message);
         this.graphQlTypeName = graphQlTypeName;
         this.graphQlFieldName = graphQlFieldName;
         this.mappedClass = mappedClass;

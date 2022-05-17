@@ -13,10 +13,10 @@ abstract class AbstractTest extends Specification {
 
     protected ApplicationContext applicationContext
 
-    protected void startContext(@Nullable String graphQlSchema, Map additionalConfig = [:]) {
+    protected void startContext(@Nullable String graphQlSchema, @Nullable String specName, Map additionalConfig = [:]) {
         def ctxBuilder = ApplicationContext
                 .builder(
-                        ["spec.name": getClass().simpleName] << additionalConfig,
+                        ["spec.name": specName ?: getClass().simpleName] << additionalConfig,
                         "test"
                 )
 
