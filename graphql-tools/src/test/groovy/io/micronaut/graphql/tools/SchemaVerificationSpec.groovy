@@ -1,5 +1,6 @@
 package io.micronaut.graphql.tools
 
+import graphql.schema.DataFetchingEnvironment
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
@@ -120,7 +121,7 @@ type Query {
             startContext(schema, SPEC_NAME)
 
         when:
-            def result = executeQuery("""
+            executeQuery("""
 {
     hello
 }
@@ -129,14 +130,14 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectBuiltInScalarMappingException
-            e.cause.message == """The type `String` is mapped to incorrect class java.lang.Integer, supported classes: java.lang.String
-  GraphQL type: String
+            e.cause.message == """The field is mapped to the incorrect class.
+  GraphQL type: Query
   GraphQL field: hello
   Mapped class: ${SchemaVerificationSpec2.name}\$${Query.simpleName}
   Mapped method: hello
-  Provided class: java.lang.Integer
-  Supported classes: java.lang.String"""
-            e.cause.graphQlType == 'String'
+  Provided class: ${Integer.name}
+  Supported classes: ${String.name}"""
+            e.cause.graphQlType == 'Query'
             e.cause.graphQlField == 'hello'
             e.cause.mappedClass == Query
             e.cause.mappedMethod == 'hello'
@@ -187,13 +188,13 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof CustomTypeMappedToBuiltInClassException
-            e.cause.message == """The field `currentUser` is mapped to built-in class class java.lang.Integer, but required custom Java class
-  GraphQL type: User
+            e.cause.message == """The field is mapped to the built-in class, but required custom Java class.
+  GraphQL type: Query
   GraphQL field: currentUser
   Mapped class: ${SchemaVerificationSpec3.name}\$${Query.simpleName}
   Mapped method: currentUser
   Provided class: java.lang.Integer"""
-            e.cause.graphQlType == 'User'
+            e.cause.graphQlType == 'Query'
             e.cause.graphQlField == 'currentUser'
             e.cause.mappedClass == Query
             e.cause.mappedMethod == 'currentUser'
@@ -212,12 +213,11 @@ type User {
 
 class SchemaVerificationSpec4 extends AbstractTest {
 
-    static final String SPEC_NAME = "SchemaVerificationSpec4"
+    static final String SPEC_NAME_1 = "SchemaVerificationSpec4_1"
+    static final String SPEC_NAME_2 = "SchemaVerificationSpec4_2"
 
-    void "test method in root resolver has one argument when GraphQL schema has zero"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA = """
 schema {
   query: Query
 }
@@ -227,35 +227,60 @@ type Query {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
+    void "test method in root resolver has one argument when GraphQL schema has zero"() {
         when:
-            def result = executeQuery("""
-{
-    username
-}
-""")
+            startContext(SCHEMA, SPEC_NAME_1)
+            executeQuery('{username}')
 
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectArgumentCountException
-            e.cause.message == """The method `${SchemaVerificationSpec4.name}\$${Query.simpleName}.username(java.lang.String uid)` has too many arguments, provided: 1, required 0 arg(s)
+            e.cause.message == """The method has too many arguments, provided: 1, required 0 arg(s).
   GraphQL type: Query
   GraphQL field: username
-  Mapped class: ${SchemaVerificationSpec4.name}\$${Query.simpleName}
+  Mapped class: ${SchemaVerificationSpec4.name}\$${Query1.simpleName}
   Mapped method: username(java.lang.String uid)"""
             e.cause.graphQlType == 'Query'
             e.cause.graphQlField == 'username'
-            e.cause.mappedClass == Query
+            e.cause.mappedClass == Query1
             e.cause.mappedMethod == 'username(java.lang.String uid)'
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME)
+    void "test method in root resolver has one argument (exclude DataFetchingEnvironment) when GraphQL schema has zero"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_2)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectArgumentCountException
+            e.cause.message == """The method has too many arguments, provided: 1, required 0 arg(s).
+  GraphQL type: Query
+  GraphQL field: username
+  Mapped class: ${SchemaVerificationSpec4.name}\$${Query2.simpleName}
+  Mapped method: username(java.lang.String uid,graphql.schema.DataFetchingEnvironment dfe)"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == 'username(java.lang.String uid,graphql.schema.DataFetchingEnvironment dfe)'
+            e.cause.providedCount == 1
+            e.cause.requiredCount == 0
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
     @GraphQLRootResolver
-    static class Query {
+    static class Query1 {
         String username(String uid) {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLRootResolver
+    static class Query2 {
+        String username(String uid, DataFetchingEnvironment dfe) {
             return null
         }
     }
@@ -263,12 +288,11 @@ type Query {
 
 class SchemaVerificationSpec5 extends AbstractTest {
 
-    static final String SPEC_NAME = "SchemaVerificationSpec5"
+    static final String SPEC_NAME_1 = "SchemaVerificationSpec5_1"
+    static final String SPEC_NAME_2 = "SchemaVerificationSpec5_2"
 
-    void "test method in root resolver has zero arguments when GraphQL schema has one"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA = """
 schema {
   query: Query
 }
@@ -278,35 +302,60 @@ type Query {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
+    void "test method in root resolver has zero arguments when GraphQL schema has one"() {
         when:
-            def result = executeQuery("""
-{
-    username
-}
-""")
+            startContext(SCHEMA, SPEC_NAME_1)
+            executeQuery('{username}')
 
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectArgumentCountException
-            e.cause.message == """The method `${SchemaVerificationSpec5.name}\$${Query.simpleName}.username()` has too few arguments, provided: 0, required 1 arg(s): (ID uid)
+            e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): (ID uid)
   GraphQL type: Query
   GraphQL field: username
-  Mapped class: ${SchemaVerificationSpec5.name}\$${Query.simpleName}
+  Mapped class: ${SchemaVerificationSpec5.name}\$${Query1.simpleName}
   Mapped method: username()"""
             e.cause.graphQlType == 'Query'
             e.cause.graphQlField == 'username'
-            e.cause.mappedClass == Query
+            e.cause.mappedClass == Query1
             e.cause.mappedMethod == 'username()'
             e.cause.providedCount == 0
             e.cause.requiredCount == 1
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME)
+    void "test method in root resolver has zero arguments (exclude DataFetchingEnvironment) when GraphQL schema has one"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_2)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectArgumentCountException
+            e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): (ID uid)
+  GraphQL type: Query
+  GraphQL field: username
+  Mapped class: ${SchemaVerificationSpec5.name}\$${Query2.simpleName}
+  Mapped method: username(graphql.schema.DataFetchingEnvironment dfe)"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == 'username(graphql.schema.DataFetchingEnvironment dfe)'
+            e.cause.providedCount == 0
+            e.cause.requiredCount == 1
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
     @GraphQLRootResolver
-    static class Query {
+    static class Query1 {
         String username() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLRootResolver
+    static class Query2 {
+        String username(DataFetchingEnvironment dfe) {
             return null
         }
     }
@@ -352,10 +401,10 @@ type ValidationError {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof CustomTypeMappedToBuiltInClassException
-            e.cause.message == """The field `currentUser` is mapped to built-in class class java.lang.Integer, but required custom Java class
+            e.cause.message == """The field is mapped to built-in class, but required custom Java class
   GraphQL type: User
   GraphQL field: currentUser
-  Mapped class: ${SchemaVerificationSpec.name}\$${Query5.simpleName}
+  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
   Mapped method name: currentUser
   Provided class: java.lang.Integer"""
             e.cause.graphQlType == 'User'

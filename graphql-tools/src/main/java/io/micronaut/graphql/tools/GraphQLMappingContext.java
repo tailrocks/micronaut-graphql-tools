@@ -305,6 +305,7 @@ public class GraphQLMappingContext {
 
                 processReturnType(
                         fieldDefinition,
+                        objectTypeDefinition,
                         fieldDefinition.getType(),
                         clazz,
                         beanDefinitionAndMethod.executableMethod.getDeclaringType(),
@@ -313,6 +314,7 @@ public class GraphQLMappingContext {
             } else {
                 processReturnType(
                         fieldDefinition,
+                        objectTypeDefinition,
                         fieldDefinition.getType(),
                         returnType.getType(),
                         beanDefinitionAndMethod.executableMethod.getDeclaringType(),
@@ -658,13 +660,13 @@ public class GraphQLMappingContext {
 
                     Argument argument = beanDefinitionAndMethod.executableMethod.getReturnType().asArgument();
 
-                    processReturnTypeForBeanProperty(fieldDefinition, argument);
+                    processReturnTypeForBeanProperty(fieldDefinition, objectTypeDefinition, argument);
                 } else if (beanProperty.isPresent()) {
                     Argument argument = beanProperty.get().asArgument();
 
                     checkInputValueDefinitions(fieldDefinition, beanProperty.get());
 
-                    processReturnTypeForBeanProperty(fieldDefinition, argument);
+                    processReturnTypeForBeanProperty(fieldDefinition, objectTypeDefinition, argument);
                 } else if (!beanMethods.isEmpty()) {
                     BeanMethod beanMethod = beanMethods.get(0);
 
@@ -683,7 +685,7 @@ public class GraphQLMappingContext {
 
                     Argument argument = beanMethod.getReturnType().asArgument();
 
-                    processReturnTypeForBeanProperty(fieldDefinition, argument);
+                    processReturnTypeForBeanProperty(fieldDefinition, objectTypeDefinition, argument);
                 }
             }
 
@@ -691,7 +693,9 @@ public class GraphQLMappingContext {
         });
     }
 
-    private void processReturnTypeForBeanProperty(FieldDefinition fieldDefinition, Argument argument) {
+    private void processReturnTypeForBeanProperty(FieldDefinition fieldDefinition,
+                                                  ObjectTypeDefinition objectTypeDefinition,
+                                                  Argument argument) {
         Argument unwrappedArgument = skipCompletionStage(argument);
 
         Type fieldType = skipNonNullType(fieldDefinition.getType());
@@ -709,6 +713,7 @@ public class GraphQLMappingContext {
 
             processReturnType(
                     fieldDefinition,
+                    objectTypeDefinition,
                     listFieldType,
                     listReturnType,
                     argument.getType(),
@@ -717,6 +722,7 @@ public class GraphQLMappingContext {
         } else {
             processReturnType(
                     fieldDefinition,
+                    objectTypeDefinition,
                     fieldType,
                     returnType,
                     argument.getType(),
@@ -752,6 +758,7 @@ public class GraphQLMappingContext {
 
     private void processReturnType(
             FieldDefinition fieldDefinition,
+            ObjectTypeDefinition objectTypeDefinition,
             Type graphQlType,
             Class returnType,
             Class mappedClass,
@@ -769,7 +776,7 @@ public class GraphQLMappingContext {
 
                     if (!supportedClasses.contains(returnType)) {
                         throw new IncorrectBuiltInScalarMappingException(
-                                typeName.getName(),
+                                objectTypeDefinition.getName(),
                                 fieldDefinition.getName(),
                                 mappedClass,
                                 mappedMethodName,
@@ -782,7 +789,7 @@ public class GraphQLMappingContext {
                 } else {
                     if (isBuiltInType(returnType)) {
                         throw new CustomTypeMappedToBuiltInClassException(
-                                typeName.getName(),
+                                objectTypeDefinition.getName(),
                                 fieldDefinition.getName(),
                                 mappedClass,
                                 mappedMethodName,

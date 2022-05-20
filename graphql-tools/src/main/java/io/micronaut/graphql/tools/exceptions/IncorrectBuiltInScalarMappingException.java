@@ -11,14 +11,7 @@ public class IncorrectBuiltInScalarMappingException extends AbstractMappingExcep
                                                   String mappedMethodName, Class providedClass,
                                                   Set<Class> supportedClasses) {
         super(
-                String.format(
-                        "The type `%s` is mapped to incorrect class %s, supported classes: %s",
-                        graphQlTypeName,
-                        providedClass.getName(),
-                        supportedClasses.stream()
-                                .map(Class::getName)
-                                .collect(Collectors.joining(", "))
-                ),
+                "The field is mapped to the incorrect class.",
                 graphQlTypeName, graphQlFieldName, mappedClass, mappedMethodName, providedClass
         );
 

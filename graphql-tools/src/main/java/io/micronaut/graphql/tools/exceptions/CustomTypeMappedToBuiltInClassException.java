@@ -5,11 +5,7 @@ public class CustomTypeMappedToBuiltInClassException extends AbstractMappingExce
     public CustomTypeMappedToBuiltInClassException(String graphQlTypeName, String graphQlFieldName, Class mappedClass,
                                                    String mappedMethodName, Class providedClass) {
         super(
-                String.format(
-                        "The field `%s` is mapped to built-in class %s, but required custom Java class",
-                        graphQlFieldName,
-                        providedClass
-                ),
+                "The field is mapped to the built-in class, but required custom Java class.",
                 graphQlTypeName, graphQlFieldName, mappedClass, mappedMethodName, providedClass
         );
     }

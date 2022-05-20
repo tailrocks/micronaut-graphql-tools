@@ -12,12 +12,11 @@ public class IncorrectArgumentCountException extends AbstractMappingException {
                                            int requiredCount, @Nullable String requiredMethodArgs) {
         super(
                 String.format(
-                        "The method `%s` has too %s arguments, provided: %s, required %s arg(s)%s",
-                        mappedClass.getName() + "." + mappedMethod,
+                        "The method has too %s arguments, provided: %s, required %s arg(s)%s",
                         few ? "few" : "many",
                         providedCount,
                         requiredCount,
-                        requiredMethodArgs != null ? ": " + requiredMethodArgs : ""
+                        requiredMethodArgs != null ? ": " + requiredMethodArgs : "."
                 ),
                 graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod, null
         );
