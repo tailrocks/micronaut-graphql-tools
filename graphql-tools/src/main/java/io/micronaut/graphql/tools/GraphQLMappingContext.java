@@ -603,7 +603,7 @@ public class GraphQLMappingContext {
 
             String args = Arrays.stream(executableMethod.getArguments())
                     .map(arg -> arg.getTypeString(false) + " " + arg.getName())
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(", "));
             return executableMethod.getName() + "(" + args + ")";
         } else if (executable instanceof BeanMethod) {
             BeanMethod beanMethod = (BeanMethod) executable;
