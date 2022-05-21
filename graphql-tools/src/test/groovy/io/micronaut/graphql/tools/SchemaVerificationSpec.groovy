@@ -6,6 +6,7 @@ import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.annotation.GraphQLParameterized
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
+import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException
 import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException
@@ -459,6 +460,114 @@ type User {
             return null
         }
     }
+}
+
+class SchemaVerificationSpec7 extends AbstractTest {
+
+    static final String SPEC_NAME_1 = "SchemaVerificationSpec7_1"
+    static final String SPEC_NAME_2 = "SchemaVerificationSpec7_2"
+
+    @Language("GraphQL")
+    static final String SCHEMA = """
+schema {
+  query: Query
+}
+
+type Query {
+  user: User
+}
+
+type User {
+  username(uid: ID): String
+}
+"""
+
+    void "test method in the type resolver has zero arguments when GraphQL schema has one"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_1)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectArgumentCountException
+            e.cause.message == """The method has too few arguments, provided: 1, required 2 arg(s): (${SchemaVerificationSpec7.name}\$${User1.simpleName} user1, ID uid)
+  GraphQL type: User
+  GraphQL field: username
+  Mapped class: ${SchemaVerificationSpec7.name}\$${User1Resolver.simpleName}
+  Mapped method: username(io.micronaut.graphql.tools.SchemaVerificationSpec7\$User1 user)"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == User1Resolver
+            e.cause.mappedMethod == 'username(io.micronaut.graphql.tools.SchemaVerificationSpec7$User1 user)'
+            e.cause.providedCount == 1
+            e.cause.requiredCount == 2
+    }
+
+    void "test method in the type resolver has zero arguments (exclude DataFetchingEnvironment) when GraphQL schema has one"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_2)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectArgumentCountException
+            e.cause.message == """The method has too few arguments, provided: 1, required 2 arg(s): (${SchemaVerificationSpec7.name}\$${User2.simpleName} user2, ID uid)
+  GraphQL type: User
+  GraphQL field: username
+  Mapped class: ${SchemaVerificationSpec7.name}\$${User2Resolver.simpleName}
+  Mapped method: username(io.micronaut.graphql.tools.SchemaVerificationSpec7\$User2 user, graphql.schema.DataFetchingEnvironment dfe)"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == User2Resolver
+            e.cause.mappedMethod == 'username(io.micronaut.graphql.tools.SchemaVerificationSpec7$User2 user, graphql.schema.DataFetchingEnvironment dfe)'
+            e.cause.providedCount == 1
+            e.cause.requiredCount == 2
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    @GraphQLRootResolver
+    static class Query1 {
+        User1 user() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    @GraphQLType
+    static class User1 {
+
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    @GraphQLTypeResolver(User1.class)
+    static class User1Resolver {
+        String username(User1 user) {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLRootResolver
+    static class Query2 {
+        User2 user() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLType
+    static class User2 {
+
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLTypeResolver(User2.class)
+    static class User2Resolver {
+        String username(User2 user, DataFetchingEnvironment dfe) {
+            return null
+        }
+    }
+
 }
 
 class SchemaVerificationSpec10 extends AbstractTest {
