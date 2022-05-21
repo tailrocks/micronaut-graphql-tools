@@ -18,7 +18,7 @@ public class IncorrectArgumentCountException extends AbstractMappingException {
                         requiredCount,
                         requiredMethodArgs != null ? ": " + requiredMethodArgs : "."
                 ),
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod, null
+                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
         );
 
         this.providedCount = providedCount;

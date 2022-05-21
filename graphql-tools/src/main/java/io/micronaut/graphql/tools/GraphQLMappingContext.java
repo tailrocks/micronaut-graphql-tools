@@ -57,6 +57,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException;
+import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException;
 import io.micronaut.inject.BeanDefinition;
@@ -352,12 +353,30 @@ public class GraphQLMappingContext {
                     argumentClasses.remove(0);
 
                     containsSourceArgument = true;
+                } else {
+                    throw new InvalidSourceArgumentException(
+                            objectTypeDefinition.getName(),
+                            fieldDefinition.getName(),
+                            executable.getDeclaringType(),
+                            getExecutableMethodFullName(executable),
+                            argumentClasses.get(0),
+                            sourceClass
+                    );
                 }
             } else {
                 if (argumentClasses.get(0).equals(sourceClass)) {
                     argumentClasses.remove(0);
 
                     containsSourceArgument = true;
+                } else {
+                    throw new InvalidSourceArgumentException(
+                            objectTypeDefinition.getName(),
+                            fieldDefinition.getName(),
+                            executable.getDeclaringType(),
+                            getExecutableMethodFullName(executable),
+                            argumentClasses.get(0),
+                            sourceClass
+                    );
                 }
             }
         }
@@ -371,40 +390,6 @@ public class GraphQLMappingContext {
                 containsEnvironmentArgument = true;
             }
         }
-
-        if (inputs.size() != argumentClasses.size()) {
-            // TODO
-            throw new RuntimeException("Wrong arguments count");
-        }
-
-        int currentArgs = argumentClasses.size();
-        int requiredArgs = inputs.size();
-
-        /*
-        if (currentArgs > requiredArgs) {
-            throw new IncorrectArgumentCountException(
-                    false,
-                    objectTypeDefinition.getName(),
-                    fieldDefinition.getName(),
-                    executable.getDeclaringType(),
-                    getExecutableMethodFullName(executable),
-                    currentArgs,
-                    requiredArgs,
-                    methodArgsString
-            );
-        } else if (requiredArgs > currentArgs) {
-            throw new IncorrectArgumentCountException(
-                    true,
-                    objectTypeDefinition.getName(),
-                    fieldDefinition.getName(),
-                    executable.getDeclaringType(),
-                    getExecutableMethodFullName(executable),
-                    currentArgs,
-                    requiredArgs,
-                    methodArgsString
-            );
-        }
-         */
 
         ArrayList<ArgumentDetails> result = new ArrayList<>();
 
@@ -563,20 +548,29 @@ public class GraphQLMappingContext {
                                             ObjectTypeDefinition objectTypeDefinition,
                                             Executable executable,
                                             Class sourceClass) {
-        if (fieldDefinition.getInputValueDefinitions().size() == 0 && executable.getArguments().length == 0) {
-            return;
-        }
-
         int requiredArgs = fieldDefinition.getInputValueDefinitions().size();
 
         if (sourceClass != null) {
             requiredArgs = requiredArgs + 1;
         }
 
+        if (requiredArgs == 0 && executable.getArguments().length == 0) {
+            return;
+        }
+
+        int currentArgs = (int) Arrays.stream(executable.getArguments())
+                .filter(it -> !it.getType().isAssignableFrom(DataFetchingEnvironment.class))
+                .count();
+
+        if (requiredArgs == currentArgs) {
+            return;
+        }
+
         ArrayList<String> suggestedMethodArgs = new ArrayList<>();
 
         if (sourceClass != null) {
-            String parameterName = sourceClass.getSimpleName().substring(0, 1).toLowerCase() + sourceClass.getSimpleName().substring(1);
+            String parameterName = objectTypeDefinition.getName().substring(0, 1).toLowerCase() +
+                    objectTypeDefinition.getName().substring(1);
             suggestedMethodArgs.add(sourceClass.getName() + " " + parameterName);
         }
 
@@ -589,10 +583,6 @@ public class GraphQLMappingContext {
         String suggestedMethodArgsAsString = suggestedMethodArgs.isEmpty() ? null : "(" + suggestedMethodArgs.stream()
                 .collect(Collectors.joining(", ")) + ")";
 
-        int currentArgs = (int) Arrays.stream(executable.getArguments())
-                .filter(it -> !it.getType().isAssignableFrom(DataFetchingEnvironment.class))
-                .count();
-
         if (currentArgs > requiredArgs) {
             throw new IncorrectArgumentCountException(
                     false,
@@ -604,7 +594,7 @@ public class GraphQLMappingContext {
                     requiredArgs,
                     suggestedMethodArgsAsString
             );
-        } else if (requiredArgs > currentArgs) {
+        } else {
             throw new IncorrectArgumentCountException(
                     true,
                     objectTypeDefinition.getName(),
