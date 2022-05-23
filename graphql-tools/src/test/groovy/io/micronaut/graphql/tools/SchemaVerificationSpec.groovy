@@ -436,7 +436,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_1)
     @GraphQLType
     static class User1 {
         @GraphQLParameterized
@@ -453,7 +452,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_2)
     @GraphQLType
     static class User2 {
         @GraphQLParameterized
@@ -533,7 +531,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_1)
     @GraphQLType
     static class User1 {
 
@@ -555,7 +552,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_2)
     @GraphQLType
     static class User2 {
 
@@ -641,7 +637,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_1)
     @GraphQLType
     static class User1 {
 
@@ -663,7 +658,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_2)
     @GraphQLType
     static class User2 {
 
@@ -749,7 +743,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_1)
     @GraphQLType
     static class User1 {
 
@@ -771,7 +764,6 @@ type User {
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME_2)
     @GraphQLType
     static class User2 {
 
@@ -789,7 +781,213 @@ type User {
 
 class SchemaVerificationSpec10 extends AbstractTest {
 
-    static final String SPEC_NAME = "SchemaVerificationSpec6"
+    static final String SPEC_NAME_4 = "SchemaVerificationSpec10_4"
+    static final String SPEC_NAME_1 = "SchemaVerificationSpec10_1"
+    static final String SPEC_NAME_2 = "SchemaVerificationSpec10_2"
+    static final String SPEC_NAME_3 = "SchemaVerificationSpec10_3"
+
+    @Language("GraphQL")
+    static final String SCHEMA = """
+schema {
+  query: Query
+}
+
+type Query {
+  user: User
+}
+
+type User {
+  username: String
+}
+"""
+
+    void "test root resolver returns not introspected class"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_4)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof InvalidSourceArgumentException
+            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
+  GraphQL type: User
+  GraphQL field: username
+  Mapped class: ${User1Resolver.name}
+  Mapped method: username(${String.name} uid)"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == User1Resolver
+            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.providedClass == String
+            e.cause.requiredClass == User1
+    }
+
+    void "test root resolver returns interface which implementation class is not marked correctly with annotation"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_1)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof InvalidSourceArgumentException
+            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
+  GraphQL type: User
+  GraphQL field: username
+  Mapped class: ${User1Resolver.name}
+  Mapped method: username(${String.name} uid)"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == User1Resolver
+            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.providedClass == String
+            e.cause.requiredClass == User1
+    }
+
+    void "test root resolver returns interface which is not implemented in introspected class"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_2)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof InvalidSourceArgumentException
+            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
+  GraphQL type: User
+  GraphQL field: username
+  Mapped class: ${User1Resolver.name}
+  Mapped method: username(${String.name} uid)"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == User1Resolver
+            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.providedClass == String
+            e.cause.requiredClass == User1
+    }
+
+    void "test root resolver returns interface which has multiple introspected implementation classes"() {
+        when:
+            startContext(SCHEMA, SPEC_NAME_3)
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof InvalidSourceArgumentException
+            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
+  GraphQL type: User
+  GraphQL field: username
+  Mapped class: ${User1Resolver.name}
+  Mapped method: username(${String.name} uid)"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'username'
+            e.cause.mappedClass == User1Resolver
+            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.providedClass == String
+            e.cause.requiredClass == User1
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_4)
+    @GraphQLRootResolver
+    static class Query4 {
+        User4 user() {
+            return null
+        }
+    }
+
+    static class User4 {
+        String username() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    @GraphQLRootResolver
+    static class Query1 {
+        User1 user() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    static interface User1 {
+
+    }
+
+    @GraphQLType
+    static class User1Impl implements User1 {
+
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    @GraphQLTypeResolver(User1.class)
+    static class User1Resolver {
+        String username(User1 user) {
+            return null
+        }
+    }
+
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLRootResolver
+    static class Query2 {
+        User2 user() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    static interface User2 {
+
+    }
+
+    @GraphQLType(User2)
+    static class User2Impl {
+
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLTypeResolver(User2.class)
+    static class User2Resolver {
+        String username(User2 user) {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_3)
+    @GraphQLRootResolver
+    static class Query3 {
+        User3 user() {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_3)
+    static interface User3 {
+
+    }
+
+    @GraphQLType(User3)
+    static class User3Impl implements User3 {
+
+    }
+
+    @GraphQLType(User3)
+    static class User3AltImpl implements User3 {
+
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_3)
+    @GraphQLTypeResolver(User2.class)
+    static class User3Resolver {
+        String username(User2 user) {
+            return null
+        }
+    }
+
+}
+
+class SchemaVerificationSpec11 extends AbstractTest {
+
+    static final String SPEC_NAME = "SchemaVerificationSpec11"
 
     void "test union"() {
         given:
