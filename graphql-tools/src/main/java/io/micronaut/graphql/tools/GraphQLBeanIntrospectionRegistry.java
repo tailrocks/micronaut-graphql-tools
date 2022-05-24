@@ -1,11 +1,18 @@
 package io.micronaut.graphql.tools;
 
+import graphql.language.FieldDefinition;
+import graphql.language.ObjectTypeDefinition;
+import graphql.language.Type;
 import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.beans.BeanIntrospection;
 import io.micronaut.core.beans.BeanIntrospector;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLType;
+import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
+import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException;
+import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException;
+import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException;
 import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
@@ -27,10 +34,17 @@ public class GraphQLBeanIntrospectionRegistry {
     // value: implemented classes
     private static final Map<Class, Class> IMPLEMENTATION_TO_INTERFACE = new HashMap<>();
 
+    private static boolean TYPE_INTROSPECTIONS_LOADED = false;
+    private static boolean INPUT_INTROSPECTIONS_LOADED = false;
+
     public GraphQLBeanIntrospectionRegistry() {
     }
 
     private static void loadTypeIntrospections() {
+        if (TYPE_INTROSPECTIONS_LOADED) {
+            return;
+        }
+
         TYPE_INTROSPECTIONS.clear();
         INTERFACE_TO_IMPLEMENTATION.clear();
 
@@ -47,12 +61,19 @@ public class GraphQLBeanIntrospectionRegistry {
                 IMPLEMENTATION_TO_INTERFACE.put(introspection.getBeanType(), modelInterface);
             }
         }
+
+        TYPE_INTROSPECTIONS_LOADED = true;
     }
 
     private static void loadInputIntrospections() {
+        if (INPUT_INTROSPECTIONS_LOADED) {
+            return;
+        }
+
         INPUT_INTROSPECTIONS.clear();
 
         for (BeanIntrospection<Object> introspection : BeanIntrospector.SHARED.findIntrospections(GraphQLInput.class)) {
+            // TODO remove it from here
             if (
                     introspection.getBeanType().isInterface()
                             || introspection.getBeanType().isEnum()
@@ -62,30 +83,64 @@ public class GraphQLBeanIntrospectionRegistry {
             }
             INPUT_INTROSPECTIONS.put(introspection.getBeanType(), introspection);
         }
+
+        INPUT_INTROSPECTIONS_LOADED = true;
     }
 
-    public BeanIntrospection requireGraphQLModel(Class clazz) {
+    public BeanIntrospection getGraphQlTypeBeanIntrospection(
+            Class<?> clazz,
+            FieldDefinition fieldDefinition,
+            ObjectTypeDefinition objectTypeDefinition,
+            Class<?> mappedClass,
+            String mappedMethodName
+    ) {
         loadTypeIntrospections();
 
         if (clazz.isInterface()) {
             if (!INTERFACE_TO_IMPLEMENTATION.containsKey(clazz)) {
-                throw new RuntimeException("Can not find implementation class for: " + clazz);
+                throw new ImplementationNotFoundException(
+                        objectTypeDefinition.getName(),
+                        fieldDefinition.getName(),
+                        mappedClass,
+                        mappedMethodName,
+                        clazz
+                );
             }
 
             if (INTERFACE_TO_IMPLEMENTATION.get(clazz).size() > 1) {
-                throw new RuntimeException("Found multiple implementations for: " + clazz);
+                throw new MultipleImplementationsFoundException(
+                        objectTypeDefinition.getName(),
+                        fieldDefinition.getName(),
+                        mappedClass,
+                        mappedMethodName,
+                        clazz,
+                        INTERFACE_TO_IMPLEMENTATION.get(clazz)
+                );
             }
 
-            Class implementationClass = INTERFACE_TO_IMPLEMENTATION.get(clazz).get(0);
+            Class<?> implementationClass = INTERFACE_TO_IMPLEMENTATION.get(clazz).get(0);
 
             if (!clazz.isAssignableFrom(implementationClass)) {
-                throw new RuntimeException(implementationClass + " is not implementing " + clazz);
+                throw new IncorrectImplementationException(
+                        objectTypeDefinition.getName(),
+                        fieldDefinition.getName(),
+                        mappedClass,
+                        mappedMethodName,
+                        clazz,
+                        implementationClass
+                );
             }
 
             return TYPE_INTROSPECTIONS.get(implementationClass);
         } else {
             if (!TYPE_INTROSPECTIONS.containsKey(clazz)) {
-                throw new RuntimeException(clazz + " is not introspected. Probably " + GraphQLType.class.getSimpleName() + " annotation was not added or processed by Micronaut.");
+                throw new ClassNotIntrospectedException(
+                        objectTypeDefinition.getName(),
+                        fieldDefinition.getName(),
+                        mappedClass,
+                        mappedMethodName,
+                        clazz
+                );
             }
 
             return TYPE_INTROSPECTIONS.get(clazz);

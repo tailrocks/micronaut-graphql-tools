@@ -141,12 +141,15 @@ public class GraphQLMappingContext {
             registerUnionMapping(entry.getKey(), entry.getValue());
         }
 
+        // TODO
+        /*
         for (Map.Entry<String, Class> entry : schemaParserDictionary.getTypes().entrySet()) {
             BeanIntrospection beanIntrospection =
                     graphQLBeanIntrospectionRegistry.requireGraphQLModel(entry.getValue());
 
             registerObjectType(entry.getKey(), beanIntrospection);
         }
+         */
 
         SchemaDefinition schemaDefinition = typeRegistry.schemaDefinition()
                 .orElseThrow(SchemaDefinitionEmptyException::new);
@@ -763,7 +766,14 @@ public class GraphQLMappingContext {
                         );
                     }
                     registerObjectType(getTypeName(graphQlType),
-                            graphQLBeanIntrospectionRegistry.requireGraphQLModel(returnType));
+                            graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
+                                    returnType,
+                                    fieldDefinition,
+                                    objectTypeDefinition,
+                                    mappedClass,
+                                    mappedMethodName
+                            )
+                    );
                 }
             } else {
                 throw new UnsupportedOperationException("");

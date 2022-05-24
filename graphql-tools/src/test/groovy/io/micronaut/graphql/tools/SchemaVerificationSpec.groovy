@@ -7,11 +7,15 @@ import io.micronaut.graphql.tools.annotation.GraphQLParameterized
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException
 import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException
+import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException
 import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException
+import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
+import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException
 import org.intellij.lang.annotations.Language
 
@@ -808,18 +812,16 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof InvalidSourceArgumentException
-            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
-  GraphQL type: User
-  GraphQL field: username
-  Mapped class: ${User1Resolver.name}
-  Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${String.name} uid)"
-            e.cause.providedClass == String
-            e.cause.requiredClass == User1
+            e.cause instanceof ClassNotIntrospectedException
+            e.cause.message == """The class ${User4.name} is not introspected. Ensure the class is annotated with ${GraphQLType.name}.
+  GraphQL type: Query
+  GraphQL field: user
+  Mapped class: ${Query4.name}
+  Mapped method: user"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'user'
+            e.cause.mappedClass == Query4
+            e.cause.mappedMethod == "user"
     }
 
     void "test root resolver returns interface which implementation class is not marked correctly with annotation"() {
@@ -829,18 +831,16 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof InvalidSourceArgumentException
-            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
-  GraphQL type: User
-  GraphQL field: username
-  Mapped class: ${User1Resolver.name}
-  Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${String.name} uid)"
-            e.cause.providedClass == String
-            e.cause.requiredClass == User1
+            e.cause instanceof ImplementationNotFoundException
+            e.cause.message == """Can not find implementation class for the interface ${User1.name}.
+  GraphQL type: Query
+  GraphQL field: user
+  Mapped class: ${Query1.name}
+  Mapped method: user"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'user'
+            e.cause.mappedClass == Query1
+            e.cause.mappedMethod == "user"
     }
 
     void "test root resolver returns interface which is not implemented in introspected class"() {
@@ -850,18 +850,18 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof InvalidSourceArgumentException
-            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
-  GraphQL type: User
-  GraphQL field: username
-  Mapped class: ${User1Resolver.name}
-  Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${String.name} uid)"
-            e.cause.providedClass == String
-            e.cause.requiredClass == User1
+            e.cause instanceof IncorrectImplementationException
+            e.cause.message == """The annotated implementation class is not implementing the ${User2.name} interface.
+  GraphQL type: Query
+  GraphQL field: user
+  Mapped class: ${Query2.name}
+  Mapped method: user
+  Implementation class: ${User2Impl.name}"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'user'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == "user"
+            e.cause.implementationClass == User2Impl
     }
 
     void "test root resolver returns interface which has multiple introspected implementation classes"() {
@@ -871,18 +871,18 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof InvalidSourceArgumentException
-            e.cause.message == """The source argument must be instance of ${User1.name} class, provided: ${String.name}.
-  GraphQL type: User
-  GraphQL field: username
-  Mapped class: ${User1Resolver.name}
-  Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${String.name} uid)"
-            e.cause.providedClass == String
-            e.cause.requiredClass == User1
+            e.cause instanceof MultipleImplementationsFoundException
+            e.cause.message == """Found multiple implementations for the interface ${User3.name}.
+  GraphQL type: Query
+  GraphQL field: user
+  Mapped class: ${Query3.name}
+  Mapped method: user
+  Implementation classes: ${User3AltImpl.name}, ${User3Impl.name}"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'user'
+            e.cause.mappedClass == Query3
+            e.cause.mappedMethod == "user"
+            e.cause.implementationClasses == [User3AltImpl, User3Impl]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME_4)

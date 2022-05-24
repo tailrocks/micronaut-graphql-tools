@@ -1,14 +1,14 @@
 package io.micronaut.graphql.tools.exceptions;
 
-public class CustomTypeMappedToBuiltInClassException extends AbstractMappingException {
+public class CustomTypeMappedToBuiltInClassException extends AbstractMappingMethodException {
 
     private final Class providedClass;
 
     public CustomTypeMappedToBuiltInClassException(String graphQlTypeName, String graphQlFieldName, Class mappedClass,
-                                                   String mappedMethodName, Class providedClass) {
+                                                   String mappedMethod, Class providedClass) {
         super(
                 "The field is mapped to the built-in class, but required custom Java class.",
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethodName
+                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
         );
 
         this.providedClass = providedClass;

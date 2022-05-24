@@ -3,17 +3,17 @@ package io.micronaut.graphql.tools.exceptions;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class IncorrectBuiltInScalarMappingException extends AbstractMappingException {
+public class IncorrectBuiltInScalarMappingException extends AbstractMappingMethodException {
 
     private final Class providedClass;
     private final Set<Class> supportedClasses;
 
     public IncorrectBuiltInScalarMappingException(String graphQlTypeName, String graphQlFieldName, Class mappedClass,
-                                                  String mappedMethodName, Class providedClass,
+                                                  String mappedMethod, Class providedClass,
                                                   Set<Class> supportedClasses) {
         super(
                 "The field is mapped to the incorrect class.",
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethodName
+                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
         );
 
         this.providedClass = providedClass;
