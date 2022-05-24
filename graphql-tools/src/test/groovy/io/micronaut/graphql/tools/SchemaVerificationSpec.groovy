@@ -998,26 +998,24 @@ schema {
 }
 
 type Query {
-  unionTypeTest(securityError: Boolean!): PayloadError
+  user: User
 }
 
-union PayloadError = SecurityError | ValidationError
-
-type SecurityError {
-  code: String!
-}
-
-type ValidationError {
-  code: Int!
+type User {
+  username: String!
+  gravatar: String
 }
 """
 
             startContext(schema, SPEC_NAME)
 
         when:
-            def result = executeQuery("""
+            executeQuery("""
 {
-    unionTypeTest
+    user {
+        username
+        gravatar
+    }
 }
 """)
 
@@ -1039,9 +1037,23 @@ type ValidationError {
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
-    static class Query5 {
-        Integer currentUser() {
-            return 0
+    static class Query1 {
+        User1 user() {
+            return null
+        }
+    }
+
+    @GraphQLType
+    static class User1 {
+        String getUsername() {
+            return "abc"
+        }
+    }
+
+    @GraphQLTypeResolver
+    static class User1Resolver {
+        String gravatar(User1 user) {
+            return null
         }
     }
 
