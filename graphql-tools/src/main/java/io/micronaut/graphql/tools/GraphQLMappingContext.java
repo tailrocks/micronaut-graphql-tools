@@ -552,7 +552,7 @@ public class GraphQLMappingContext {
         }
     }
 
-    private String getExecutableMethodFullName(Executable executable) {
+    private static String getExecutableMethodFullName(Executable executable) {
         if (executable instanceof ExecutableMethod) {
             ExecutableMethod executableMethod = (ExecutableMethod) executable;
 

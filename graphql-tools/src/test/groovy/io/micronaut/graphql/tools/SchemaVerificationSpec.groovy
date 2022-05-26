@@ -1292,3 +1292,7 @@ enum Month {
     }
 
 }
+
+// TODO validate input mapping
+// TODO validate type field mapping
+// TODO union mapping
