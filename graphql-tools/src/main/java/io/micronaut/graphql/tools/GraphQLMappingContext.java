@@ -50,12 +50,13 @@ import io.micronaut.core.type.ReturnType;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
-import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
-import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException;
+import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
+import io.micronaut.graphql.tools.exceptions.MappingConflictException;
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
-import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException;
+import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
+import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.jackson.modules.BeanIntrospectionModule;
@@ -153,7 +154,7 @@ public class GraphQLMappingContext {
          */
 
         SchemaDefinition schemaDefinition = typeRegistry.schemaDefinition()
-                .orElseThrow(SchemaDefinitionEmptyException::new);
+                .orElseThrow(SchemaDefinitionNotProvidedException::new);
 
         for (OperationTypeDefinition operationTypeDefinition : schemaDefinition.getOperationTypeDefinitions()) {
             processOperationTypeDefinition(operationTypeDefinition);
@@ -405,14 +406,21 @@ public class GraphQLMappingContext {
 
             return clazz;
         } else if (typeDefinition instanceof EnumTypeDefinition) {
-            registerEnumMapping((EnumTypeDefinition) typeDefinition, clazz);
+            registerEnumMapping(
+                    (EnumTypeDefinition) typeDefinition,
+                    clazz,
+                    typeName.getName(),
+                    inputValueDefinition.getName(),
+                    mappedClass,
+                    mappedMethodName
+            );
 
             return null;
         } else if (isBuiltInType(typeName)) {
             Set<Class> supportedClasses = SYSTEM_TYPES.get(typeName);
 
             if (!supportedClasses.contains(clazz)) {
-                throw new IncorrectBuiltInScalarMappingException(
+                throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
                         typeName.getName(),
                         inputValueDefinition.getName(),
                         mappedClass,
@@ -732,7 +740,7 @@ public class GraphQLMappingContext {
                 Set<Class> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType).getName());
 
                 if (!supportedClasses.contains(returnType)) {
-                    throw new IncorrectBuiltInScalarMappingException(
+                    throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
                             objectTypeDefinition.getName(),
                             fieldDefinition.getName(),
                             mappedClass,
@@ -745,10 +753,17 @@ public class GraphQLMappingContext {
                 TypeDefinition typeDefinition = getTypeDefinition(typeName);
 
                 if (typeDefinition instanceof EnumTypeDefinition) {
-                    registerEnumMapping((EnumTypeDefinition) typeDefinition, returnType);
+                    registerEnumMapping(
+                            (EnumTypeDefinition) typeDefinition,
+                            returnType,
+                            objectTypeDefinition.getName(),
+                            fieldDefinition.getName(),
+                            mappedClass,
+                            mappedMethodName
+                    );
                 } else {
                     if (isBuiltInType(returnType)) {
-                        throw new CustomTypeMappedToBuiltInClassException(
+                        throw IncorrectClassMappingException.ofCustomTypeMappedToBuiltInClass(
                                 objectTypeDefinition.getName(),
                                 fieldDefinition.getName(),
                                 mappedClass,
@@ -803,21 +818,38 @@ public class GraphQLMappingContext {
         return true;
     }
 
-    private void registerEnumMapping(EnumTypeDefinition typeDefinition, Class targetClass) {
+    private void registerEnumMapping(EnumTypeDefinition typeDefinition, Class targetClass,
+                                     String graphQlTypeName, String graphQlFieldName, Class mappedClass,
+                                     String mappedMethod) {
         requireNonNull("typeDefinition", typeDefinition);
         requireNonNull("targetClass", targetClass);
 
         if (!targetClass.isEnum()) {
-            throw new RuntimeException("Target class is not enum " + targetClass + " for definition " + typeDefinition);
+            throw IncorrectClassMappingException.ofEnumMappedToNotEnum(
+                    graphQlTypeName,
+                    graphQlFieldName,
+                    mappedClass,
+                    mappedMethod,
+                    targetClass
+            );
         }
 
-        String type = typeDefinition.getName();
+        String typeName = typeDefinition.getName();
 
-        MappingItem mappingItem = mappingRegistry.get(type);
+        MappingItem mappingItem = mappingRegistry.get(typeName);
 
         if (mappingItem != null) {
             if (!targetClass.equals(mappingItem.targetEnum)) {
-                throw new RuntimeException("Detected conflicted type");
+                throw new MappingConflictException(
+                        graphQlTypeName,
+                        graphQlFieldName,
+                        mappedClass,
+                        mappedMethod,
+                        "enum",
+                        typeName,
+                        targetClass,
+                        mappingItem.targetEnum
+                );
             }
 
             // already processed
@@ -835,15 +867,21 @@ public class GraphQLMappingContext {
                 .sorted()
                 .collect(Collectors.toList());
 
-        List<String> unresolvedValues = expectedValues.stream()
+        List<String> missingValues = expectedValues.stream()
                 .filter(it -> !existingValues.contains(it))
                 .collect(Collectors.toList());
 
-        if (!unresolvedValues.isEmpty()) {
-            throw new RuntimeException("Found unresolved enums: " + unresolvedValues);
+        if (!missingValues.isEmpty()) {
+            throw new MissingEnumValuesException(
+                    graphQlTypeName,
+                    graphQlFieldName,
+                    mappedClass,
+                    mappedMethod,
+                    missingValues
+            );
         }
 
-        mappingRegistry.put(type, new MappingItem(targetClass, null));
+        mappingRegistry.put(typeName, new MappingItem(targetClass, null));
     }
 
     private boolean registerUnionMapping(String type, Class interfaceClass) {

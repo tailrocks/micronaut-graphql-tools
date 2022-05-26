@@ -8,15 +8,17 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException
-import io.micronaut.graphql.tools.exceptions.CustomTypeMappedToBuiltInClassException
+
 import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException
-import io.micronaut.graphql.tools.exceptions.IncorrectBuiltInScalarMappingException
+import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException
+import io.micronaut.graphql.tools.exceptions.MappingConflictException
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
+import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException
 import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException
-import io.micronaut.graphql.tools.exceptions.SchemaDefinitionEmptyException
+import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException
 import org.intellij.lang.annotations.Language
 
 class SchemaVerificationSpec1 extends AbstractTest {
@@ -41,7 +43,7 @@ type Query {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof SchemaDefinitionEmptyException
+            e.cause instanceof SchemaDefinitionNotProvidedException
             e.cause.message == """Schema definition is not set. Make sure your GraphQL schema contains such definition:
   schema {
     query: Query
@@ -137,7 +139,7 @@ type Query {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof IncorrectBuiltInScalarMappingException
+            e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
   GraphQL field: hello
@@ -195,7 +197,7 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to the built-in class, but required custom Java class.
   GraphQL type: Query
   GraphQL field: currentUser
@@ -1022,7 +1024,7 @@ type User {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to built-in class, but required custom Java class
   GraphQL type: User
   GraphQL field: currentUser
@@ -1069,7 +1071,7 @@ class SchemaVerificationSpec12 extends AbstractTest {
     static final String SPEC_NAME_3 = "SchemaVerificationSpec12_3"
     static final String SPEC_NAME_4 = "SchemaVerificationSpec12_4"
 
-    void "test TODO1"() {
+    void "test GraphQL schema enum mapped to a Java class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -1095,20 +1097,21 @@ enum Month {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof CustomTypeMappedToBuiltInClassException
-            e.cause.message == """The field is mapped to built-in class, but required custom Java class
-  GraphQL type: User
-  GraphQL field: currentUser
-  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
-  Mapped method name: currentUser
-  Provided class: ${Integer.name}"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'currentUser'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == 'currentUser'
-            e.cause.providedClass == Integer
+            e.cause instanceof IncorrectClassMappingException
+            e.cause.message == """The field is mapped to the class, when required Enum.
+  GraphQL type: Query
+  GraphQL field: month
+  Mapped class: ${Query1.name}
+  Mapped method: month
+  Provided class: ${MyMonth.name}"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'month'
+            e.cause.mappedClass == Query1
+            e.cause.mappedMethod == 'month'
+            e.cause.providedClass == MyMonth
     }
 
+    // TODO
     void "test TODO2"() {
         given:
             @Language("GraphQL")
@@ -1135,7 +1138,7 @@ enum Month {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to built-in class, but required custom Java class
   GraphQL type: User
   GraphQL field: currentUser
@@ -1149,7 +1152,7 @@ enum Month {
             e.cause.providedClass == Integer
     }
 
-    void "test TODO3"() {
+    void "test mapping to an enum with missed values"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -1175,21 +1178,21 @@ enum Month {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof CustomTypeMappedToBuiltInClassException
-            e.cause.message == """The field is mapped to built-in class, but required custom Java class
-  GraphQL type: User
-  GraphQL field: currentUser
-  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
-  Mapped method name: currentUser
-  Provided class: ${Integer.name}"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'currentUser'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == 'currentUser'
-            e.cause.providedClass == Integer
+            e.cause instanceof MissingEnumValuesException
+            e.cause.message == """Some enum values are missing.
+  GraphQL type: Query
+  GraphQL field: month
+  Mapped class: ${Query3.name}
+  Mapped method: month
+  Missing values: MARCH"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'month'
+            e.cause.mappedClass == Query3
+            e.cause.mappedMethod == 'month'
+            e.cause.missingValues == ['MARCH']
     }
 
-    void "test TODO4"() {
+    void "test enum mapped to a different classes"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -1216,18 +1219,16 @@ enum Month {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof CustomTypeMappedToBuiltInClassException
-            e.cause.message == """The field is mapped to built-in class, but required custom Java class
-  GraphQL type: User
-  GraphQL field: currentUser
-  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
-  Mapped method name: currentUser
-  Provided class: ${Integer.name}"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'currentUser'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == 'currentUser'
-            e.cause.providedClass == Integer
+            e.cause instanceof MappingConflictException
+            e.cause.message == """Unable to map GraphQL enum `Month` to ${AnotherMonth4.name}, as it is already mapped to ${Month4.name}.
+  GraphQL type: Query
+  GraphQL field: nextMonth
+  Mapped class: ${Query4.name}
+  Mapped method: nextMonth"""
+            e.cause.graphQlType == 'Query'
+            e.cause.graphQlField == 'nextMonth'
+            e.cause.mappedClass == Query4
+            e.cause.mappedMethod == 'nextMonth'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME_1)
@@ -1272,6 +1273,7 @@ enum Month {
         Month4 currentMonth() {
             return null
         }
+
         AnotherMonth4 nextMonth() {
             return null
         }
