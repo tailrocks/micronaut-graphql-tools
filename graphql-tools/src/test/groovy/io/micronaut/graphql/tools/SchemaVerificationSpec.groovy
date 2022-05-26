@@ -985,6 +985,7 @@ type User {
 
 }
 
+// TODO
 class SchemaVerificationSpec11 extends AbstractTest {
 
     static final String SPEC_NAME = "SchemaVerificationSpec11"
@@ -1050,11 +1051,242 @@ type User {
         }
     }
 
-    @GraphQLTypeResolver
+    // TODO restore me
+    //@GraphQLTypeResolver
+    @GraphQLTypeResolver(User1)
     static class User1Resolver {
         String gravatar(User1 user) {
             return null
         }
+    }
+
+}
+
+class SchemaVerificationSpec12 extends AbstractTest {
+
+    static final String SPEC_NAME_1 = "SchemaVerificationSpec12_1"
+    static final String SPEC_NAME_2 = "SchemaVerificationSpec12_2"
+    static final String SPEC_NAME_3 = "SchemaVerificationSpec12_3"
+    static final String SPEC_NAME_4 = "SchemaVerificationSpec12_4"
+
+    void "test TODO1"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  month: Month
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME_1)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause.message == """The field is mapped to built-in class, but required custom Java class
+  GraphQL type: User
+  GraphQL field: currentUser
+  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
+  Mapped method name: currentUser
+  Provided class: ${Integer.name}"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'currentUser'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == 'currentUser'
+            e.cause.providedClass == Integer
+    }
+
+    void "test TODO2"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  displayName(value: Month!): String
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME_2)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause.message == """The field is mapped to built-in class, but required custom Java class
+  GraphQL type: User
+  GraphQL field: currentUser
+  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
+  Mapped method name: currentUser
+  Provided class: ${Integer.name}"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'currentUser'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == 'currentUser'
+            e.cause.providedClass == Integer
+    }
+
+    void "test TODO3"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  month: Month
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME_3)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause.message == """The field is mapped to built-in class, but required custom Java class
+  GraphQL type: User
+  GraphQL field: currentUser
+  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
+  Mapped method name: currentUser
+  Provided class: ${Integer.name}"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'currentUser'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == 'currentUser'
+            e.cause.providedClass == Integer
+    }
+
+    void "test TODO4"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  currentMonth: Month
+  nextMonth: Month
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME_4)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof CustomTypeMappedToBuiltInClassException
+            e.cause.message == """The field is mapped to built-in class, but required custom Java class
+  GraphQL type: User
+  GraphQL field: currentUser
+  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
+  Mapped method name: currentUser
+  Provided class: ${Integer.name}"""
+            e.cause.graphQlType == 'User'
+            e.cause.graphQlField == 'currentUser'
+            e.cause.mappedClass == Query2
+            e.cause.mappedMethod == 'currentUser'
+            e.cause.providedClass == Integer
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_1)
+    @GraphQLRootResolver
+    static class Query1 {
+        MyMonth month() {
+            return null
+        }
+    }
+
+    @GraphQLType
+    static class MyMonth {
+        String getJanuary() {
+            return "JAN"
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_2)
+    @GraphQLRootResolver
+    static class Query2 {
+        String displayName(String value) {
+            return null
+        }
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_3)
+    @GraphQLRootResolver
+    static class Query3 {
+        Month3 month() {
+            return null
+        }
+    }
+
+    static enum Month3 {
+        JANUARY,
+        FEBRUARY
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME_4)
+    @GraphQLRootResolver
+    static class Query4 {
+        Month4 currentMonth() {
+            return null
+        }
+        AnotherMonth4 nextMonth() {
+            return null
+        }
+    }
+
+    static enum Month4 {
+        JANUARY,
+        FEBRUARY,
+        MARCH
+    }
+
+    static enum AnotherMonth4 {
+        JANUARY,
+        FEBRUARY,
+        MARCH
     }
 
 }
