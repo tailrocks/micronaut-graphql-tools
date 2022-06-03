@@ -4,14 +4,13 @@ public class IncorrectImplementationException extends AbstractMappingMethodExcep
 
     private final Class implementationClass;
 
-    public IncorrectImplementationException(String graphQlTypeName, String graphQlFieldName, Class mappedClass,
-                                            String mappedMethod, Class interfaceClass, Class implementationClass) {
+    public IncorrectImplementationException(MappingDetails mappingDetails, Class interfaceClass, Class implementationClass) {
         super(
                 String.format(
                         "The annotated implementation class is not implementing the %s interface.",
                         interfaceClass.getName()
                 ),
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
+                mappingDetails
         );
 
         this.implementationClass = implementationClass;

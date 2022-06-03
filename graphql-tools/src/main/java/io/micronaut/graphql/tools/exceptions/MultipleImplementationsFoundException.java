@@ -7,15 +7,14 @@ public class MultipleImplementationsFoundException extends AbstractMappingMethod
 
     private final List<Class> implementationClasses;
 
-    public MultipleImplementationsFoundException(String graphQlTypeName, String graphQlFieldName, Class mappedClass,
-                                                 String mappedMethod, Class interfaceClass,
+    public MultipleImplementationsFoundException(MappingDetails mappingDetails, Class interfaceClass,
                                                  List<Class> implementationClasses) {
         super(
                 String.format(
                         "Found multiple implementations for the interface %s.",
                         interfaceClass.getName()
                 ),
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
+                mappingDetails
         );
 
         this.implementationClasses = implementationClasses;

@@ -11,27 +11,28 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
     private final Set<Class> supportedClasses;
 
     public static IncorrectClassMappingException ofCustomTypeMappedToBuiltInClass(
-            String graphQlTypeName, String graphQlFieldName, Class mappedClass, String mappedMethod,
+            MappingDetails mappingDetails,
             Class providedClass
     ) {
         return new IncorrectClassMappingException(
                 "The field is mapped to the built-in class, when required custom Java class.",
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod, providedClass, null
+                mappingDetails, providedClass, null
         );
     }
 
     public static IncorrectClassMappingException ofBuiltInTypeMappedToCustomClass(
-            String graphQlTypeName, String graphQlFieldName, Class mappedClass, String mappedMethod,
-            Class providedClass, Set<Class> supportedClasses
+            MappingDetails mappingDetails,
+            Class providedClass,
+            Set<Class> supportedClasses
     ) {
         return new IncorrectClassMappingException(
                 "The field is mapped to the incorrect class.",
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod, providedClass, supportedClasses
+                mappingDetails, providedClass, supportedClasses
         );
     }
 
     public static IncorrectClassMappingException ofEnumMappedToNotEnum(
-            String graphQlTypeName, String graphQlFieldName, Class mappedClass, String mappedMethod,
+            MappingDetails mappingDetails,
             Class providedClass
     ) {
         String type = "class";
@@ -47,14 +48,13 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
 
         return new IncorrectClassMappingException(
                 "The field is mapped to the " + type + ", when required Enum.",
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod, providedClass, null
+                mappingDetails, providedClass, null
         );
     }
 
-    public IncorrectClassMappingException(String message, String graphQlTypeName, String graphQlFieldName,
-                                          Class mappedClass, String mappedMethod, Class providedClass,
+    public IncorrectClassMappingException(String message, MappingDetails mappingDetails, Class providedClass,
                                           @Nullable Set<Class> supportedClasses) {
-        super(message, graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod);
+        super(message, mappingDetails);
 
         this.providedClass = providedClass;
         this.supportedClasses = supportedClasses;

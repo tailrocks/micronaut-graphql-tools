@@ -7,8 +7,7 @@ public class IncorrectArgumentCountException extends AbstractMappingMethodExcept
     private final int providedCount;
     private final int requiredCount;
 
-    public IncorrectArgumentCountException(boolean few, String graphQlTypeName, String graphQlFieldName,
-                                           Class mappedClass, String mappedMethod, int providedCount,
+    public IncorrectArgumentCountException(MappingDetails mappingDetails, boolean few, int providedCount,
                                            int requiredCount, @Nullable String requiredMethodArgs) {
         super(
                 String.format(
@@ -18,7 +17,7 @@ public class IncorrectArgumentCountException extends AbstractMappingMethodExcept
                         requiredCount,
                         requiredMethodArgs != null ? ": " + requiredMethodArgs : "."
                 ),
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
+                mappingDetails
         );
 
         this.providedCount = providedCount;

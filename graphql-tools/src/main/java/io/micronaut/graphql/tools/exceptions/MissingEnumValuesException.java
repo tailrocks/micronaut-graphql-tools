@@ -7,11 +7,10 @@ public class MissingEnumValuesException extends AbstractMappingMethodException {
 
     private final List<String> missingValues;
 
-    public MissingEnumValuesException(String graphQlTypeName, String graphQlFieldName, Class mappedClass,
-                                      String mappedMethod, List<String> missingValues) {
+    public MissingEnumValuesException(MappingDetails mappingDetails, List<String> missingValues) {
         super(
                 "Some enum values are missing.",
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
+                mappingDetails
         );
 
         this.missingValues = missingValues;

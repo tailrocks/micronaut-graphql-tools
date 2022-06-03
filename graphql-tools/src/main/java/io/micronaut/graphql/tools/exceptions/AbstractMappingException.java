@@ -2,35 +2,23 @@ package io.micronaut.graphql.tools.exceptions;
 
 public abstract class AbstractMappingException extends RuntimeException {
 
-    private final String graphQlType;
-    private final String graphQlField;
+    private final MappingDetails mappingDetails;
 
     public AbstractMappingException(
             String message,
-            String graphQlType,
-            String graphQlField
+            MappingDetails mappingDetails
     ) {
         super(message);
-        this.graphQlType = graphQlType;
-        this.graphQlField = graphQlField;
+        this.mappingDetails = mappingDetails;
     }
 
-    public String getGraphQlField() {
-        return graphQlField;
-    }
-
-    public String getGraphQlType() {
-        return graphQlType;
+    public MappingDetails getMappingDetails() {
+        return mappingDetails;
     }
 
     @Override
     public String getMessage() {
-        StringBuilder builder = new StringBuilder(super.getMessage());
-
-        builder.append("\n  GraphQL type: ").append(graphQlType);
-        builder.append("\n  GraphQL field: ").append(graphQlField);
-
-        return builder.toString();
+        return mappingDetails.getMessage(super.getMessage());
     }
 
 }

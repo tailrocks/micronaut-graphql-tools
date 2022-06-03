@@ -5,8 +5,7 @@ public class InvalidSourceArgumentException extends AbstractMappingMethodExcepti
     private final Class providedClass;
     private final Class requiredClass;
 
-    public InvalidSourceArgumentException(String graphQlTypeName, String graphQlFieldName,
-                                          Class mappedClass, String mappedMethod, Class providedClass,
+    public InvalidSourceArgumentException(MappingDetails mappingDetails, Class providedClass,
                                           Class requiredClass) {
         super(
                 String.format(
@@ -14,7 +13,7 @@ public class InvalidSourceArgumentException extends AbstractMappingMethodExcepti
                         requiredClass.getName(),
                         providedClass.getName()
                 ),
-                graphQlTypeName, graphQlFieldName, mappedClass, mappedMethod
+                mappingDetails
         );
 
         this.providedClass = providedClass;

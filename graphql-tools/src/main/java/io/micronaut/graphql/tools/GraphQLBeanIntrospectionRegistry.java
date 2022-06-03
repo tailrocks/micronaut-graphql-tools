@@ -1,7 +1,5 @@
 package io.micronaut.graphql.tools;
 
-import graphql.language.FieldDefinition;
-import graphql.language.ObjectTypeDefinition;
 import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.beans.BeanIntrospection;
@@ -11,6 +9,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
 import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException;
 import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException;
+import io.micronaut.graphql.tools.exceptions.MappingDetails;
 import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException;
 import jakarta.inject.Singleton;
 
@@ -87,31 +86,19 @@ public class GraphQLBeanIntrospectionRegistry {
     }
 
     public BeanIntrospection getGraphQlTypeBeanIntrospection(
-            Class<?> clazz,
-            FieldDefinition fieldDefinition,
-            ObjectTypeDefinition objectTypeDefinition,
-            Class<?> mappedClass,
-            String mappedMethodName
+            MappingDetails mappingDetails,
+            Class<?> clazz
     ) {
         loadTypeIntrospections();
 
         if (clazz.isInterface()) {
             if (!INTERFACE_TO_IMPLEMENTATION.containsKey(clazz)) {
-                throw new ImplementationNotFoundException(
-                        objectTypeDefinition.getName(),
-                        fieldDefinition.getName(),
-                        mappedClass,
-                        mappedMethodName,
-                        clazz
-                );
+                throw new ImplementationNotFoundException(mappingDetails, clazz);
             }
 
             if (INTERFACE_TO_IMPLEMENTATION.get(clazz).size() > 1) {
                 throw new MultipleImplementationsFoundException(
-                        objectTypeDefinition.getName(),
-                        fieldDefinition.getName(),
-                        mappedClass,
-                        mappedMethodName,
+                        mappingDetails,
                         clazz,
                         INTERFACE_TO_IMPLEMENTATION.get(clazz)
                 );
@@ -120,26 +107,13 @@ public class GraphQLBeanIntrospectionRegistry {
             Class<?> implementationClass = INTERFACE_TO_IMPLEMENTATION.get(clazz).get(0);
 
             if (!clazz.isAssignableFrom(implementationClass)) {
-                throw new IncorrectImplementationException(
-                        objectTypeDefinition.getName(),
-                        fieldDefinition.getName(),
-                        mappedClass,
-                        mappedMethodName,
-                        clazz,
-                        implementationClass
-                );
+                throw new IncorrectImplementationException(mappingDetails, clazz, implementationClass);
             }
 
             return TYPE_INTROSPECTIONS.get(implementationClass);
         } else {
             if (!TYPE_INTROSPECTIONS.containsKey(clazz)) {
-                throw new ClassNotIntrospectedException(
-                        objectTypeDefinition.getName(),
-                        fieldDefinition.getName(),
-                        mappedClass,
-                        mappedMethodName,
-                        clazz
-                );
+                throw new ClassNotIntrospectedException(mappingDetails, clazz);
             }
 
             return TYPE_INTROSPECTIONS.get(clazz);
