@@ -69,6 +69,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -259,16 +260,13 @@ public class GraphQLMappingContext {
                 applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
         ));
 
-        if (!(fieldDefinition.getType() instanceof ListType) &&
-                getTypeDefinition(getTypeName(fieldDefinition.getType())) instanceof UnionTypeDefinition) {
-            // TODO skip for now
-        } else {
-            ReturnType<Object> returnType = executable.getReturnType();
+        ReturnType<Object> returnType = executable.getReturnType();
 
-            Class clazz = unwrapArgument(returnType.asArgument()).getType();
+        Class clazz = unwrapArgument(returnType.asArgument()).getType();
 
-            processReturnType(mappingDetails, clazz);
-        }
+        // TODO unwrap non null types
+
+        processReturnType(mappingDetails, mappingDetails.getFieldDefinition().getType(), clazz);
     }
 
     private List<ArgumentDetails> processInputArguments(
@@ -280,7 +278,7 @@ public class GraphQLMappingContext {
         List<Argument> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
 
         if (inputs.isEmpty() && arguments.isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         List<Class> argumentClasses = arguments.stream()
@@ -504,9 +502,10 @@ public class GraphQLMappingContext {
             suggestedMethodArgs.add(sourceClass.getName() + " " + parameterName);
         }
 
+        // TODO map arguments to real classes?
         suggestedMethodArgs.addAll(
                 mappingDetails.getFieldDefinition().getInputValueDefinitions().stream()
-                        .map(it -> getTypeName(it.getType()) + " " + it.getName())
+                        .map(it -> getTypeName(it.getType()).getName() + " " + it.getName())
                         .collect(Collectors.toList())
         );
 
@@ -653,9 +652,9 @@ public class GraphQLMappingContext {
 
             // TODO is mapping details is corrrect?
 
-            processReturnType(mappingDetails, listReturnType);
+            processReturnType(mappingDetails, listFieldType, listReturnType);
         } else {
-            processReturnType(mappingDetails, returnType);
+            processReturnType(mappingDetails, fieldType, returnType);
         }
     }
 
@@ -689,58 +688,51 @@ public class GraphQLMappingContext {
         return Optional.empty();
     }
 
-    private void processReturnType(MappingDetails mappingDetails, Class returnType) {
-        Type graphQlType = mappingDetails.getFieldDefinition().getType();
+    private void processReturnType(MappingDetails mappingDetails, Type graphQlType, Class returnType) {
+        if (!(graphQlType instanceof TypeName)) {
+            throw new UnsupportedOperationException("Unsupported type: " + graphQlType);
+        }
 
-        if (!(graphQlType instanceof ListType) &&
-                getTypeDefinition(getTypeName(graphQlType)) instanceof UnionTypeDefinition) {
-            // TODO skip for now
-        } else {
-            if (!(graphQlType instanceof TypeName)) {
-                throw new UnsupportedOperationException("Unsupported type: " + graphQlType);
+        TypeName typeName = (TypeName) graphQlType;
+
+        if (isBuiltInType(typeName)) {
+            Set<Class> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType).getName());
+
+            if (!supportedClasses.contains(returnType)) {
+                throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
+                        mappingDetails,
+                        returnType,
+                        supportedClasses
+                );
             }
+        } else {
+            TypeDefinition typeDefinition = getTypeDefinition(typeName);
 
-            TypeName typeName = (TypeName) graphQlType;
-
-            if (isBuiltInType(typeName)) {
-                Set<Class> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType).getName());
-
-                if (!supportedClasses.contains(returnType)) {
-                    throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
-                            mappingDetails,
-                            returnType,
-                            supportedClasses
-                    );
-                }
+            if (typeDefinition instanceof EnumTypeDefinition) {
+                registerEnumMapping(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
             } else {
-                TypeDefinition typeDefinition = getTypeDefinition(typeName);
-
-                if (typeDefinition instanceof EnumTypeDefinition) {
-                    registerEnumMapping(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
-                } else {
-                    if (isBuiltInType(returnType)) {
-                        throw IncorrectClassMappingException.ofCustomTypeMappedToBuiltInClass(
-                                mappingDetails,
-                                returnType
-                        );
-                    }
-
-                    if (!(typeDefinition instanceof ObjectTypeDefinition)) {
-                        // TODO custom exception
-                        throw new RuntimeException("Must be ObjectTypeDefinition for type `" + typeName.getName() + "`, but " +
-                                "found: " + typeDefinition);
-                    }
-
-                    BeanIntrospection beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
+                if (isBuiltInType(returnType)) {
+                    throw IncorrectClassMappingException.ofCustomTypeMappedToBuiltInClass(
                             mappingDetails,
                             returnType
                     );
+                }
 
-                    if (registerBeanIntrospectionMapping(typeDefinition.getName(), beanIntrospection)) {
-                        // TODO compare fields
+                if (!(typeDefinition instanceof ObjectTypeDefinition)) {
+                    // TODO custom exception
+                    throw new RuntimeException("Must be ObjectTypeDefinition for type `" + typeName.getName() + "`, but " +
+                            "found: " + typeDefinition);
+                }
 
-                        processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, beanIntrospection);
-                    }
+                BeanIntrospection beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
+                        mappingDetails,
+                        returnType
+                );
+
+                if (registerBeanIntrospectionMapping(typeDefinition.getName(), beanIntrospection)) {
+                    // TODO compare fields
+
+                    processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, beanIntrospection);
                 }
             }
         }

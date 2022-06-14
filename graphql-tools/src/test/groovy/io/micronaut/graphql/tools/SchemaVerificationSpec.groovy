@@ -144,13 +144,13 @@ type Query {
   GraphQL type: Query
   GraphQL field: hello
   Mapped class: ${Query.name}
-  Mapped method: hello
+  Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'hello'
-            e.cause.mappedClass == Query
-            e.cause.mappedMethod == 'hello'
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'hello'
+            e.cause.mappingDetails.mappedClass == Query
+            e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }
@@ -198,16 +198,16 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to the built-in class, but required custom Java class.
+            e.cause.message == """The field is mapped to the built-in class, when required custom Java class.
   GraphQL type: Query
   GraphQL field: currentUser
   Mapped class: ${Query.name}
-  Mapped method: currentUser
+  Mapped method: currentUser()
   Provided class: ${Integer.name}"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'currentUser'
-            e.cause.mappedClass == Query
-            e.cause.mappedMethod == 'currentUser'
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'currentUser'
+            e.cause.mappingDetails.mappedClass == Query
+            e.cause.mappingDetails.mappedMethod == 'currentUser()'
             e.cause.providedClass == Integer
     }
 
@@ -250,10 +250,10 @@ type Query {
   GraphQL field: username
   Mapped class: ${Query1.name}
   Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == Query1
-            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == Query1
+            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }
@@ -271,10 +271,10 @@ type Query {
   GraphQL field: username
   Mapped class: ${Query2.name}
   Mapped method: username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == Query2
+            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }
@@ -325,10 +325,10 @@ type Query {
   GraphQL field: username
   Mapped class: ${Query1.name}
   Mapped method: username()"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == Query1
-            e.cause.mappedMethod == 'username()'
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == Query1
+            e.cause.mappingDetails.mappedMethod == 'username()'
             e.cause.providedCount == 0
             e.cause.requiredCount == 1
     }
@@ -346,10 +346,10 @@ type Query {
   GraphQL field: username
   Mapped class: ${Query2.name}
   Mapped method: username(${DataFetchingEnvironment.name} dfe)"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == "username(${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == Query2
+            e.cause.mappingDetails.mappedMethod == "username(${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 0
             e.cause.requiredCount == 1
     }
