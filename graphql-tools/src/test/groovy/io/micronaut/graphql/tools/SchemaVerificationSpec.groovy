@@ -1101,17 +1101,16 @@ enum Month {
   GraphQL type: Query
   GraphQL field: month
   Mapped class: ${Query1.name}
-  Mapped method: month
+  Mapped method: month()
   Provided class: ${MyMonth.name}"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'month'
-            e.cause.mappedClass == Query1
-            e.cause.mappedMethod == 'month'
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'month'
+            e.cause.mappingDetails.mappedClass == Query1
+            e.cause.mappingDetails.mappedMethod == 'month()'
             e.cause.providedClass == MyMonth
     }
 
-    // TODO
-    void "test TODO2"() {
+    void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -1138,17 +1137,16 @@ enum Month {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to built-in class, but required custom Java class
-  GraphQL type: User
-  GraphQL field: currentUser
-  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
-  Mapped method name: currentUser
-  Provided class: ${Integer.name}"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'currentUser'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == 'currentUser'
-            e.cause.providedClass == Integer
+            e.cause.message == """The field is mapped to the class, when required Enum.
+  GraphQL type: Query
+  GraphQL field: displayName
+  Mapped class: ${SchemaVerificationSpec12.name}\$${Query2.simpleName}
+  Mapped method: displayName(java.lang.String value)
+  Provided class: java.lang.String"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'displayName'
+            e.cause.mappingDetails.mappedClass == Query2
+            e.cause.mappingDetails.mappedMethod == 'displayName(java.lang.String value)'
     }
 
     void "test mapping to an enum with missed values"() {
@@ -1182,12 +1180,12 @@ enum Month {
   GraphQL type: Query
   GraphQL field: month
   Mapped class: ${Query3.name}
-  Mapped method: month
+  Mapped method: month()
   Missing values: MARCH"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'month'
-            e.cause.mappedClass == Query3
-            e.cause.mappedMethod == 'month'
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'month'
+            e.cause.mappingDetails.mappedClass == Query3
+            e.cause.mappingDetails.mappedMethod == 'month()'
             e.cause.missingValues == ['MARCH']
     }
 
@@ -1223,11 +1221,11 @@ enum Month {
   GraphQL type: Query
   GraphQL field: nextMonth
   Mapped class: ${Query4.name}
-  Mapped method: nextMonth"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'nextMonth'
-            e.cause.mappedClass == Query4
-            e.cause.mappedMethod == 'nextMonth'
+  Mapped method: nextMonth()"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'nextMonth'
+            e.cause.mappingDetails.mappedClass == Query4
+            e.cause.mappingDetails.mappedMethod == 'nextMonth()'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME_1)
