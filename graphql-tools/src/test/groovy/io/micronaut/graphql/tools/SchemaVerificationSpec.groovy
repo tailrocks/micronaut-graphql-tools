@@ -8,7 +8,6 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException
-
 import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
@@ -189,7 +188,7 @@ type User {
             startContext(schema, SPEC_NAME)
 
         when:
-            def result = executeQuery("""
+            executeQuery("""
 {
     hello
 }
@@ -405,10 +404,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User1.name}
   Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1
-            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User1
+            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }
@@ -426,10 +425,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User2.name}
   Mapped method: username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User2
-            e.cause.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User2
+            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }
@@ -500,10 +499,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User1Resolver.name}
   Mapped method: username(${User1.name} user)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${User1.name} user)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User1Resolver
+            e.cause.mappingDetails.mappedMethod == "username(${User1.name} user)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 2
     }
@@ -521,10 +520,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User2Resolver.name}
   Mapped method: username(${User2.name} user, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User2Resolver
-            e.cause.mappedMethod == "username(${User2.name} user, ${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User2Resolver
+            e.cause.mappingDetails.mappedMethod == "username(${User2.name} user, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 2
     }
@@ -606,10 +605,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User1Resolver.name}
   Mapped method: username(${User1.name} user, ${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${User1.name} user, ${String.name} uid)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User1Resolver
+            e.cause.mappingDetails.mappedMethod == "username(${User1.name} user, ${String.name} uid)"
             e.cause.providedCount == 2
             e.cause.requiredCount == 1
     }
@@ -627,10 +626,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User2Resolver.name}
   Mapped method: username(${User2.name} user, ${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User2Resolver
-            e.cause.mappedMethod == "username(${User2.name} user, ${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User2Resolver
+            e.cause.mappingDetails.mappedMethod == "username(${User2.name} user, ${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 2
             e.cause.requiredCount == 1
     }
@@ -712,10 +711,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User1Resolver.name}
   Mapped method: username(${String.name} uid)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User1Resolver
-            e.cause.mappedMethod == "username(${String.name} uid)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User1Resolver
+            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid)"
             e.cause.providedClass == String
             e.cause.requiredClass == User1
     }
@@ -733,10 +732,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User2Resolver.name}
   Mapped method: username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.graphQlType == 'User'
-            e.cause.graphQlField == 'username'
-            e.cause.mappedClass == User2Resolver
-            e.cause.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingDetails.mappedClass == User2Resolver
+            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedClass == String
             e.cause.requiredClass == User2
     }
@@ -819,11 +818,11 @@ type User {
   GraphQL type: Query
   GraphQL field: user
   Mapped class: ${Query4.name}
-  Mapped method: user"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'user'
-            e.cause.mappedClass == Query4
-            e.cause.mappedMethod == "user"
+  Mapped method: user()"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'user'
+            e.cause.mappingDetails.mappedClass == Query4
+            e.cause.mappingDetails.mappedMethod == "user()"
     }
 
     void "test root resolver returns interface which implementation class is not marked correctly with annotation"() {
@@ -838,11 +837,11 @@ type User {
   GraphQL type: Query
   GraphQL field: user
   Mapped class: ${Query1.name}
-  Mapped method: user"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'user'
-            e.cause.mappedClass == Query1
-            e.cause.mappedMethod == "user"
+  Mapped method: user()"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'user'
+            e.cause.mappingDetails.mappedClass == Query1
+            e.cause.mappingDetails.mappedMethod == "user()"
     }
 
     void "test root resolver returns interface which is not implemented in introspected class"() {
@@ -857,12 +856,12 @@ type User {
   GraphQL type: Query
   GraphQL field: user
   Mapped class: ${Query2.name}
-  Mapped method: user
+  Mapped method: user()
   Implementation class: ${User2Impl.name}"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'user'
-            e.cause.mappedClass == Query2
-            e.cause.mappedMethod == "user"
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'user'
+            e.cause.mappingDetails.mappedClass == Query2
+            e.cause.mappingDetails.mappedMethod == "user()"
             e.cause.implementationClass == User2Impl
     }
 
@@ -878,12 +877,12 @@ type User {
   GraphQL type: Query
   GraphQL field: user
   Mapped class: ${Query3.name}
-  Mapped method: user
+  Mapped method: user()
   Implementation classes: ${User3AltImpl.name}, ${User3Impl.name}"""
-            e.cause.graphQlType == 'Query'
-            e.cause.graphQlField == 'user'
-            e.cause.mappedClass == Query3
-            e.cause.mappedMethod == "user"
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'user'
+            e.cause.mappingDetails.mappedClass == Query3
+            e.cause.mappingDetails.mappedMethod == "user()"
             e.cause.implementationClasses == [User3AltImpl, User3Impl]
     }
 

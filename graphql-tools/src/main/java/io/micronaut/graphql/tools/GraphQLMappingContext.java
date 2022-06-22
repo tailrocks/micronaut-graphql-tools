@@ -611,6 +611,9 @@ public class GraphQLMappingContext {
                 } else if (!beanMethods.isEmpty()) {
                     BeanMethod beanMethod = beanMethods.get(0);
 
+                    mappingDetails = MappingDetails.forField(mappingDetails, beanMethod.getDeclaringType(),
+                            getExecutableMethodFullName(beanMethod));
+
                     checkInputValueDefinitions(mappingDetails, beanMethod, null);
 
                     List<ArgumentDetails> argumentDetails = processInputArguments(
