@@ -48,7 +48,7 @@ type User {
             e.cause.message == """The field is mapped to built-in class, but required custom Java class
   GraphQL type: User
   GraphQL field: currentUser
-  Mapped class: ${SchemaVerificationSpec6.name}\$${Query5.simpleName}
+  Mapped class: ${IncorrectArgumentCountExceptionSpec3.name}\$${Query5.simpleName}
   Mapped method name: currentUser
   Provided class: ${Integer.name}"""
             e.cause.graphQlType == 'User'
