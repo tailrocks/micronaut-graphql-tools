@@ -50,11 +50,11 @@ import io.micronaut.core.type.ReturnType;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
-import io.micronaut.graphql.tools.exceptions.MappingDetails;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MappingConflictException;
+import io.micronaut.graphql.tools.exceptions.MappingDetails;
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
 import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException;
@@ -692,6 +692,10 @@ public class GraphQLMappingContext {
     }
 
     private void processReturnType(MappingDetails mappingDetails, Type graphQlType, Class returnType) {
+        if (graphQlType instanceof NonNullType) {
+            graphQlType = unwrapNonNullType(graphQlType);
+        }
+
         if (!(graphQlType instanceof TypeName)) {
             throw new UnsupportedOperationException("Unsupported type: " + graphQlType);
         }
