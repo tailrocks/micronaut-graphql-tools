@@ -89,8 +89,8 @@ type Query {
 
 class IncorrectArgumentCountExceptionSpec2 extends AbstractTest {
 
-    static final String SPEC_NAME_1 = "SchemaVerificationSpec5_1"
-    static final String SPEC_NAME_2 = "SchemaVerificationSpec5_2"
+    static final String SPEC_NAME_1 = "IncorrectArgumentCountExceptionSpec2_1"
+    static final String SPEC_NAME_2 = "IncorrectArgumentCountExceptionSpec2_2"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -223,7 +223,7 @@ type User {
 }
 
 
-class IncorrectArgumentCountExceptionSpec6 extends AbstractTest {
+class IncorrectArgumentCountExceptionSpec4 extends AbstractTest {
 
     static final String SPEC_NAME = "IncorrectArgumentCountExceptionSpec6"
 
@@ -282,7 +282,7 @@ type User {
 }
 
 
-class IncorrectArgumentCountExceptionSpec4 extends AbstractTest {
+class IncorrectArgumentCountExceptionSpec5 extends AbstractTest {
 
     static final String SPEC_NAME = "IncorrectArgumentCountExceptionSpec4"
 
@@ -346,7 +346,7 @@ type User {
 }
 
 
-class IncorrectArgumentCountExceptionSpec7 extends AbstractTest {
+class IncorrectArgumentCountExceptionSpec6 extends AbstractTest {
 
     static final String SPEC_NAME = "IncorrectArgumentCountExceptionSpec7"
 
@@ -410,7 +410,7 @@ type User {
 }
 
 
-class IncorrectArgumentCountExceptionSpec5 extends AbstractTest {
+class IncorrectArgumentCountExceptionSpec7 extends AbstractTest {
 
     static final String SPEC_NAME = "IncorrectArgumentCountExceptionSpec5"
 
