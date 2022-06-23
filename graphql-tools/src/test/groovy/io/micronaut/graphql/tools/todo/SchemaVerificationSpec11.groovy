@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.todo
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -6,6 +6,8 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountExceptionSpec3
+import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
 class SchemaVerificationSpec11 extends AbstractTest {

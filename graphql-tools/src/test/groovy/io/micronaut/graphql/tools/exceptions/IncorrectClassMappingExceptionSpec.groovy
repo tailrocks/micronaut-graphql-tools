@@ -8,7 +8,7 @@ import org.intellij.lang.annotations.Language
 
 class IncorrectClassMappingExceptionSpec1 extends AbstractTest {
 
-    static final String SPEC_NAME = "SchemaVerificationSpec2"
+    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec1"
 
     void "test mapping built-in GraphQL type to a wrong class"() {
         given:
@@ -94,7 +94,7 @@ type Query {
 
 class IncorrectClassMappingExceptionSpec2 extends AbstractTest {
 
-    static final String SPEC_NAME = "SchemaVerificationSpec3"
+    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec2"
 
     void "test mapping custom GraphQL type to a wrong class"() {
         given:
