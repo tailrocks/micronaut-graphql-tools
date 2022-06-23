@@ -264,8 +264,6 @@ public class GraphQLMappingContext {
 
         Class clazz = unwrapArgument(returnType.asArgument()).getType();
 
-        // TODO unwrap non null types
-
         processReturnType(mappingDetails, mappingDetails.getFieldDefinition().getType(), clazz);
     }
 
@@ -531,20 +529,25 @@ public class GraphQLMappingContext {
         }
     }
 
-    private static String getExecutableMethodFullName(Executable executable) {
+    private static String getExecutableMethodFullName(Executable<?, ?> executable) {
         if (executable instanceof ExecutableMethod) {
-            ExecutableMethod executableMethod = (ExecutableMethod) executable;
+            ExecutableMethod<?, ?> executableMethod = (ExecutableMethod<?, ?>) executable;
 
             String args = Arrays.stream(executableMethod.getArguments())
                     .map(arg -> arg.getTypeString(false) + " " + arg.getName())
                     .collect(Collectors.joining(", "));
             return executableMethod.getName() + "(" + args + ")";
         } else if (executable instanceof BeanMethod) {
-            BeanMethod beanMethod = (BeanMethod) executable;
+            BeanMethod<?, ?> beanMethod = (BeanMethod<?, ?>) executable;
             return beanMethod.getName();
         } else {
             throw new UnsupportedOperationException("Unsupported executable class: " + executable.getClass());
         }
+    }
+
+    private static String getPropertyMethodName(BeanProperty beanProperty) {
+        return "get" + beanProperty.getName().substring(0, 1).toUpperCase()
+                + beanProperty.getName().substring(1) + "()";
     }
 
     private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, BeanIntrospection beanIntrospection) {
@@ -604,6 +607,9 @@ public class GraphQLMappingContext {
                     processReturnTypeForBeanProperty(mappingDetails, argument);
                 } else if (beanProperty.isPresent()) {
                     Argument argument = beanProperty.get().asArgument();
+
+                    mappingDetails = MappingDetails.forField(mappingDetails, beanIntrospection.getBeanType(),
+                            getPropertyMethodName(beanProperty.get()));
 
                     checkInputValueDefinitions(mappingDetails, beanProperty.get());
 
