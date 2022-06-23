@@ -18,7 +18,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 
     static final String SCHEMA_CONFIG = "DataFetchingEnvironmentSpec#1"
 
-    void "test DataFetchingEnvironment passed to Query's field"() {
+    void "test DataFetchingEnvironment passed to GraphQLRootResolver"() {
         given:
             startContext(SCHEMA, SCHEMA_CONFIG)
 
@@ -37,7 +37,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             result.data.userSignedIn.email == 'me@test.com'
     }
 
-    void "test DataFetchingEnvironment passed to Resolver's field"() {
+    void "test DataFetchingEnvironment passed to GraphQLTypeResolver"() {
         given:
             startContext(SCHEMA, SCHEMA_CONFIG)
 

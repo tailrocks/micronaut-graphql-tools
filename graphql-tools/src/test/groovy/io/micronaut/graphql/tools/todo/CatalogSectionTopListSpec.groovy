@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools
+package io.micronaut.graphql.tools.todo
 
 import graphql.GraphQL
 import graphql.schema.idl.SchemaParser
@@ -7,6 +7,7 @@ import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Requires
 import io.micronaut.core.io.ResourceResolver
+import io.micronaut.graphql.tools.AbstractTest
 import jakarta.inject.Singleton
 
 class CatalogSectionTopListSpec extends AbstractTest {
