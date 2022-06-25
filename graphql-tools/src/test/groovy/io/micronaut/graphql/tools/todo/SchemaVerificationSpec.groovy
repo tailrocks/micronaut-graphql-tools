@@ -88,7 +88,7 @@ enum Month {
             e.cause.message == """The field is mapped to the class, when required Enum.
   GraphQL type: Query
   GraphQL field: displayName
-  Mapped class: ${SchemaVerificationSpec12.name}\$${Query2.simpleName}
+  Mapped class: ${SchemaVerificationSpec.name}\$${Query2.simpleName}
   Mapped method: displayName(java.lang.String value)
   Provided class: java.lang.String"""
             e.cause.mappingDetails.graphQlType == 'Query'
