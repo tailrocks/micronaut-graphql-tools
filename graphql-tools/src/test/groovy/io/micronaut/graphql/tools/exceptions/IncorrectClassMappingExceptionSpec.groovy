@@ -35,13 +35,13 @@ type Query {
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
   GraphQL field: hello
-  Mapped class: ${IncorrectClassMappingExceptionSpec1.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'hello'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec1.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
@@ -71,13 +71,13 @@ type Query {
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
   GraphQL field: hello
-  Mapped class: ${IncorrectClassMappingExceptionSpec1.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'hello'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec1.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
@@ -281,11 +281,126 @@ type User {
 
     @GraphQLType
     static class User {
-
         Integer getUsername() {
             return 0
         }
+    }
 
+}
+
+
+class IncorrectClassMappingExceptionSpec4 extends AbstractTest {
+
+    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec4"
+
+    void "test GraphQL schema enum mapped to a Java class"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  month: Month
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectClassMappingException
+            e.cause.message == """The field is mapped to the class, when required Enum.
+  GraphQL type: Query
+  GraphQL field: month
+  Mapped class: ${Query.name}
+  Mapped method: month()
+  Provided class: ${MyMonth.name}"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'month'
+            e.cause.mappingDetails.mappedClass == Query
+            e.cause.mappingDetails.mappedMethod == 'month()'
+            e.cause.providedClass == MyMonth
+    }
+
+
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    @GraphQLRootResolver
+    static class Query {
+        MyMonth month() {
+            return null
+        }
+    }
+
+    @GraphQLType
+    static class MyMonth {
+        String getJanuary() {
+            return "JAN"
+        }
+    }
+
+}
+
+
+class IncorrectClassMappingExceptionSpec5 extends AbstractTest {
+
+    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec5"
+
+    void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  displayName(value: Month!): String
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectClassMappingException
+            e.cause.message == """The field is mapped to the class, when required Enum.
+  GraphQL type: Query
+  GraphQL field: displayName
+  Mapped class: ${IncorrectClassMappingExceptionSpec5.name}\$${Query.simpleName}
+  Mapped method: displayName(java.lang.String value)
+  Provided class: java.lang.String"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'displayName'
+            e.cause.mappingDetails.mappedClass == Query
+            e.cause.mappingDetails.mappedMethod == 'displayName(java.lang.String value)'
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    @GraphQLRootResolver
+    static class Query {
+        String displayName(String value) {
+            return null
+        }
     }
 
 }

@@ -1,0 +1,77 @@
+package io.micronaut.graphql.tools.exceptions
+
+import io.micronaut.context.annotation.Requires
+import io.micronaut.context.exceptions.BeanInstantiationException
+import io.micronaut.graphql.tools.AbstractTest
+import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
+import io.micronaut.graphql.tools.exceptions.MappingConflictException
+import org.intellij.lang.annotations.Language
+
+class MappingConflictExceptionSpec extends AbstractTest {
+
+    static final String SPEC_NAME = "MappingConflictExceptionSpec"
+
+    void "test enum mapped to a different classes"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  currentMonth: Month
+  nextMonth: Month
+}
+
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+}
+"""
+
+            startContext(schema, SPEC_NAME)
+
+        when:
+            executeQuery("{month}")
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof MappingConflictException
+            e.cause.message == """Unable to map GraphQL enum `Month` to ${AnotherMonth.name}, as it is already mapped to ${Month.name}.
+  GraphQL type: Query
+  GraphQL field: nextMonth
+  Mapped class: ${Query.name}
+  Mapped method: nextMonth()"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'nextMonth'
+            e.cause.mappingDetails.mappedClass == Query
+            e.cause.mappingDetails.mappedMethod == 'nextMonth()'
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    @GraphQLRootResolver
+    static class Query {
+        Month currentMonth() {
+            return null
+        }
+
+        AnotherMonth nextMonth() {
+            return null
+        }
+    }
+
+    static enum Month {
+        JANUARY,
+        FEBRUARY,
+        MARCH
+    }
+
+    static enum AnotherMonth {
+        JANUARY,
+        FEBRUARY,
+        MARCH
+    }
+
+}
