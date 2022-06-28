@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 
 public class IncorrectClassMappingException extends AbstractMappingMethodException {
 
-    private final Class providedClass;
-    private final Set<Class> supportedClasses;
+    private final Class<?> providedClass;
+    private final Set<Class<?>> supportedClasses;
 
     public static IncorrectClassMappingException ofCustomTypeMappedToBuiltInClass(
             MappingDetails mappingDetails,
-            Class providedClass
+            Class<?> providedClass
     ) {
         return new IncorrectClassMappingException(
                 "The field is mapped to the built-in class, when required custom Java class.",
@@ -22,8 +22,8 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
 
     public static IncorrectClassMappingException ofBuiltInTypeMappedToCustomClass(
             MappingDetails mappingDetails,
-            Class providedClass,
-            Set<Class> supportedClasses
+            Class<?> providedClass,
+            Set<Class<?>> supportedClasses
     ) {
         return new IncorrectClassMappingException(
                 "The field is mapped to the incorrect class.",
@@ -33,7 +33,7 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
 
     public static IncorrectClassMappingException ofEnumMappedToNotEnum(
             MappingDetails mappingDetails,
-            Class providedClass
+            Class<?> providedClass
     ) {
         String type = "class";
         if (providedClass.isAnnotation()) {
@@ -52,20 +52,20 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         );
     }
 
-    public IncorrectClassMappingException(String message, MappingDetails mappingDetails, Class providedClass,
-                                          @Nullable Set<Class> supportedClasses) {
+    public IncorrectClassMappingException(String message, MappingDetails mappingDetails, Class<?> providedClass,
+                                          @Nullable Set<Class<?>> supportedClasses) {
         super(message, mappingDetails);
 
         this.providedClass = providedClass;
         this.supportedClasses = supportedClasses;
     }
 
-    public Class getProvidedClass() {
+    public Class<?> getProvidedClass() {
         return providedClass;
     }
 
     @Nullable
-    public Set<Class> getSupportedClasses() {
+    public Set<Class<?>> getSupportedClasses() {
         return supportedClasses;
     }
 

@@ -88,23 +88,23 @@ import static io.micronaut.graphql.tools.BeanIntrospectionUtils.generateGetMetho
 @Infrastructure
 public class GraphQLMappingContext {
 
-    private static final Map<String, Set<Class>> SYSTEM_TYPES = new HashMap<>();
+    private static final Map<String, Set<Class<?>>> SYSTEM_TYPES = new HashMap<>();
 
     // TODO validate all system types
     static {
         SYSTEM_TYPES.put("Int", new HashSet<>(Arrays.asList(int.class, Integer.class)));
         SYSTEM_TYPES.put("Float", new HashSet<>(Arrays.asList(float.class, Float.class)));
-        SYSTEM_TYPES.put("String", new HashSet<>(Arrays.asList(String.class)));
+        SYSTEM_TYPES.put("String", new HashSet<>(Collections.singletonList(String.class)));
         SYSTEM_TYPES.put("Boolean", new HashSet<>(Arrays.asList(boolean.class, Boolean.class)));
-        SYSTEM_TYPES.put("ID", new HashSet<>(Arrays.asList(String.class)));
-        SYSTEM_TYPES.put("BigDecimal", new HashSet<>(Arrays.asList(BigDecimal.class)));
-        SYSTEM_TYPES.put("BigInteger", new HashSet<>(Arrays.asList(BigInteger.class)));
+        SYSTEM_TYPES.put("ID", new HashSet<>(Collections.singletonList(String.class)));
+        SYSTEM_TYPES.put("BigDecimal", new HashSet<>(Collections.singletonList(BigDecimal.class)));
+        SYSTEM_TYPES.put("BigInteger", new HashSet<>(Collections.singletonList(BigInteger.class)));
         SYSTEM_TYPES.put("Char", new HashSet<>(Arrays.asList(char.class, Character.class)));
         SYSTEM_TYPES.put("Short", new HashSet<>(Arrays.asList(short.class, Short.class)));
         SYSTEM_TYPES.put("Long", new HashSet<>(Arrays.asList(long.class, Long.class)));
     }
 
-    private static final Set<Class> SYSTEM_TYPES_CACHE = SYSTEM_TYPES.values().stream()
+    private static final Set<Class<?>> SYSTEM_TYPES_CACHE = SYSTEM_TYPES.values().stream()
             .flatMap(Set::stream)
             .collect(Collectors.toSet());
 
@@ -403,7 +403,7 @@ public class GraphQLMappingContext {
 
             return null;
         } else if (isBuiltInType(typeName)) {
-            Set<Class> supportedClasses = SYSTEM_TYPES.get(typeName);
+            Set<Class<?>> supportedClasses = SYSTEM_TYPES.get(typeName);
 
             if (!supportedClasses.contains(clazz)) {
                 throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
@@ -709,7 +709,7 @@ public class GraphQLMappingContext {
         TypeName typeName = (TypeName) graphQlType;
 
         if (isBuiltInType(typeName)) {
-            Set<Class> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType).getName());
+            Set<Class<?>> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType).getName());
 
             if (!supportedClasses.contains(returnType)) {
                 throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
