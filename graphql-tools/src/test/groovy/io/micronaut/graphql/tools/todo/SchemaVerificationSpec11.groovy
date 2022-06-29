@@ -63,23 +63,22 @@ type User {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query1 {
-        SchemaVerificationSpec11.User1 user() {
+        User user() {
             return null
         }
     }
 
     @GraphQLType
-    static class User1 {
+    static class User {
         String getUsername() {
             return "abc"
         }
     }
 
-    // TODO restore me
-    //@GraphQLTypeResolver
-    @GraphQLTypeResolver(SchemaVerificationSpec11.User1)
-    static class User1Resolver {
-        String gravatar(SchemaVerificationSpec11.User1 user) {
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    @GraphQLTypeResolver
+    static class UserResolver {
+        String gravatar(User user) {
             return null
         }
     }
