@@ -22,15 +22,10 @@ public class MissingEnumValuesException extends AbstractMappingMethodException {
 
     @Override
     public String getMessage() {
-        StringBuilder builder = new StringBuilder(super.getMessage());
-
-        builder.append("\n  Missing values: ").append(
+        return super.getMessage() + "\n  Missing values: " +
                 missingValues.stream()
                         .sorted()
-                        .collect(Collectors.joining(", "))
-        );
-
-        return builder.toString();
+                        .collect(Collectors.joining(", "));
     }
 
 }

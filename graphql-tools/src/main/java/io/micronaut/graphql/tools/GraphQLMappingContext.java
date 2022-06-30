@@ -50,6 +50,7 @@ import io.micronaut.core.type.ReturnType;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
@@ -182,14 +183,11 @@ public class GraphQLMappingContext {
     }
 
     void registerTypeExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
-        Optional<AnnotationClassValue<Class>> annotationValue =
-                (Optional) beanDefinition.getValue(GraphQLTypeResolver.class, AnnotationMetadata.VALUE_MEMBER);
+        AnnotationClassValue<Class<?>> annotationValue = (AnnotationClassValue<Class<?>>) beanDefinition
+                .getValue(GraphQLTypeResolver.class, AnnotationMetadata.VALUE_MEMBER)
+                .orElseThrow(() -> new IncorrectAnnotationException(beanDefinition.getBeanType()));
 
-        if (!annotationValue.isPresent()) {
-            throw new RuntimeException("Empty value for " + GraphQLTypeResolver.class.getSimpleName() + " annotation");
-        }
-
-        Class<?> modelClass = annotationValue.get().getType().get();
+        Class<?> modelClass = annotationValue.getType().get();
 
         typeResolvers.putIfAbsent(modelClass, new ArrayList<>());
 

@@ -2,9 +2,9 @@ package io.micronaut.graphql.tools.exceptions;
 
 public abstract class AbstractMappingException extends RuntimeException {
 
-    private final MappingDetails mappingDetails;
+    private final transient MappingDetails mappingDetails;
 
-    public AbstractMappingException(
+    protected AbstractMappingException(
             String message,
             MappingDetails mappingDetails
     ) {

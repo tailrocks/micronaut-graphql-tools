@@ -22,11 +22,7 @@ public class IncorrectImplementationException extends AbstractMappingMethodExcep
 
     @Override
     public String getMessage() {
-        StringBuilder builder = new StringBuilder(super.getMessage());
-
-        builder.append("\n  Implementation class: ").append(implementationClass.getName());
-
-        return builder.toString();
+        return super.getMessage() + "\n  Implementation class: " + implementationClass.getName();
     }
 
 }
