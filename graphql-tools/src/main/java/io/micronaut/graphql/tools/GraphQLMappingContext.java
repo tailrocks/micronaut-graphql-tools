@@ -43,6 +43,7 @@ import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.beans.BeanIntrospection;
+import io.micronaut.core.beans.BeanIntrospector;
 import io.micronaut.core.beans.BeanMethod;
 import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.core.type.Argument;
@@ -51,6 +52,7 @@ import io.micronaut.core.type.ReturnType;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
 import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
@@ -205,7 +207,7 @@ public class GraphQLMappingContext {
         }).addExecutableMethod(method);
     }
 
-    private TypeDefinition getTypeDefinition(TypeName typeName) {
+    private TypeDefinition<?> getTypeDefinition(TypeName typeName) {
         return Optional.ofNullable(types.get(typeName.getName())).orElseThrow(() -> {
             // TODO
             throw new RuntimeException("TypeDefinition not found by name: " + typeName.getName());
@@ -222,21 +224,21 @@ public class GraphQLMappingContext {
     }
 
     private void processOperationTypeDefinition(OperationTypeDefinition operationTypeDefinition) {
-        ObjectTypeDefinition typeDefinition = (ObjectTypeDefinition)
+        ObjectTypeDefinition objectTypeDefinition = (ObjectTypeDefinition)
                 getTypeDefinition(operationTypeDefinition.getTypeName());
 
-        rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), (typeWiring) -> {
-            for (FieldDefinition fieldDefinition : typeDefinition.getFieldDefinitions()) {
-                processRootFieldDefinition(fieldDefinition, typeDefinition, typeWiring);
+        rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeWiring -> {
+            for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
+                processFieldDefinition(fieldDefinition, objectTypeDefinition, typeWiring);
             }
 
             return typeWiring;
         });
     }
 
-    private void processRootFieldDefinition(FieldDefinition fieldDefinition,
-                                            ObjectTypeDefinition objectTypeDefinition,
-                                            TypeRuntimeWiring.Builder runtimeWiringBuilder) {
+    private void processFieldDefinition(FieldDefinition fieldDefinition,
+                                        ObjectTypeDefinition objectTypeDefinition,
+                                        TypeRuntimeWiring.Builder runtimeWiringBuilder) {
         BeanDefinitionAndMethod beanDefinitionAndMethod = findExecutableMethodByFieldName(fieldDefinition.getName());
 
         if (beanDefinitionAndMethod == null) {
@@ -359,7 +361,7 @@ public class GraphQLMappingContext {
             // TODO add arguments details
 
             // FIXME
-            Class inputClass = processInputTypeDefinition(mappingDetails, typeName, returnType);
+            Class inputClass = processInputType(typeName, mappingDetails, returnType);
 
             result.add(new ArgumentDetails(inputs.get(i).getName(), inputClass));
         }
@@ -396,11 +398,11 @@ public class GraphQLMappingContext {
     }
 
     @Nullable
-    private Class processInputTypeDefinition(MappingDetails mappingDetails, TypeName typeName, Class clazz) {
-        TypeDefinition typeDefinition = getTypeDefinition(typeName);
+    private Class processInputType(TypeName typeName, MappingDetails mappingDetails, Class clazz) {
+        TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
-            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, clazz);
+            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, mappingDetails, clazz);
 
             return clazz;
         } else if (typeDefinition instanceof EnumTypeDefinition) {
@@ -424,11 +426,17 @@ public class GraphQLMappingContext {
         }
     }
 
-    private void processInputObjectTypeDefinition(InputObjectTypeDefinition objectTypeDefinition, Class targetClass) {
-        BeanIntrospection beanIntrospection = BeanIntrospection.getIntrospection(targetClass);
+    private void processInputObjectTypeDefinition(InputObjectTypeDefinition objectTypeDefinition,
+                                                  MappingDetails mappingDetails, Class<Object> targetClass) {
+        BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED.findIntrospection(targetClass)
+                .orElseThrow(() -> new ClassNotIntrospectedException(mappingDetails, targetClass, GraphQLInput.class));
 
-        if (beanIntrospection == null) {
-            throw new RuntimeException("No bean introspection found for: " + targetClass + ". Probably " + GraphQLInput.class.getSimpleName() + " annotation was not added or processed by Micronaut.");
+        if (
+                beanIntrospection.getBeanType().isInterface()
+                        || beanIntrospection.getBeanType().isEnum()
+                        || beanIntrospection.getBeanType().isAnnotation()
+        ) {
+            throw new RuntimeException(GraphQLInput.class.getSimpleName() + " annotation can be used only on classes. Found wrong usage: " + beanIntrospection.getBeanType());
         }
 
         if (registerBeanIntrospectionMapping(objectTypeDefinition.getName(), beanIntrospection)) {
@@ -456,7 +464,7 @@ public class GraphQLMappingContext {
                     //throw new UnsupportedOperationException();
                 } else if (fieldType instanceof TypeName) {
                     // TODO custom exception
-                    processInputTypeDefinition(null, (TypeName) fieldType, returnType);
+                    processInputType((TypeName) fieldType, null, returnType);
                 } else {
                     throw new RuntimeException("Unknown field type: " + fieldType);
                 }
