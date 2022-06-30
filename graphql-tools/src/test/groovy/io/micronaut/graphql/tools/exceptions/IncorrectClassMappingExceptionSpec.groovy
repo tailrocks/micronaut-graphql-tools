@@ -189,8 +189,7 @@ class IncorrectClassMappingExceptionSpec3 extends AbstractTest {
 
     static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec3"
 
-// TODO name this test
-    void "test TODO1"() {
+    void "test GraphQL field inside sub-type mapped to the incorrect class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -230,8 +229,7 @@ type User {
             e.cause.supportedClasses == [String] as HashSet
     }
 
-// TODO name this test
-    void "test TODO1 [required field]"() {
+    void "test GraphQL field inside sub-type mapped to the incorrect class [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """
