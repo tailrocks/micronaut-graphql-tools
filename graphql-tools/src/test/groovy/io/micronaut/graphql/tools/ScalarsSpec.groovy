@@ -31,7 +31,8 @@ type Query {
             startContext(schema, SPEC_NAME)
 
         when:
-            def result = executeQuery("""{
+            def result = executeQuery("""
+{
     testString
     testBoolean1
     testBoolean2
@@ -40,7 +41,8 @@ type Query {
     testFloat1
     testFloat2
     testID
-}""")
+}
+""")
 
         then:
             result.errors.isEmpty()
@@ -123,14 +125,16 @@ type Query {
             startContext(schema, SPEC_NAME)
 
         when:
-            def result = executeQuery("""{
+            def result = executeQuery("""
+{
     testLong1
     testLong2
     testShort1
     testShort2
     testBigDecimal
     testBigInteger
-}""")
+}
+""")
 
         then:
             result.errors.isEmpty()

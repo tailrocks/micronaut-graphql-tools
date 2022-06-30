@@ -1,26 +1,21 @@
 package io.micronaut.graphql.tools
 
 import graphql.schema.DataFetchingEnvironment
-import graphql.schema.idl.SchemaParser
-import graphql.schema.idl.TypeDefinitionRegistry
-import io.micronaut.context.annotation.Bean
-import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
-import jakarta.inject.Singleton
 import org.intellij.lang.annotations.Language
 
 import static java.util.Arrays.asList
 
 class DataFetchingEnvironmentSpec extends AbstractTest {
 
-    static final String SCHEMA_CONFIG = "DataFetchingEnvironmentSpec#1"
+    static final String SPEC_NAME = "DataFetchingEnvironmentSpec"
 
     void "test DataFetchingEnvironment passed to GraphQLRootResolver"() {
         given:
-            startContext(SCHEMA, SCHEMA_CONFIG)
+            startContext(SCHEMA, SPEC_NAME)
 
         when:
             def result = executeQuery("""
@@ -39,7 +34,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 
     void "test DataFetchingEnvironment passed to GraphQLTypeResolver"() {
         given:
-            startContext(SCHEMA, SCHEMA_CONFIG)
+            startContext(SCHEMA, SPEC_NAME)
 
         when:
             def result = executeQuery("""
@@ -80,7 +75,7 @@ type PaymentMethod {
 }
 """
 
-    @Requires(property = 'spec.name', value = SCHEMA_CONFIG)
+    @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
         User userSignedIn(DataFetchingEnvironment env) {
@@ -91,7 +86,7 @@ type PaymentMethod {
         }
     }
 
-    @Requires(property = 'spec.name', value = SCHEMA_CONFIG)
+    @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLTypeResolver(User.class)
     static class UserResolver {
         List<PaymentMethod> paymentMethodList(User user, DataFetchingEnvironment env) {
