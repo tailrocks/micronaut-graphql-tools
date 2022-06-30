@@ -20,15 +20,15 @@ import java.util.Map;
 @Singleton
 public class GraphQLBeanIntrospectionRegistry {
 
-    private final Map<Class, BeanIntrospection> typeIntrospections = new HashMap<>();
+    private final Map<Class<?>, BeanIntrospection<Object>> typeIntrospections = new HashMap<>();
 
     // key: key interface
     // value: implemented classes
-    private final Map<Class, List<Class>> interfaceToImplementation = new HashMap<>();
+    private final Map<Class<?>, List<Class<?>>> interfaceToImplementation = new HashMap<>();
 
     // key: key interface
     // value: implemented classes
-    private final Map<Class, Class> implementationToInterface = new HashMap<>();
+    private final Map<Class<?>, Class<?>> implementationToInterface = new HashMap<>();
 
     private boolean typeIntrospectionsLoaded = false;
 
@@ -47,7 +47,7 @@ public class GraphQLBeanIntrospectionRegistry {
             typeIntrospections.put(introspection.getBeanType(), introspection);
 
             AnnotationValue<GraphQLType> annotationValue = introspection.getAnnotation(GraphQLType.class);
-            Class modelInterface = annotationValue.get(AnnotationMetadata.VALUE_MEMBER, Class.class).get();
+            Class<?> modelInterface = annotationValue.get(AnnotationMetadata.VALUE_MEMBER, Class.class).get();
 
             if (modelInterface.isInterface()) {
                 interfaceToImplementation.putIfAbsent(modelInterface, new ArrayList<>());
@@ -60,7 +60,7 @@ public class GraphQLBeanIntrospectionRegistry {
         typeIntrospectionsLoaded = true;
     }
 
-    public BeanIntrospection getGraphQlTypeBeanIntrospection(
+    public BeanIntrospection<Object> getGraphQlTypeBeanIntrospection(
             MappingDetails mappingDetails,
             Class<?> clazz
     ) {
@@ -95,7 +95,12 @@ public class GraphQLBeanIntrospectionRegistry {
         }
     }
 
-    // get interface by class implementation or return the current class if it's not implement any interface
+    /**
+     * Get interface by class implementation or return the current class if it's not implement any interfaces.
+     *
+     * @param implementationClass the implementation class
+     * @return original class or interface class
+     */
     public Class getInterfaceClass(Class implementationClass) {
         loadTypeIntrospections();
 

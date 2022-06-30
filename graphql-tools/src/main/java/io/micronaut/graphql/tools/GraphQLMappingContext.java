@@ -48,7 +48,6 @@ import io.micronaut.core.beans.BeanMethod;
 import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
-import io.micronaut.core.type.ReturnType;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
@@ -267,11 +266,9 @@ public class GraphQLMappingContext {
                 applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
         ));
 
-        ReturnType<Object> returnType = executable.getReturnType();
+        Class returnType = unwrapArgument(executable.getReturnType().asArgument()).getType();
 
-        Class clazz = unwrapArgument(returnType.asArgument()).getType();
-
-        processReturnType(mappingDetails, mappingDetails.getFieldDefinition().getType(), clazz);
+        processReturnType(returnType, mappingDetails, mappingDetails.getFieldDefinition().getType());
     }
 
     private List<ArgumentDetails> processInputArguments(
@@ -588,7 +585,11 @@ public class GraphQLMappingContext {
                 // TODO validate parameters (schema and methods)
 
                 if (!beanProperty.isPresent() && beanMethods.isEmpty()) {
-                    Class interfaceClass = graphQLBeanIntrospectionRegistry.getInterfaceClass(beanIntrospection.getBeanType());
+                    Class<?> interfaceClass = graphQLBeanIntrospectionRegistry.getInterfaceClass(beanIntrospection.getBeanType());
+
+                    if (interfaceClass.isPrimitive() || interfaceClass.isEnum() || interfaceClass.isAnnotation()) {
+                        throw IncorrectClassMappingException.ofRequiredCustomClass(mappingDetails, interfaceClass);
+                    }
 
                     // TODO better exception
                     BeanDefinitionAndMethod beanDefinitionAndMethod = findModelExecutableMethod(interfaceClass, fieldDefinition.getName())
@@ -615,18 +616,18 @@ public class GraphQLMappingContext {
                             applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
                     ));
 
-                    Argument argument = executable.getReturnType().asArgument();
+                    Argument<?> argument = executable.getReturnType().asArgument();
 
-                    processReturnTypeForBeanProperty(mappingDetails, argument);
+                    processArgument(argument, mappingDetails);
                 } else if (beanProperty.isPresent()) {
-                    Argument argument = beanProperty.get().asArgument();
+                    Argument<?> argument = beanProperty.get().asArgument();
 
                     mappingDetails = MappingDetails.forField(mappingDetails, beanIntrospection.getBeanType(),
                             getPropertyMethodName(beanProperty.get()));
 
                     checkInputValueDefinitions(mappingDetails, beanProperty.get());
 
-                    processReturnTypeForBeanProperty(mappingDetails, argument);
+                    processArgument(argument, mappingDetails);
                 } else if (!beanMethods.isEmpty()) {
                     BeanMethod beanMethod = beanMethods.get(0);
 
@@ -646,9 +647,9 @@ public class GraphQLMappingContext {
                             null
                     ));
 
-                    Argument argument = beanMethod.getReturnType().asArgument();
+                    Argument<?> argument = beanMethod.getReturnType().asArgument();
 
-                    processReturnTypeForBeanProperty(mappingDetails, argument);
+                    processArgument(argument, mappingDetails);
                 }
             }
 
@@ -656,7 +657,7 @@ public class GraphQLMappingContext {
         });
     }
 
-    private void processReturnTypeForBeanProperty(MappingDetails mappingDetails, Argument argument) {
+    private void processArgument(Argument argument, MappingDetails mappingDetails) {
         Argument unwrappedArgument = unwrapArgument(argument);
 
         Type fieldType = unwrapNonNullType(mappingDetails.getFieldDefinition().getType());
@@ -674,9 +675,9 @@ public class GraphQLMappingContext {
 
             // TODO is mapping details is corrrect?
 
-            processReturnType(mappingDetails, listFieldType, listReturnType);
+            processReturnType(listReturnType, mappingDetails, listFieldType);
         } else {
-            processReturnType(mappingDetails, fieldType, returnType);
+            processReturnType(returnType, mappingDetails, fieldType);
         }
     }
 
@@ -710,7 +711,7 @@ public class GraphQLMappingContext {
         return Optional.empty();
     }
 
-    private void processReturnType(MappingDetails mappingDetails, Type graphQlType, Class returnType) {
+    private void processReturnType(Class returnType, MappingDetails mappingDetails, Type graphQlType) {
         if (graphQlType instanceof NonNullType) {
             graphQlType = unwrapNonNullType(graphQlType);
         }
@@ -750,7 +751,7 @@ public class GraphQLMappingContext {
                             "found: " + typeDefinition);
                 }
 
-                BeanIntrospection beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
+                BeanIntrospection<Object> beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
                         mappingDetails,
                         returnType
                 );
@@ -764,7 +765,7 @@ public class GraphQLMappingContext {
         }
     }
 
-    private boolean registerBeanIntrospectionMapping(String type, BeanIntrospection beanIntrospection) {
+    private boolean registerBeanIntrospectionMapping(String type, BeanIntrospection<Object> beanIntrospection) {
         requireNonNull("type", type);
         requireNonNull("beanIntrospection", beanIntrospection);
 

@@ -402,3 +402,57 @@ enum Month {
     }
 
 }
+
+
+class IncorrectClassMappingExceptionSpec6 extends AbstractTest {
+
+    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec6"
+
+    void "test enum annotated with GraphQLType instead of custom class"() {
+        given:
+            @Language("GraphQL")
+            String schema = """
+schema {
+  query: Query
+}
+
+type Query {
+  user: User
+}
+
+type User {
+  username: String
+}
+"""
+
+            startContext(schema, SPEC_NAME)
+
+        when:
+            executeQuery('{username}')
+
+        then:
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectClassMappingException
+            e.cause.message == """The field is mapped to the enum, when required custom Java class.
+  GraphQL type: User
+  GraphQL field: username
+  Provided class: ${User.name}"""
+            e.cause.mappingDetails.graphQlType == 'User'
+            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.providedClass == User
+    }
+
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    @GraphQLRootResolver
+    static class Query {
+        User user() {
+            return null
+        }
+    }
+
+    @GraphQLType
+    static enum User {
+        TEST
+    }
+
+}

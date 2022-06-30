@@ -5,10 +5,10 @@ import java.util.stream.Collectors;
 
 public class MultipleImplementationsFoundException extends AbstractMappingMethodException {
 
-    private final List<Class> implementationClasses;
+    private final List<Class<?>> implementationClasses;
 
-    public MultipleImplementationsFoundException(MappingDetails mappingDetails, Class interfaceClass,
-                                                 List<Class> implementationClasses) {
+    public MultipleImplementationsFoundException(MappingDetails mappingDetails, Class<?> interfaceClass,
+                                                 List<Class<?>> implementationClasses) {
         super(
                 String.format(
                         "Found multiple implementations for the interface %s.",
@@ -20,21 +20,16 @@ public class MultipleImplementationsFoundException extends AbstractMappingMethod
         this.implementationClasses = implementationClasses;
     }
 
-    public List<Class> getImplementationClasses() {
+    public List<Class<?>> getImplementationClasses() {
         return implementationClasses;
     }
 
     @Override
     public String getMessage() {
-        StringBuilder builder = new StringBuilder(super.getMessage());
-
-        builder.append("\n  Implementation classes: ").append(
+        return super.getMessage() + "\n  Implementation classes: " +
                 implementationClasses.stream()
                         .map(Class::getName)
-                        .collect(Collectors.joining(", "))
-        );
-
-        return builder.toString();
+                        .collect(Collectors.joining(", "));
     }
 
 }

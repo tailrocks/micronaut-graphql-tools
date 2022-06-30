@@ -46,7 +46,6 @@ type User {
             e.cause.mappingDetails.mappedMethod == "user()"
     }
 
-
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {

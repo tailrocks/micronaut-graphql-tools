@@ -35,19 +35,19 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
             MappingDetails mappingDetails,
             Class<?> providedClass
     ) {
-        String type = "class";
-        if (providedClass.isAnnotation()) {
-            type = "annotation";
-        }
-        if (providedClass.isInterface()) {
-            type = "interface";
-        }
-        if (providedClass.isPrimitive()) {
-            type = "primitive";
-        }
+        return new IncorrectClassMappingException(
+                "The field is mapped to the " + detectType(providedClass) + ", when required Enum.",
+                mappingDetails, providedClass, null
+        );
+    }
+
+    public static IncorrectClassMappingException ofRequiredCustomClass(
+            MappingDetails mappingDetails,
+            Class<?> providedClass
+    ) {
 
         return new IncorrectClassMappingException(
-                "The field is mapped to the " + type + ", when required Enum.",
+                "The field is mapped to the " + detectType(providedClass) + ", when required custom Java class.",
                 mappingDetails, providedClass, null
         );
     }
@@ -84,6 +84,22 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         }
 
         return builder.toString();
+    }
+
+    private static String detectType(Class<?> clazz) {
+        if (clazz.isAnnotation()) {
+            return "annotation";
+        }
+        if (clazz.isInterface()) {
+            return "interface";
+        }
+        if (clazz.isPrimitive()) {
+            return "primitive";
+        }
+        if (clazz.isEnum()) {
+            return "enum";
+        }
+        return "class";
     }
 
 }
