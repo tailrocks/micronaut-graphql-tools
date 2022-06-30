@@ -67,8 +67,6 @@ import io.micronaut.jackson.modules.BeanIntrospectionModule;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,6 +81,9 @@ import java.util.stream.Collectors;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 import static io.micronaut.graphql.tools.BeanIntrospectionUtils.generateGetMethodName;
+import static io.micronaut.graphql.tools.SystemTypes.getSupportedClasses;
+import static io.micronaut.graphql.tools.SystemTypes.isGraphQlBuiltInType;
+import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
 
 /**
  * @author Alexey Zhokhov
@@ -90,26 +91,6 @@ import static io.micronaut.graphql.tools.BeanIntrospectionUtils.generateGetMetho
 @Singleton
 @Infrastructure
 public class GraphQLMappingContext {
-
-    private static final Map<String, Set<Class<?>>> SYSTEM_TYPES = new HashMap<>();
-
-    // https://www.graphql-java.com/documentation/scalars
-    static {
-        SYSTEM_TYPES.put("String", new HashSet<>(Collections.singletonList(String.class)));
-        SYSTEM_TYPES.put("Boolean", new HashSet<>(Arrays.asList(boolean.class, Boolean.class)));
-        SYSTEM_TYPES.put("Int", new HashSet<>(Arrays.asList(int.class, Integer.class)));
-        SYSTEM_TYPES.put("Float", new HashSet<>(Arrays.asList(float.class, Float.class)));
-        SYSTEM_TYPES.put("ID", new HashSet<>(Collections.singletonList(String.class)));
-
-        SYSTEM_TYPES.put("Long", new HashSet<>(Arrays.asList(long.class, Long.class)));
-        SYSTEM_TYPES.put("Short", new HashSet<>(Arrays.asList(short.class, Short.class)));
-        SYSTEM_TYPES.put("BigDecimal", new HashSet<>(Collections.singletonList(BigDecimal.class)));
-        SYSTEM_TYPES.put("BigInteger", new HashSet<>(Collections.singletonList(BigInteger.class)));
-    }
-
-    private static final Set<Class<?>> SYSTEM_TYPES_CACHE = SYSTEM_TYPES.values().stream()
-            .flatMap(Set::stream)
-            .collect(Collectors.toSet());
 
     private final ApplicationContext applicationContext;
     private final GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry;
@@ -350,15 +331,15 @@ public class GraphQLMappingContext {
 
         for (int i = 0; i < inputs.size(); i++) {
             InputValueDefinition inputValueDefinition = inputs.get(i);
-            Class returnType = argumentClasses.get(i);
-            int position = i + 1;
+            Class<?> returnType = argumentClasses.get(i);
 
             TypeName typeName = (TypeName) unwrapNonNullType(inputValueDefinition.getType());
 
-            // TODO add arguments details
-
-            // FIXME
-            Class inputClass = processInputType(typeName, mappingDetails, returnType);
+            Class<?> inputClass = processInputType(
+                    typeName,
+                    MappingDetails.forArgument(mappingDetails, i),
+                    returnType
+            );
 
             result.add(new ArgumentDetails(inputs.get(i).getName(), inputClass));
         }
@@ -406,8 +387,8 @@ public class GraphQLMappingContext {
             registerEnumMapping(mappingDetails, (EnumTypeDefinition) typeDefinition, clazz);
 
             return null;
-        } else if (isBuiltInType(typeName)) {
-            Set<Class<?>> supportedClasses = SYSTEM_TYPES.get(typeName);
+        } else if (isGraphQlBuiltInType(typeName)) {
+            Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
             if (!supportedClasses.contains(clazz)) {
                 throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
@@ -433,7 +414,13 @@ public class GraphQLMappingContext {
                         || beanIntrospection.getBeanType().isEnum()
                         || beanIntrospection.getBeanType().isAnnotation()
         ) {
-            throw new RuntimeException(GraphQLInput.class.getSimpleName() + " annotation can be used only on classes. Found wrong usage: " + beanIntrospection.getBeanType());
+            throw IncorrectClassMappingException.forArgument(
+                    IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                    IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                    mappingDetails,
+                    targetClass,
+                    null
+            );
         }
 
         if (registerBeanIntrospectionMapping(objectTypeDefinition.getName(), beanIntrospection)) {
@@ -722,8 +709,8 @@ public class GraphQLMappingContext {
 
         TypeName typeName = (TypeName) graphQlType;
 
-        if (isBuiltInType(typeName)) {
-            Set<Class<?>> supportedClasses = SYSTEM_TYPES.get(getTypeName(graphQlType).getName());
+        if (isGraphQlBuiltInType(typeName)) {
+            Set<Class<?>> supportedClasses = getSupportedClasses(getTypeName(graphQlType));
 
             if (!supportedClasses.contains(returnType)) {
                 throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
@@ -738,7 +725,7 @@ public class GraphQLMappingContext {
             if (typeDefinition instanceof EnumTypeDefinition) {
                 registerEnumMapping(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
             } else {
-                if (isBuiltInType(returnType)) {
+                if (isJavaBuiltInClass(returnType)) {
                     throw IncorrectClassMappingException.ofCustomTypeMappedToBuiltInClass(
                             mappingDetails,
                             returnType
@@ -858,6 +845,7 @@ public class GraphQLMappingContext {
         return true;
     }
 
+    // TODO move to utils class
     private static TypeName getTypeName(Type type) {
         type = unwrapNonNullType(type);
         if (type instanceof TypeName) {
@@ -866,6 +854,7 @@ public class GraphQLMappingContext {
         throw new UnsupportedOperationException("Unknown type: " + type);
     }
 
+    // TODO move to utils class
     private static Type unwrapNonNullType(Type type) {
         if (type instanceof NonNullType) {
             return unwrapNonNullType(((NonNullType) type).getType());
@@ -883,14 +872,6 @@ public class GraphQLMappingContext {
             }
         }
         return null;
-    }
-
-    private static boolean isBuiltInType(TypeName typeName) {
-        return SYSTEM_TYPES.containsKey(typeName.getName());
-    }
-
-    private static boolean isBuiltInType(Class clazz) {
-        return SYSTEM_TYPES_CACHE.contains(clazz);
     }
 
     private class BeanDefinitionAndMethod {

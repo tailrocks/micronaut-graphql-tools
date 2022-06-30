@@ -7,6 +7,13 @@ import java.util.stream.Collectors;
 
 public class IncorrectClassMappingException extends AbstractMappingMethodException {
 
+    public enum MappingType {
+        BUILT_IN_JAVA_CLASS,
+        CUSTOM_JAVA_CLASS,
+        ENUM,
+        DETECT_CLASS
+    }
+
     private final Class<?> providedClass;
     private final Set<Class<?>> supportedClasses;
 
@@ -36,7 +43,7 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
             Class<?> providedClass
     ) {
         return new IncorrectClassMappingException(
-                "The field is mapped to the " + detectType(providedClass) + ", when required Enum.",
+                "The field is mapped to the " + toString(providedClass) + ", when required Enum.",
                 mappingDetails, providedClass, null
         );
     }
@@ -47,8 +54,46 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
     ) {
 
         return new IncorrectClassMappingException(
-                "The field is mapped to the " + detectType(providedClass) + ", when required custom Java class.",
+                "The field is mapped to the " + toString(providedClass) + ", when required custom Java class.",
                 mappingDetails, providedClass, null
+        );
+    }
+
+    public static IncorrectClassMappingException forField(
+            MappingType providedType,
+            MappingType requiredType,
+            MappingDetails mappingDetails,
+            Class<?> providedClass,
+            @Nullable Set<Class<?>> supportedClasses
+    ) {
+        return new IncorrectClassMappingException(
+                String.format(
+                        "The field is mapped to %s, when required %s.",
+                        toString(providedType, providedClass),
+                        toString(requiredType, null)
+                ),
+                mappingDetails,
+                providedClass,
+                supportedClasses
+        );
+    }
+
+    public static IncorrectClassMappingException forArgument(
+            MappingType providedType,
+            MappingType requiredType,
+            MappingDetails mappingDetails,
+            Class<?> providedClass,
+            @Nullable Set<Class<?>> supportedClasses
+    ) {
+        return new IncorrectClassMappingException(
+                String.format(
+                        "The argument is mapped to %s, when required %s.",
+                        toString(providedType, providedClass),
+                        toString(requiredType, null)
+                ),
+                mappingDetails,
+                providedClass,
+                supportedClasses
         );
     }
 
@@ -86,7 +131,22 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         return builder.toString();
     }
 
-    private static String detectType(Class<?> clazz) {
+    private static String toString(MappingType mappingType, Class providedClass) {
+        switch (mappingType) {
+            case BUILT_IN_JAVA_CLASS:
+                return "built-in class";
+            case CUSTOM_JAVA_CLASS:
+                return "custom Java class";
+            case ENUM:
+                return "enum";
+            case DETECT_CLASS:
+                return toString(providedClass);
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private static String toString(Class<?> clazz) {
         if (clazz.isAnnotation()) {
             return "annotation";
         }
