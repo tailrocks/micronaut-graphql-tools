@@ -16,6 +16,7 @@
 package io.micronaut.graphql.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.Scalars;
 import graphql.language.EnumTypeDefinition;
 import graphql.language.EnumValueDefinition;
 import graphql.language.FieldDefinition;
@@ -120,7 +121,11 @@ public class GraphQLMappingContext {
     private final Map<String, MappingItem> mappingRegistry = new HashMap<>();
 
     private final RuntimeWiring.Builder rootRuntimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
-            .wiringFactory(new DefaultWiringFactory());
+            .wiringFactory(new DefaultWiringFactory())
+            .scalar(Scalars.GraphQLLong)
+            .scalar(Scalars.GraphQLShort)
+            .scalar(Scalars.GraphQLBigDecimal)
+            .scalar(Scalars.GraphQLBigInteger);
 
     private Map<String, TypeDefinition> types;
 
@@ -170,6 +175,8 @@ public class GraphQLMappingContext {
         for (UnionTypeDefinition unionTypeDefinition : unionTypeDefinitions) {
             processUnionTypeDefinition(unionTypeDefinition, graphQLSchemaProvider);
         }
+
+        // TODO register additional scalars here
 
         return rootRuntimeWiringBuilder.build();
     }

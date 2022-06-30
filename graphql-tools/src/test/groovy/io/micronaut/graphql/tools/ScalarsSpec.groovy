@@ -134,11 +134,12 @@ type Query {
 
         then:
             result.errors.isEmpty()
-            result.data.testString == 'test'
-            result.data.testBoolean == true
-            result.data.testInt == Integer.MAX_VALUE
-            result.data.testFloat == Float.MAX_VALUE as Double
-            result.data.testID == 'id'
+            result.data.testLong1 == Long.MAX_VALUE
+            result.data.testLong2 == Long.MIN_VALUE
+            result.data.testShort1 == Short.MAX_VALUE
+            result.data.testShort2 == Short.MIN_VALUE
+            result.data.testBigDecimal == BigDecimal.ZERO
+            result.data.testBigInteger == BigInteger.ONE
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
