@@ -91,18 +91,18 @@ public class GraphQLMappingContext {
 
     private static final Map<String, Set<Class<?>>> SYSTEM_TYPES = new HashMap<>();
 
-    // TODO validate all system types
+    // https://www.graphql-java.com/documentation/scalars
     static {
-        SYSTEM_TYPES.put("Int", new HashSet<>(Arrays.asList(int.class, Integer.class)));
-        SYSTEM_TYPES.put("Float", new HashSet<>(Arrays.asList(float.class, Float.class)));
         SYSTEM_TYPES.put("String", new HashSet<>(Collections.singletonList(String.class)));
         SYSTEM_TYPES.put("Boolean", new HashSet<>(Arrays.asList(boolean.class, Boolean.class)));
+        SYSTEM_TYPES.put("Int", new HashSet<>(Arrays.asList(int.class, Integer.class)));
+        SYSTEM_TYPES.put("Float", new HashSet<>(Arrays.asList(float.class, Float.class)));
         SYSTEM_TYPES.put("ID", new HashSet<>(Collections.singletonList(String.class)));
+
+        SYSTEM_TYPES.put("Long", new HashSet<>(Arrays.asList(long.class, Long.class)));
+        SYSTEM_TYPES.put("Short", new HashSet<>(Arrays.asList(short.class, Short.class)));
         SYSTEM_TYPES.put("BigDecimal", new HashSet<>(Collections.singletonList(BigDecimal.class)));
         SYSTEM_TYPES.put("BigInteger", new HashSet<>(Collections.singletonList(BigInteger.class)));
-        SYSTEM_TYPES.put("Char", new HashSet<>(Arrays.asList(char.class, Character.class)));
-        SYSTEM_TYPES.put("Short", new HashSet<>(Arrays.asList(short.class, Short.class)));
-        SYSTEM_TYPES.put("Long", new HashSet<>(Arrays.asList(long.class, Long.class)));
     }
 
     private static final Set<Class<?>> SYSTEM_TYPES_CACHE = SYSTEM_TYPES.values().stream()
