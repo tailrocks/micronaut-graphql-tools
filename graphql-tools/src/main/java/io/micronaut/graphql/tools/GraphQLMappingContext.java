@@ -335,13 +335,29 @@ public class GraphQLMappingContext {
 
             TypeName typeName = (TypeName) unwrapNonNullType(inputValueDefinition.getType());
 
-            Class<?> inputClass = processInputType(
-                    typeName,
-                    MappingDetails.forArgument(mappingDetails, i),
-                    returnType
-            );
+            if (SystemTypes.isGraphQlBuiltInType(typeName)) {
+                Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
-            result.add(new ArgumentDetails(inputs.get(i).getName(), inputClass));
+                if (!supportedClasses.contains(returnType)) {
+                    throw IncorrectClassMappingException.forArgument(
+                            IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                            IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
+                            MappingDetails.forArgument(mappingDetails, i),
+                            returnType,
+                            supportedClasses
+                    );
+                }
+
+                result.add(new ArgumentDetails(inputs.get(i).getName(), returnType));
+            } else {
+                Class<?> inputClass = processInputType(
+                        typeName,
+                        MappingDetails.forArgument(mappingDetails, i),
+                        returnType
+                );
+
+                result.add(new ArgumentDetails(inputs.get(i).getName(), inputClass));
+            }
         }
 
         if (containsEnvironmentArgument) {
