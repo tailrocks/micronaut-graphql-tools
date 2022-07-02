@@ -14,13 +14,6 @@ dependencies {
     testImplementation(libs.jetbrains.annotations)
 }
 
-test {
-    testLogging {
-        showStandardStreams = true
-        exceptionFormat = 'full'
-    }
-}
-
 micronautBuild {
     resolutionStrategy {
         force "com.graphql-java:graphql-java:$graphqlJavaVersion"
