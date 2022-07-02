@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -6,9 +6,10 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException
 import org.intellij.lang.annotations.Language
 
-class MultipleImplementationsFoundExceptionSpec extends AbstractTest {
+class MultipleImplementationsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "MultipleImplementationsFoundExceptionSpec"
 
@@ -58,17 +59,14 @@ type User {
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     static interface User {
-
     }
 
     @GraphQLType(User)
     static class UserImpl implements User {
-
     }
 
     @GraphQLType(User)
     static class UserAltImpl implements User {
-
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
