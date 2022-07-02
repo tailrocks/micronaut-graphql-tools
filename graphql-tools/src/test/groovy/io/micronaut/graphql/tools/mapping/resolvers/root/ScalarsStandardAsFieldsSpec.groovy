@@ -9,7 +9,7 @@ class ScalarsStandardAsFieldsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "ScalarsStandardAsFieldsSpec"
 
-    void "test mapping standard graphql scalars"() {
+    void "test mapping standard graphql scalars in root resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -57,7 +57,7 @@ type Query {
             result.data.testID == 'id'
     }
 
-    void "test mapping standard graphql scalars [required fields]"() {
+    void "test mapping standard graphql scalars in root resolver [required fields]"() {
         given:
             @Language("GraphQL")
             String schema = """
