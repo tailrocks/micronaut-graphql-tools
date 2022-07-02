@@ -157,8 +157,6 @@ public class GraphQLMappingContext {
             processUnionTypeDefinition(unionTypeDefinition, graphQLSchemaProvider);
         }
 
-        // TODO register additional scalars here
-
         return rootRuntimeWiringBuilder.build();
     }
 
@@ -475,7 +473,6 @@ public class GraphQLMappingContext {
                     // TODO process sub types
                     //throw new UnsupportedOperationException();
                 } else if (fieldType instanceof TypeName) {
-                    // TODO custom exception
                     processInputType((TypeName) fieldType, null, returnType);
                 } else {
                     throw new RuntimeException("Unknown field type: " + fieldType);
