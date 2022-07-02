@@ -11,7 +11,7 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
     public enum MappingType {
         DETECT_TYPE,
         BUILT_IN_JAVA_CLASS,
-        CUSTOM_JAVA_CLASS,
+        CUSTOM_CLASS,
         ENUM
     }
 
@@ -94,8 +94,8 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         switch (mappingType) {
             case BUILT_IN_JAVA_CLASS:
                 return "a built-in class";
-            case CUSTOM_JAVA_CLASS:
-                return "a custom Java class";
+            case CUSTOM_CLASS:
+                return "a custom class";
             case ENUM:
                 return "an enum";
             case DETECT_TYPE:
@@ -121,7 +121,7 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         if (SystemTypes.isJavaBuiltInClass(clazz)) {
             return "a built-in class";
         }
-        return "a custom Java class";
+        return "a custom class";
     }
 
 }

@@ -353,7 +353,7 @@ public class GraphQLMappingContext {
                 if (returnType.isInterface()) {
                     throw IncorrectClassMappingException.forArgument(
                             IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                            IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                            IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
                             MappingDetails.forArgument(mappingDetails, i),
                             returnType,
                             null
@@ -444,7 +444,7 @@ public class GraphQLMappingContext {
         ) {
             throw IncorrectClassMappingException.forArgument(
                     IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                    IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                    IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
                     mappingDetails,
                     targetClass,
                     null
@@ -605,7 +605,7 @@ public class GraphQLMappingContext {
                     if (interfaceClass.isPrimitive() || interfaceClass.isEnum() || interfaceClass.isAnnotation()) {
                         throw IncorrectClassMappingException.forField(
                                 IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                                IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                                IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
                                 mappingDetails,
                                 interfaceClass,
                                 null
@@ -763,7 +763,7 @@ public class GraphQLMappingContext {
                 if (isJavaBuiltInClass(returnType)) {
                     throw IncorrectClassMappingException.forField(
                             IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                            IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                            IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
                             mappingDetails,
                             returnType,
                             null

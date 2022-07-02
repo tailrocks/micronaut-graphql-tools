@@ -4,15 +4,14 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
-import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class IncorrectClassMappingExceptionSpec4 extends AbstractTest {
+class IncorrectInputMappingEnumToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec4"
+    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec5"
 
-    void "test GraphQL schema enum mapped to a Java class"() {
+    void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -21,7 +20,7 @@ schema {
 }
 
 type Query {
-  month: Month
+  displayName(value: Month): String
 }
 
 enum Month {
@@ -39,32 +38,25 @@ enum Month {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to a custom Java class, when required an enum.
+            e.cause.message == """The argument is mapped to a built-in class, when required an enum.
   GraphQL type: Query
-  GraphQL field: month
+  GraphQL field: displayName
+  GraphQL argument: value
   Mapped class: ${Query.name}
-  Mapped method: month()
-  Provided class: ${MyMonth.name}"""
+  Mapped method: displayName(java.lang.String value)
+  Provided class: java.lang.String"""
             e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'month'
+            e.cause.mappingDetails.graphQlField == 'displayName'
+            e.cause.mappingDetails.graphQlArgument == 'value'
             e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'month()'
-            e.cause.providedClass == MyMonth
+            e.cause.mappingDetails.mappedMethod == 'displayName(java.lang.String value)'
     }
-
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        MyMonth month() {
+        String displayName(String value) {
             return null
-        }
-    }
-
-    @GraphQLType
-    static class MyMonth {
-        String getJanuary() {
-            return "JAN"
         }
     }
 

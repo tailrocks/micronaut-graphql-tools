@@ -7,11 +7,11 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class IncorrectClassMappingExceptionSpec2 extends AbstractTest {
+class IncorrectFieldMappingBuiltInScalarToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec2"
+    static final String SPEC_NAME = "IncorrectMappingBuiltInScalarToClassSpec"
 
-    void "test mapping custom GraphQL type to a wrong class"() {
+    void "test mapping built-in GraphQL type to a wrong class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -20,14 +20,9 @@ schema {
 }
 
 type Query {
-  currentUser: User
-}
-
-type User {
-  username: String
+  hello: String
 }
 """
-
             startContext(schema, SPEC_NAME)
 
         when:
@@ -36,20 +31,22 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to a built-in class, when required a custom Java class.
+            e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
-  GraphQL field: currentUser
+  GraphQL field: hello
   Mapped class: ${Query.name}
-  Mapped method: currentUser()
-  Provided class: ${Integer.name}"""
+  Mapped method: hello()
+  Provided class: ${Integer.name}
+  Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'currentUser'
+            e.cause.mappingDetails.graphQlField == 'hello'
             e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'currentUser()'
+            e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
+            e.cause.supportedClasses == [String] as HashSet
     }
 
-    void "test mapping custom GraphQL type to a wrong class [required field]"() {
+    void "test mapping built-in GraphQL type to a wrong class [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -58,14 +55,9 @@ schema {
 }
 
 type Query {
-  currentUser: User!
-}
-
-type User {
-  username: String
+  hello: String!
 }
 """
-
             startContext(schema, SPEC_NAME)
 
         when:
@@ -74,23 +66,25 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to a built-in class, when required a custom Java class.
+            e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
-  GraphQL field: currentUser
+  GraphQL field: hello
   Mapped class: ${Query.name}
-  Mapped method: currentUser()
-  Provided class: ${Integer.name}"""
+  Mapped method: hello()
+  Provided class: ${Integer.name}
+  Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'currentUser'
+            e.cause.mappingDetails.graphQlField == 'hello'
             e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'currentUser()'
+            e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
+            e.cause.supportedClasses == [String] as HashSet
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        Integer currentUser() {
+        Integer hello() {
             return 0
         }
     }

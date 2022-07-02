@@ -7,7 +7,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.MappingConflictException
 import org.intellij.lang.annotations.Language
 
-class MappingConflictSpec extends AbstractTest {
+class MappingConflictEnumSpec extends AbstractTest {
 
     static final String SPEC_NAME = "MappingConflictExceptionSpec"
 
