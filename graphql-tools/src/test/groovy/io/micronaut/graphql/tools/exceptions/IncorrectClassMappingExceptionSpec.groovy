@@ -364,7 +364,7 @@ schema {
 }
 
 type Query {
-  displayName(value: Month!): String
+  displayName(value: Month): String
 }
 
 enum Month {
@@ -474,7 +474,7 @@ schema {
 }
 
 type Query {
-  price(input: PriceInput!): Float
+  price(input: PriceInput): Float
 }
 
 input PriceInput {
