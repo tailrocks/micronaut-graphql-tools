@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -6,11 +6,12 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException
 import org.intellij.lang.annotations.Language
 
-class ImplementationNotFoundExceptionSpec extends AbstractTest {
+class IncorrectImplementationSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "ImplementationNotFoundExceptionSpec"
+    static final String SPEC_NAME = "IncorrectImplementationExceptionSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -27,23 +28,25 @@ type User {
 }
 """
 
-    void "test root resolver returns interface which implementation class is not marked correctly with annotation"() {
+    void "test root resolver returns interface which is not implemented in introspected class"() {
         when:
             startContext(SCHEMA, SPEC_NAME)
             executeQuery('{username}')
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof ImplementationNotFoundException
-            e.cause.message == """Can not find implementation class for the interface ${User.name}.
+            e.cause instanceof IncorrectImplementationException
+            e.cause.message == """The annotated implementation class is not implementing the ${User.name} interface.
   GraphQL type: Query
   GraphQL field: user
   Mapped class: ${Query.name}
-  Mapped method: user()"""
+  Mapped method: user()
+  Implementation class: ${UserImpl.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'user'
             e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == "user()"
+            e.cause.implementationClass == UserImpl
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
@@ -59,8 +62,8 @@ type User {
 
     }
 
-    @GraphQLType
-    static class UserImpl implements User {
+    @GraphQLType(User)
+    static class UserImpl {
 
     }
 

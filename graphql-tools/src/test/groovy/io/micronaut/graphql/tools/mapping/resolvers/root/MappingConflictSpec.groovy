@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -7,7 +7,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.MappingConflictException
 import org.intellij.lang.annotations.Language
 
-class MappingConflictExceptionSpec extends AbstractTest {
+class MappingConflictSpec extends AbstractTest {
 
     static final String SPEC_NAME = "MappingConflictExceptionSpec"
 

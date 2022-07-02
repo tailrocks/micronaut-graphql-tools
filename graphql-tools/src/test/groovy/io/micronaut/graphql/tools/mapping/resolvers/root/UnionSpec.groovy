@@ -1,16 +1,16 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
-import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException
 import org.intellij.lang.annotations.Language
 
-class IncorrectImplementationExceptionSpec extends AbstractTest {
+class UnionSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectImplementationExceptionSpec"
+    static final String SPEC_NAME = "TestSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -19,58 +19,61 @@ schema {
 }
 
 type Query {
-  user: User
+  unionTypeTest(securityError: Boolean!): PayloadError
 }
 
-type User {
-  username: String
+union PayloadError = SecurityError | ValidationError
+
+type SecurityError {
+  code: String!
+}
+
+type ValidationError {
+  code: Int!
 }
 """
 
-    void "test root resolver returns interface which is not implemented in introspected class"() {
+    void "test todo"() {
         when:
             startContext(SCHEMA, SPEC_NAME)
             executeQuery('{username}')
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof IncorrectImplementationException
-            e.cause.message == """The annotated implementation class is not implementing the ${User.name} interface.
+            e.cause instanceof ImplementationNotFoundException
+            e.cause.message == """Can not find implementation class for the interface ${User.name}.
   GraphQL type: Query
   GraphQL field: user
   Mapped class: ${Query.name}
-  Mapped method: user()
-  Implementation class: ${UserImpl.name}"""
+  Mapped method: user()"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'user'
             e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == "user()"
-            e.cause.implementationClass == UserImpl
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        User user() {
+        PayloadError unionTypeTest(boolean securityError) {
             return null
         }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME)
-    static interface User {
-
+    static interface PayloadError {
     }
 
-    @GraphQLType(User)
-    static class UserImpl {
-
+    @GraphQLType
+    static class SecurityError implements PayloadError {
+        String code() {
+            return "AUTH"
+        }
     }
 
-    @Requires(property = 'spec.name', value = SPEC_NAME)
-    @GraphQLTypeResolver(User.class)
-    static class UserResolver {
-        String username(User user) {
-            return null
+    @GraphQLType
+    static class ValidationError implements PayloadError {
+        Integer code() {
+            return 123
         }
     }
 

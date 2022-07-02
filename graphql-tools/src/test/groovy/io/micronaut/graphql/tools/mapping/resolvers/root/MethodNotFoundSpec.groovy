@@ -1,10 +1,11 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
+import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
 import org.intellij.lang.annotations.Language
 
-class MethodNotFoundExceptionSpec extends AbstractTest {
+class MethodNotFoundSpec extends AbstractTest {
 
     void "test Query method not found"() {
         given:

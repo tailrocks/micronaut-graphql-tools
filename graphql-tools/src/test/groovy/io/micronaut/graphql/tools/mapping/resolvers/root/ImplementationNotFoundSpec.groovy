@@ -1,15 +1,17 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
+import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException
 import org.intellij.lang.annotations.Language
 
-class TestSpec extends AbstractTest {
+class ImplementationNotFoundSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "TestSpec"
+    static final String SPEC_NAME = "ImplementationNotFoundExceptionSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -18,21 +20,15 @@ schema {
 }
 
 type Query {
-  unionTypeTest(securityError: Boolean!): PayloadError
+  user: User
 }
 
-union PayloadError = SecurityError | ValidationError
-
-type SecurityError {
-  code: String!
-}
-
-type ValidationError {
-  code: Int!
+type User {
+  username: String
 }
 """
 
-    void "test todo"() {
+    void "test root resolver returns interface which implementation class is not marked correctly with annotation"() {
         when:
             startContext(SCHEMA, SPEC_NAME)
             executeQuery('{username}')
@@ -54,25 +50,26 @@ type ValidationError {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        PayloadError unionTypeTest(boolean securityError) {
+        User user() {
             return null
         }
     }
 
-    static interface PayloadError {
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    static interface User {
+
     }
 
     @GraphQLType
-    static class SecurityError implements PayloadError {
-        String code() {
-            return "AUTH"
-        }
+    static class UserImpl implements User {
+
     }
 
-    @GraphQLType
-    static class ValidationError implements PayloadError {
-        Integer code() {
-            return 123
+    @Requires(property = 'spec.name', value = SPEC_NAME)
+    @GraphQLTypeResolver(User.class)
+    static class UserResolver {
+        String username(User user) {
+            return null
         }
     }
 

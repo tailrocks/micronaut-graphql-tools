@@ -1,12 +1,13 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
+import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException
 import org.intellij.lang.annotations.Language
 
-class MissingEnumValuesExceptionSpec extends AbstractTest {
+class MissingEnumValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "MissingEnumValuesExceptionSpec"
 

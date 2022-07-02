@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.type
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanContextException
@@ -6,9 +6,10 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
+import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException
 import org.intellij.lang.annotations.Language
 
-class IncorrectAnnotationExceptionSpec extends AbstractTest {
+class IncorrectAnnotationSpec extends AbstractTest {
 
     static final String SPEC_NAME = "IncorrectAnnotationExceptionSpec"
 
