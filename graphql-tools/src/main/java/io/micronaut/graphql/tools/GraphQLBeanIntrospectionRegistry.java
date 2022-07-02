@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Singleton
 public class GraphQLBeanIntrospectionRegistry {
@@ -75,7 +76,7 @@ public class GraphQLBeanIntrospectionRegistry {
                 throw new MultipleImplementationsFoundException(
                         mappingDetails,
                         clazz,
-                        interfaceToImplementation.get(clazz)
+                        interfaceToImplementation.get(clazz).stream().sorted().collect(Collectors.toList())
                 );
             }
 

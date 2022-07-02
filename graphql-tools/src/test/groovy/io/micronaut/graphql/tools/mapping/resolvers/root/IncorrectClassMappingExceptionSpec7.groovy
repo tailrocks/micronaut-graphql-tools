@@ -38,7 +38,7 @@ input PriceInput {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The argument is mapped to enum, when required custom Java class.
+            e.cause.message == """The argument is mapped to an enum, when required a custom Java class.
   GraphQL type: Query
   GraphQL field: price
   GraphQL argument: input
