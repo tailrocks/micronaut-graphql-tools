@@ -350,6 +350,16 @@ public class GraphQLMappingContext {
 
                 result.add(new ArgumentDetails(inputs.get(i).getName(), returnType));
             } else {
+                if (returnType.isInterface()) {
+                    throw IncorrectClassMappingException.forArgument(
+                            IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                            IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                            MappingDetails.forArgument(mappingDetails, i),
+                            returnType,
+                            null
+                    );
+                }
+
                 Class<?> inputClass = processInputType(
                         typeName,
                         MappingDetails.forArgument(mappingDetails, i),
@@ -400,7 +410,7 @@ public class GraphQLMappingContext {
 
             return clazz;
         } else if (typeDefinition instanceof EnumTypeDefinition) {
-            registerEnumMapping(mappingDetails, (EnumTypeDefinition) typeDefinition, clazz);
+            processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, clazz);
 
             return null;
         } else if (isGraphQlBuiltInType(typeName)) {
@@ -566,7 +576,7 @@ public class GraphQLMappingContext {
     private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, BeanIntrospection beanIntrospection) {
         requireNonNull("typeDefinition", objectTypeDefinition);
 
-        rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), (typeWiring) -> {
+        rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeWiring -> {
             typeWiring.defaultDataFetcher(new MicronautIntrospectionDataFetcher(beanIntrospection));
 
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
@@ -739,7 +749,7 @@ public class GraphQLMappingContext {
             TypeDefinition typeDefinition = getTypeDefinition(typeName);
 
             if (typeDefinition instanceof EnumTypeDefinition) {
-                registerEnumMapping(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
+                processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
             } else {
                 if (isJavaBuiltInClass(returnType)) {
                     throw IncorrectClassMappingException.ofCustomTypeMappedToBuiltInClass(
@@ -790,8 +800,8 @@ public class GraphQLMappingContext {
         return true;
     }
 
-    private void registerEnumMapping(MappingDetails mappingDetails, EnumTypeDefinition typeDefinition,
-                                     Class targetClass) {
+    private void processEnumTypeDefinition(MappingDetails mappingDetails, EnumTypeDefinition typeDefinition,
+                                           Class targetClass) {
         requireNonNull("typeDefinition", typeDefinition);
         requireNonNull("targetClass", targetClass);
 

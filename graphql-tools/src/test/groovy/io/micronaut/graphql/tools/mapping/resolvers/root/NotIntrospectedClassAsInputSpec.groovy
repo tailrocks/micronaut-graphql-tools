@@ -1,17 +1,16 @@
-package io.micronaut.graphql.tools.exceptions
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLInput
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
-import io.micronaut.graphql.tools.annotation.GraphQLType
+import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException
 import org.intellij.lang.annotations.Language
 
+class NotIntrospectedClassAsInputSpec extends AbstractTest {
 
-class ClassNotIntrospectedExceptionSpec3 extends AbstractTest {
-
-    static final String SPEC_NAME = "ClassNotIntrospectedExceptionSpec3"
+    static final String SPEC_NAME = "NotIntrospectedClassAsInputSpec"
 
     void "test root resolver use not introspected class as input argument"() {
         given:
@@ -22,7 +21,7 @@ schema {
 }
 
 type Query {
-  price(input: PriceInput!): Float
+  price(input: PriceInput): Float
 }
 
 input PriceInput {
@@ -31,9 +30,8 @@ input PriceInput {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
         when:
+            startContext(schema, SPEC_NAME)
             executeQuery("{month}")
 
         then:
@@ -60,8 +58,7 @@ input PriceInput {
         }
     }
 
-    @GraphQLInput
-    static interface PriceInput {
+    static class PriceInput {
         String from
         String to
     }

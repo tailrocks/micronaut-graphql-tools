@@ -3,13 +3,14 @@ package io.micronaut.graphql.tools.mapping.type
 import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
+import io.micronaut.graphql.tools.annotation.GraphQLType
 import org.intellij.lang.annotations.Language
 
 class ScalarsExtendedAsFieldsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "io.micronaut.graphql.tools.mapping.type.ScalarsExtendedAsFieldsSpec"
 
-    void "test mapping extended graphql-java scalars in root resolver"() {
+    void "test mapping extended graphql-java scalars in GraphQLType annotated entity"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -23,6 +24,10 @@ schema {
 }
 
 type Query {
+  test: Test
+}
+
+type Test {
   testLong1: Long
   testLong2: Long
   testShort1: Short
@@ -56,7 +61,7 @@ type Query {
             result.data.testBigInteger == BigInteger.ONE
     }
 
-    void "test mapping extended graphql-java scalars in root resolver [required field]"() {
+    void "test mapping extended graphql-java scalars in GraphQLType annotated entity [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -70,6 +75,10 @@ schema {
 }
 
 type Query {
+  test: Test
+}
+
+type Test {
   testLong1: Long!
   testLong2: Long!
   testShort1: Short!
@@ -106,6 +115,13 @@ type Query {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
+        Test test() {
+            return new Test()
+        }
+    }
+
+    @GraphQLType
+    static class Test {
         long testLong1() {
             return Long.MAX_VALUE
         }
