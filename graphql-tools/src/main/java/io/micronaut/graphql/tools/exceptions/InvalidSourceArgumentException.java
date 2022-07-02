@@ -15,13 +15,13 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
-public class InvalidSourceArgumentException extends AbstractMappingMethodException {
+public class InvalidSourceArgumentException extends AbstractMappingException {
 
-    private final Class providedClass;
-    private final Class requiredClass;
+    private final Class<?> providedClass;
+    private final Class<?> requiredClass;
 
-    public InvalidSourceArgumentException(MappingDetails mappingDetails, Class providedClass,
-                                          Class requiredClass) {
+    public InvalidSourceArgumentException(MappingDetails mappingDetails, Class<?> providedClass,
+                                          Class<?> requiredClass) {
         super(
                 String.format(
                         "The source argument must be instance of %s class, provided: %s.",
@@ -35,11 +35,11 @@ public class InvalidSourceArgumentException extends AbstractMappingMethodExcepti
         this.requiredClass = requiredClass;
     }
 
-    public Class getProvidedClass() {
+    public Class<?> getProvidedClass() {
         return providedClass;
     }
 
-    public Class getRequiredClass() {
+    public Class<?> getRequiredClass() {
         return requiredClass;
     }
 

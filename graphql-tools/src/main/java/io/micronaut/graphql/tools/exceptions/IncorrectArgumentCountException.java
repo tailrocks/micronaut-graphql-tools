@@ -17,7 +17,7 @@ package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.core.annotation.Nullable;
 
-public class IncorrectArgumentCountException extends AbstractMappingMethodException {
+public class IncorrectArgumentCountException extends AbstractMappingException {
 
     private final int providedCount;
     private final int requiredCount;

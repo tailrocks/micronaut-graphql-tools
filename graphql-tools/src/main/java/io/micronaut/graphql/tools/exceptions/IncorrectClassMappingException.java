@@ -21,7 +21,7 @@ import io.micronaut.graphql.tools.SystemTypes;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class IncorrectClassMappingException extends AbstractMappingMethodException {
+public class IncorrectClassMappingException extends AbstractMappingException {
 
     public enum MappingType {
         DETECT_TYPE,
@@ -105,7 +105,7 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         return builder.toString();
     }
 
-    private static String toString(MappingType mappingType, Class providedClass) {
+    private static String toString(MappingType mappingType, Class<?> providedClass) {
         switch (mappingType) {
             case BUILT_IN_JAVA_CLASS:
                 return "a built-in class";

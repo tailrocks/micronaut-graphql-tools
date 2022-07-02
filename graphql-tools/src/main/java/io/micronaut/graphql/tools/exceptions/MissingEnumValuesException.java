@@ -18,7 +18,7 @@ package io.micronaut.graphql.tools.exceptions;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MissingEnumValuesException extends AbstractMappingMethodException {
+public class MissingEnumValuesException extends AbstractMappingException {
 
     private final List<String> missingValues;
 
