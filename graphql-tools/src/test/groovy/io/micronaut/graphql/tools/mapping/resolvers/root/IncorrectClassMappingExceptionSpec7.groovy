@@ -5,10 +5,8 @@ import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLInput
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
-import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
-
 
 class IncorrectClassMappingExceptionSpec7 extends AbstractTest {
 

@@ -39,12 +39,12 @@ type User {
             e.cause.message == """The field is mapped to the built-in class, when required custom Java class.
   GraphQL type: Query
   GraphQL field: currentUser
-  Mapped class: ${IncorrectClassMappingExceptionSpec2.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: currentUser()
   Provided class: ${Integer.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'currentUser'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec2.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'currentUser()'
             e.cause.providedClass == Integer
     }
@@ -77,12 +77,12 @@ type User {
             e.cause.message == """The field is mapped to the built-in class, when required custom Java class.
   GraphQL type: Query
   GraphQL field: currentUser
-  Mapped class: ${IncorrectClassMappingExceptionSpec2.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: currentUser()
   Provided class: ${Integer.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'currentUser'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec2.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'currentUser()'
             e.cause.providedClass == Integer
     }

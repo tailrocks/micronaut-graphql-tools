@@ -23,7 +23,6 @@ type Query {
   hello: String
 }
 """
-
             startContext(schema, SPEC_NAME)
 
         when:
@@ -35,13 +34,13 @@ type Query {
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
   GraphQL field: hello
-  Mapped class: ${IncorrectClassMappingExceptionSpec1.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'hello'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec1.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
@@ -59,7 +58,6 @@ type Query {
   hello: String!
 }
 """
-
             startContext(schema, SPEC_NAME)
 
         when:
@@ -71,13 +69,13 @@ type Query {
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: Query
   GraphQL field: hello
-  Mapped class: ${IncorrectClassMappingExceptionSpec1.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'hello'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec1.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet

@@ -42,21 +42,21 @@ enum Month {
             e.cause.message == """The field is mapped to the class, when required Enum.
   GraphQL type: Query
   GraphQL field: month
-  Mapped class: ${IncorrectClassMappingExceptionSpec4.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: month()
-  Provided class: ${IncorrectClassMappingExceptionSpec4.MyMonth.name}"""
+  Provided class: ${MyMonth.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'month'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec4.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'month()'
-            e.cause.providedClass == IncorrectClassMappingExceptionSpec4.MyMonth
+            e.cause.providedClass == MyMonth
     }
 
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        IncorrectClassMappingExceptionSpec4.MyMonth month() {
+        MyMonth month() {
             return null
         }
     }

@@ -42,23 +42,25 @@ type Test {
         when:
             def result = executeQuery("""
 {
-    testLong1
-    testLong2
-    testShort1
-    testShort2
-    testBigDecimal
-    testBigInteger
+    test {
+        testLong1
+        testLong2
+        testShort1
+        testShort2
+        testBigDecimal
+        testBigInteger
+    }
 }
 """)
 
         then:
             result.errors.isEmpty()
-            result.data.testLong1 == Long.MAX_VALUE
-            result.data.testLong2 == Long.MIN_VALUE
-            result.data.testShort1 == Short.MAX_VALUE
-            result.data.testShort2 == Short.MIN_VALUE
-            result.data.testBigDecimal == BigDecimal.ZERO
-            result.data.testBigInteger == BigInteger.ONE
+            result.data.test.testLong1 == Long.MAX_VALUE
+            result.data.test.testLong2 == Long.MIN_VALUE
+            result.data.test.testShort1 == Short.MAX_VALUE
+            result.data.test.testShort2 == Short.MIN_VALUE
+            result.data.test.testBigDecimal == BigDecimal.ZERO
+            result.data.test.testBigInteger == BigInteger.ONE
     }
 
     void "test mapping extended graphql-java scalars in GraphQLType annotated entity [required field]"() {
@@ -93,23 +95,25 @@ type Test {
         when:
             def result = executeQuery("""
 {
-    testLong1
-    testLong2
-    testShort1
-    testShort2
-    testBigDecimal
-    testBigInteger
+    test {
+        testLong1
+        testLong2
+        testShort1
+        testShort2
+        testBigDecimal
+        testBigInteger
+    }
 }
 """)
 
         then:
             result.errors.isEmpty()
-            result.data.testLong1 == Long.MAX_VALUE
-            result.data.testLong2 == Long.MIN_VALUE
-            result.data.testShort1 == Short.MAX_VALUE
-            result.data.testShort2 == Short.MIN_VALUE
-            result.data.testBigDecimal == BigDecimal.ZERO
-            result.data.testBigInteger == BigInteger.ONE
+            result.data.test.testLong1 == Long.MAX_VALUE
+            result.data.test.testLong2 == Long.MIN_VALUE
+            result.data.test.testShort1 == Short.MAX_VALUE
+            result.data.test.testShort2 == Short.MIN_VALUE
+            result.data.test.testBigDecimal == BigDecimal.ZERO
+            result.data.test.testBigInteger == BigInteger.ONE
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
@@ -122,29 +126,12 @@ type Test {
 
     @GraphQLType
     static class Test {
-        long testLong1() {
-            return Long.MAX_VALUE
-        }
-
-        Long testLong2() {
-            return Long.MIN_VALUE
-        }
-
-        short testShort1() {
-            return Short.MAX_VALUE
-        }
-
-        Short testShort2() {
-            return Short.MIN_VALUE
-        }
-
-        BigDecimal testBigDecimal() {
-            return BigDecimal.ZERO
-        }
-
-        BigInteger testBigInteger() {
-            return BigInteger.ONE
-        }
+        long testLong1 = Long.MAX_VALUE
+        Long testLong2 = Long.MIN_VALUE
+        short testShort1 = Short.MAX_VALUE
+        Short testShort2 = Short.MIN_VALUE
+        BigDecimal testBigDecimal = BigDecimal.ZERO
+        BigInteger testBigInteger = BigInteger.ONE
     }
 
 }

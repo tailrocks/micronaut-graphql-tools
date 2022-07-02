@@ -42,13 +42,13 @@ enum Month {
   GraphQL type: Query
   GraphQL field: displayName
   GraphQL argument: value
-  Mapped class: ${IncorrectClassMappingExceptionSpec5.Query.name}
+  Mapped class: ${Query.name}
   Mapped method: displayName(java.lang.String value)
   Provided class: java.lang.String"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'displayName'
             e.cause.mappingDetails.graphQlArgument == 'value'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec5.Query
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == 'displayName(java.lang.String value)'
     }
 

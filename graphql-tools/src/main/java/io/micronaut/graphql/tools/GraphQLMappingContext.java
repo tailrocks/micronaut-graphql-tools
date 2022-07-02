@@ -752,9 +752,12 @@ public class GraphQLMappingContext {
                 processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
             } else {
                 if (isJavaBuiltInClass(returnType)) {
-                    throw IncorrectClassMappingException.ofCustomTypeMappedToBuiltInClass(
+                    throw IncorrectClassMappingException.forField(
+                            IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                            IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
                             mappingDetails,
-                            returnType
+                            returnType,
+                            null
                     );
                 }
 

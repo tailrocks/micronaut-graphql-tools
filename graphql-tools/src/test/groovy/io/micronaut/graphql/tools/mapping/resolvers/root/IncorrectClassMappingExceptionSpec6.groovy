@@ -40,16 +40,16 @@ type User {
             e.cause.message == """The field is mapped to the enum, when required custom Java class.
   GraphQL type: User
   GraphQL field: username
-  Provided class: ${IncorrectClassMappingExceptionSpec6.User.name}"""
+  Provided class: ${User.name}"""
             e.cause.mappingDetails.graphQlType == 'User'
             e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.providedClass == IncorrectClassMappingExceptionSpec6.User
+            e.cause.providedClass == User
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        IncorrectClassMappingExceptionSpec6.User user() {
+        User user() {
             return null
         }
     }

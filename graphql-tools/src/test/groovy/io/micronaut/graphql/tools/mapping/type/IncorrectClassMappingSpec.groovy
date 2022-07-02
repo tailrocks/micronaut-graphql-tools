@@ -8,9 +8,9 @@ import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class IncorrectClassMappingExceptionSpec3 extends AbstractTest {
+class IncorrectClassMappingSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec3"
+    static final String SPEC_NAME = "IncorrectClassMappingSpec"
 
     void "test GraphQL field inside sub-type mapped to the incorrect class"() {
         given:
@@ -40,13 +40,13 @@ type User {
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: User
   GraphQL field: username
-  Mapped class: ${IncorrectClassMappingExceptionSpec3.User.name}
+  Mapped class: ${User.name}
   Mapped method: getUsername()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'User'
             e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec3.User
+            e.cause.mappingDetails.mappedClass == User
             e.cause.mappingDetails.mappedMethod == 'getUsername()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
@@ -80,13 +80,13 @@ type User {
             e.cause.message == """The field is mapped to the incorrect class.
   GraphQL type: User
   GraphQL field: username
-  Mapped class: ${IncorrectClassMappingExceptionSpec3.User.name}
+  Mapped class: ${User.name}
   Mapped method: getUsername()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingDetails.graphQlType == 'User'
             e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == IncorrectClassMappingExceptionSpec3.User
+            e.cause.mappingDetails.mappedClass == User
             e.cause.mappingDetails.mappedMethod == 'getUsername()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
@@ -95,7 +95,7 @@ type User {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        IncorrectClassMappingExceptionSpec3.User user() {
+        User user() {
             return null
         }
     }
