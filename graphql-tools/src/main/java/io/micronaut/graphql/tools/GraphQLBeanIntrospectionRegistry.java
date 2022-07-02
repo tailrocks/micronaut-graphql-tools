@@ -76,7 +76,7 @@ public class GraphQLBeanIntrospectionRegistry {
                 throw new MultipleImplementationsFoundException(
                         mappingDetails,
                         clazz,
-                        interfaceToImplementation.get(clazz).stream().sorted().collect(Collectors.toList())
+                        interfaceToImplementation.get(clazz)
                 );
             }
 

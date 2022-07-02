@@ -1,5 +1,6 @@
 package io.micronaut.graphql.tools.exceptions;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,9 @@ public class MultipleImplementationsFoundException extends AbstractMappingMethod
                 mappingDetails
         );
 
-        this.implementationClasses = implementationClasses;
+        this.implementationClasses = implementationClasses.stream()
+                .sorted(Comparator.comparing(Class::getName))
+                .collect(Collectors.toList());
     }
 
     public List<Class<?>> getImplementationClasses() {
