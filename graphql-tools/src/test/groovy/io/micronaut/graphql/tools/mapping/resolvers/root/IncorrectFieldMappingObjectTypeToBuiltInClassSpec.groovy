@@ -36,7 +36,7 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to a built-in class, when required a custom Java class.
+            e.cause.message == """The field is mapped to a built-in class, when required a custom class.
   GraphQL type: Query
   GraphQL field: currentUser
   Mapped class: ${Query.name}
@@ -74,7 +74,7 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to a built-in class, when required a custom Java class.
+            e.cause.message == """The field is mapped to a built-in class, when required a custom class.
   GraphQL type: Query
   GraphQL field: currentUser
   Mapped class: ${Query.name}
