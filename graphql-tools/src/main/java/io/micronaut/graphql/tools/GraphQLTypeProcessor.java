@@ -36,7 +36,7 @@ public class GraphQLTypeProcessor implements ExecutableMethodProcessor<GraphQLTy
     }
 
     public void process(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
-        graphQLMappingContext.registerTypeExecutableMethod(beanDefinition, method);
+        graphQLMappingContext.registerTypeExecutableMethod(beanDefinition, (ExecutableMethod<Object, ?>) method);
     }
 
 }

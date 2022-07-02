@@ -27,7 +27,7 @@ public class MicronautIntrospectionDataFetcher implements DataFetcher<Object> {
 
     private final BeanIntrospection<Object> beanIntrospection;
 
-    public MicronautIntrospectionDataFetcher(BeanIntrospection beanIntrospection) {
+    public MicronautIntrospectionDataFetcher(BeanIntrospection<Object> beanIntrospection) {
         this.beanIntrospection = beanIntrospection;
     }
 

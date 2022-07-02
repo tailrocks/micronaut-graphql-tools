@@ -36,7 +36,7 @@ public class GraphQLRootProcessor implements ExecutableMethodProcessor<GraphQLRo
     }
 
     public void process(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
-        graphQLMappingContext.registerRootExecutableMethod(beanDefinition, method);
+        graphQLMappingContext.registerRootExecutableMethod(beanDefinition, (ExecutableMethod<Object, ?>) method);
     }
 
 }

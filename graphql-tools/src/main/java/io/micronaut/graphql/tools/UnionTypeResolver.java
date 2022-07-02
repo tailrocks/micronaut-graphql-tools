@@ -32,10 +32,10 @@ public class UnionTypeResolver implements TypeResolver {
     private final Provider<GraphQLSchema> graphQLSchemaProvider;
 
     // source class -> target GraphQL type name
-    private final Map<Class, String> objectTypes;
+    private final Map<Class<?>, String> objectTypes;
 
     public UnionTypeResolver(Provider<GraphQLSchema> graphQLSchemaProvider,
-                             Map<Class, String> objectTypes) {
+                             Map<Class<?>, String> objectTypes) {
         this.graphQLSchemaProvider = graphQLSchemaProvider;
         this.objectTypes = new ConcurrentHashMap<>(objectTypes);
     }

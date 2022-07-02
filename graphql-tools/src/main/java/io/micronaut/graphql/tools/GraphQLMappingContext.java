@@ -69,7 +69,6 @@ import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,7 +97,7 @@ public class GraphQLMappingContext {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final List<BeanDefinitionAndMethods> rootResolvers = new ArrayList<>();
-    private final Map<Class, List<BeanDefinitionAndMethods>> typeResolvers = new HashMap<>();
+    private final Map<Class<?>, List<BeanDefinitionAndMethods>> typeResolvers = new HashMap<>();
 
     private final Map<String, MappingItem> mappingRegistry = new HashMap<>();
 
@@ -163,7 +162,7 @@ public class GraphQLMappingContext {
         return rootRuntimeWiringBuilder.build();
     }
 
-    void registerRootExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
+    void registerRootExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<Object, ?> method) {
         rootResolvers.stream().filter(it -> it.beanDefinition.equals(beanDefinition)).findFirst().orElseGet(() -> {
             BeanDefinitionAndMethods item = new BeanDefinitionAndMethods(beanDefinition);
             rootResolvers.add(item);
@@ -171,7 +170,7 @@ public class GraphQLMappingContext {
         }).addExecutableMethod(method);
     }
 
-    void registerTypeExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
+    void registerTypeExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<Object, ?> method) {
         AnnotationClassValue<Class<?>> annotationValue = (AnnotationClassValue<Class<?>>) beanDefinition
                 .getValue(GraphQLTypeResolver.class, AnnotationMetadata.VALUE_MEMBER)
                 .orElseThrow(() -> new IncorrectAnnotationException(beanDefinition.getBeanType()));
@@ -194,7 +193,7 @@ public class GraphQLMappingContext {
         });
     }
 
-    private boolean isUnion(Class modelInterface) {
+    private boolean isUnion(Class<?> modelInterface) {
         for (Map.Entry<String, MappingItem> entry : mappingRegistry.entrySet()) {
             if (modelInterface.equals(entry.getValue().targetInterface)) {
                 return true;
@@ -225,7 +224,7 @@ public class GraphQLMappingContext {
             throw new MethodNotFoundException(fieldDefinition.getName());
         }
 
-        ExecutableMethod<Object, Object> executable = beanDefinitionAndMethod.executableMethod;
+        ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.executableMethod;
 
         MappingDetails mappingDetails = MappingDetails.forField(
                 objectTypeDefinition,
@@ -247,24 +246,24 @@ public class GraphQLMappingContext {
                 applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
         ));
 
-        Class returnType = unwrapArgument(executable.getReturnType().asArgument()).getType();
+        Class<?> returnType = unwrapArgument(executable.getReturnType().asArgument()).getType();
 
         processReturnType(returnType, mappingDetails, mappingDetails.getFieldDefinition().getType());
     }
 
     private List<ArgumentDetails> processInputArguments(
             MappingDetails mappingDetails,
-            Executable<Object, Object> executable,
-            @Nullable Class sourceClass
+            Executable<?, ?> executable,
+            @Nullable Class<?> sourceClass
     ) {
         List<InputValueDefinition> inputs = mappingDetails.getFieldDefinition().getInputValueDefinitions();
-        List<Argument> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
+        List<Argument<?>> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
 
         if (inputs.isEmpty() && arguments.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<Class> argumentClasses = arguments.stream()
+        List<Class<?>> argumentClasses = arguments.stream()
                 .map(TypeInformation::getType)
                 .collect(Collectors.toList());
 
@@ -384,7 +383,7 @@ public class GraphQLMappingContext {
                     .map(it -> ((TypeName) it).getName())
                     .collect(Collectors.toList());
 
-            Map<Class, String> objectTypes = new HashMap<>();
+            Map<Class<?>, String> objectTypes = new HashMap<>();
 
             for (String graphQlType : graphQlTypes) {
                 MappingItem mappingItem = mappingRegistry.get(graphQlType);
@@ -402,7 +401,7 @@ public class GraphQLMappingContext {
     }
 
     @Nullable
-    private Class processInputType(TypeName typeName, MappingDetails mappingDetails, Class clazz) {
+    private Class<?> processInputType(TypeName typeName, MappingDetails mappingDetails, Class<?> clazz) {
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
@@ -433,8 +432,9 @@ public class GraphQLMappingContext {
     }
 
     private void processInputObjectTypeDefinition(InputObjectTypeDefinition objectTypeDefinition,
-                                                  MappingDetails mappingDetails, Class<Object> targetClass) {
-        BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED.findIntrospection(targetClass)
+                                                  MappingDetails mappingDetails, Class<?> targetClass) {
+        BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED
+                .findIntrospection((Class<Object>) targetClass)
                 .orElseThrow(() -> new ClassNotIntrospectedException(mappingDetails, targetClass, GraphQLInput.class));
 
         if (
@@ -462,8 +462,8 @@ public class GraphQLMappingContext {
                     throw new RuntimeException("Property `" + inputValueDefinition.getName() + "` not found in: " + beanIntrospection.getBeanType());
                 }
 
-                Type fieldType = unwrapNonNullType(inputValueDefinition.getType());
-                Class returnType = property.get().getType();
+                Type<?> fieldType = unwrapNonNullType(inputValueDefinition.getType());
+                Class<?> returnType = property.get().getType();
 
                 if (fieldType instanceof ListType) {
                     if (!returnType.equals(List.class)) {
@@ -484,7 +484,7 @@ public class GraphQLMappingContext {
         }
     }
 
-    private void checkInputValueDefinitions(MappingDetails mappingDetails, BeanProperty beanProperty) {
+    private void checkInputValueDefinitions(MappingDetails mappingDetails, BeanProperty<?, ?> beanProperty) {
         if (mappingDetails.getFieldDefinition().getInputValueDefinitions().size() == 0) {
             return;
         }
@@ -497,8 +497,8 @@ public class GraphQLMappingContext {
     }
 
     private void checkInputValueDefinitions(MappingDetails mappingDetails,
-                                            Executable executable,
-                                            Class sourceClass) {
+                                            Executable<?, ?> executable,
+                                            Class<?> sourceClass) {
         int requiredArgs = mappingDetails.getFieldDefinition().getInputValueDefinitions().size();
 
         if (sourceClass != null) {
@@ -570,12 +570,13 @@ public class GraphQLMappingContext {
         }
     }
 
-    private static String getPropertyMethodName(BeanProperty beanProperty) {
+    private static String getPropertyMethodName(BeanProperty<?, ?> beanProperty) {
         return "get" + beanProperty.getName().substring(0, 1).toUpperCase()
                 + beanProperty.getName().substring(1) + "()";
     }
 
-    private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, BeanIntrospection beanIntrospection) {
+    private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition,
+                                             BeanIntrospection<Object> beanIntrospection) {
         requireNonNull("typeDefinition", objectTypeDefinition);
 
         rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeWiring -> {
@@ -584,8 +585,9 @@ public class GraphQLMappingContext {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
                 MappingDetails mappingDetails = MappingDetails.forField(objectTypeDefinition, fieldDefinition);
 
-                Optional<BeanProperty> beanProperty = beanIntrospection.getProperty(fieldDefinition.getName());
-                List<BeanMethod> beanMethods = ((Collection<BeanMethod>) beanIntrospection.getBeanMethods()).stream()
+                Optional<BeanProperty<Object, Object>> beanProperty =
+                        beanIntrospection.getProperty(fieldDefinition.getName());
+                List<BeanMethod<Object, ?>> beanMethods = beanIntrospection.getBeanMethods().stream()
                         .filter(it -> it.getName().equals(fieldDefinition.getName()) || it.getName().equals(generateGetMethodName(fieldDefinition.getName())))
                         .collect(Collectors.toList());
 
@@ -618,7 +620,7 @@ public class GraphQLMappingContext {
 
                     // TODO validate parameters for executable method
 
-                    ExecutableMethod<Object, Object> executable = beanDefinitionAndMethod.executableMethod;
+                    ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.executableMethod;
 
                     mappingDetails = MappingDetails.forField(mappingDetails, executable.getDeclaringType(),
                             getExecutableMethodFullName(executable));
@@ -650,7 +652,7 @@ public class GraphQLMappingContext {
 
                     processArgument(argument, mappingDetails);
                 } else if (!beanMethods.isEmpty()) {
-                    BeanMethod beanMethod = beanMethods.get(0);
+                    BeanMethod<Object, ?> beanMethod = beanMethods.get(0);
 
                     mappingDetails = MappingDetails.forField(mappingDetails, beanMethod.getDeclaringType(),
                             getExecutableMethodFullName(beanMethod));
@@ -678,11 +680,11 @@ public class GraphQLMappingContext {
         });
     }
 
-    private void processArgument(Argument argument, MappingDetails mappingDetails) {
-        Argument unwrappedArgument = unwrapArgument(argument);
+    private void processArgument(Argument<?> argument, MappingDetails mappingDetails) {
+        Argument<?> unwrappedArgument = unwrapArgument(argument);
 
-        Type fieldType = unwrapNonNullType(mappingDetails.getFieldDefinition().getType());
-        Class returnType = unwrappedArgument.getType();
+        Type<?> fieldType = unwrapNonNullType(mappingDetails.getFieldDefinition().getType());
+        Class<?> returnType = unwrappedArgument.getType();
 
         if (fieldType instanceof ListType) {
             if (!returnType.equals(List.class)) {
@@ -690,9 +692,9 @@ public class GraphQLMappingContext {
                 throw new RuntimeException("Wrong return type");
             }
 
-            Type listFieldType = ((ListType) fieldType).getType();
+            Type<?> listFieldType = ((ListType) fieldType).getType();
             // TODO check
-            Class listReturnType = unwrappedArgument.getFirstTypeVariable().get().getType();
+            Class<?> listReturnType = unwrappedArgument.getFirstTypeVariable().get().getType();
 
             // TODO is mapping details is corrrect?
 
@@ -702,7 +704,7 @@ public class GraphQLMappingContext {
         }
     }
 
-    private Argument unwrapArgument(Argument argument) {
+    private Argument<?> unwrapArgument(Argument<?> argument) {
         if (argument.isAsync()) {
             return argument.getFirstTypeVariable().get();
         }
@@ -714,7 +716,7 @@ public class GraphQLMappingContext {
         return argument;
     }
 
-    private Optional<BeanDefinitionAndMethod> findModelExecutableMethod(Class beanType, String methodName) {
+    private Optional<BeanDefinitionAndMethod> findModelExecutableMethod(Class<?> beanType, String methodName) {
         List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);
 
         if (items == null) {
@@ -722,7 +724,7 @@ public class GraphQLMappingContext {
         }
 
         for (BeanDefinitionAndMethods item : items) {
-            for (ExecutableMethod executableMethod : item.executableMethods) {
+            for (ExecutableMethod<Object, ?> executableMethod : item.executableMethods) {
                 if (executableMethod.getMethodName().equals(methodName)) {
                     return Optional.of(new BeanDefinitionAndMethod(item.beanDefinition, executableMethod));
                 }
@@ -732,7 +734,7 @@ public class GraphQLMappingContext {
         return Optional.empty();
     }
 
-    private void processReturnType(Class returnType, MappingDetails mappingDetails, Type graphQlType) {
+    private void processReturnType(Class<?> returnType, MappingDetails mappingDetails, Type<?> graphQlType) {
         if (graphQlType instanceof NonNullType) {
             graphQlType = unwrapNonNullType(graphQlType);
         }
@@ -790,7 +792,7 @@ public class GraphQLMappingContext {
         }
     }
 
-    private boolean registerBeanIntrospectionMapping(String type, BeanIntrospection<Object> beanIntrospection) {
+    private boolean registerBeanIntrospectionMapping(String type, BeanIntrospection<?> beanIntrospection) {
         requireNonNull("type", type);
         requireNonNull("beanIntrospection", beanIntrospection);
 
@@ -813,7 +815,7 @@ public class GraphQLMappingContext {
     }
 
     private void processEnumTypeDefinition(MappingDetails mappingDetails, EnumTypeDefinition typeDefinition,
-                                           Class targetClass, boolean input) {
+                                           Class<?> targetClass, boolean input) {
         requireNonNull("typeDefinition", typeDefinition);
         requireNonNull("targetClass", targetClass);
 
@@ -862,7 +864,7 @@ public class GraphQLMappingContext {
                 .sorted()
                 .collect(Collectors.toList());
 
-        List<String> existingValues = Arrays.stream(targetClass.getEnumConstants()).map(it -> ((Enum) it).name())
+        List<String> existingValues = Arrays.stream(targetClass.getEnumConstants()).map(it -> ((Enum<?>) it).name())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
@@ -878,7 +880,7 @@ public class GraphQLMappingContext {
         mappingRegistry.put(typeName, new MappingItem(targetClass, null));
     }
 
-    private boolean registerUnionMapping(String type, Class interfaceClass) {
+    private boolean registerUnionMapping(String type, Class<?> interfaceClass) {
         requireNonNull("type", type);
         requireNonNull("interfaceClass", interfaceClass);
 
@@ -900,7 +902,7 @@ public class GraphQLMappingContext {
     }
 
     // TODO move to utils class
-    private static TypeName getTypeName(Type type) {
+    private static TypeName getTypeName(Type<?> type) {
         type = unwrapNonNullType(type);
         if (type instanceof TypeName) {
             return ((TypeName) type);
@@ -909,7 +911,7 @@ public class GraphQLMappingContext {
     }
 
     // TODO move to utils class
-    private static Type unwrapNonNullType(Type type) {
+    private static Type<?> unwrapNonNullType(Type<?> type) {
         if (type instanceof NonNullType) {
             return unwrapNonNullType(((NonNullType) type).getType());
         }
@@ -919,7 +921,7 @@ public class GraphQLMappingContext {
     private BeanDefinitionAndMethod findExecutableMethodByFieldName(String operationName) {
         // TODO optimize me pls
         for (BeanDefinitionAndMethods resolverItem : rootResolvers) {
-            for (ExecutableMethod executableMethod : resolverItem.executableMethods) {
+            for (ExecutableMethod<Object, ?> executableMethod : resolverItem.executableMethods) {
                 if (executableMethod.getMethodName().equals(operationName)) {
                     return new BeanDefinitionAndMethod(resolverItem.beanDefinition, executableMethod);
                 }
@@ -928,11 +930,12 @@ public class GraphQLMappingContext {
         return null;
     }
 
-    private class BeanDefinitionAndMethod {
-        final BeanDefinition<Object> beanDefinition;
-        final ExecutableMethod<Object, Object> executableMethod;
+    private static class BeanDefinitionAndMethod {
+        final BeanDefinition<?> beanDefinition;
+        final ExecutableMethod<Object, ?> executableMethod;
 
-        private BeanDefinitionAndMethod(@NonNull BeanDefinition beanDefinition, @NonNull ExecutableMethod executableMethod) {
+        private BeanDefinitionAndMethod(@NonNull BeanDefinition<?> beanDefinition,
+                                        @NonNull ExecutableMethod<Object, ?> executableMethod) {
             requireNonNull("beanDefinition", beanDefinition);
             requireNonNull("executableMethod", executableMethod);
 
@@ -941,31 +944,31 @@ public class GraphQLMappingContext {
         }
     }
 
-    private class BeanDefinitionAndMethods {
-        final BeanDefinition<Object> beanDefinition;
-        final Set<ExecutableMethod<Object, Object>> executableMethods = new HashSet<>();
+    private static class BeanDefinitionAndMethods {
+        final BeanDefinition<?> beanDefinition;
+        final Set<ExecutableMethod<Object, ?>> executableMethods = new HashSet<>();
 
-        private BeanDefinitionAndMethods(@NonNull BeanDefinition beanDefinition) {
+        private BeanDefinitionAndMethods(@NonNull BeanDefinition<?> beanDefinition) {
             requireNonNull("beanDefinition", beanDefinition);
 
             this.beanDefinition = beanDefinition;
         }
 
-        private void addExecutableMethod(@NonNull ExecutableMethod executableMethod) {
+        private void addExecutableMethod(@NonNull ExecutableMethod<Object, ?> executableMethod) {
             requireNonNull("executableMethod", executableMethod);
 
             executableMethods.add(executableMethod);
         }
     }
 
-    private class MappingItem {
+    private static class MappingItem {
 
-        @Nullable final BeanIntrospection beanIntrospection;
+        @Nullable final BeanIntrospection<?> beanIntrospection;
 
-        @Nullable final Class targetEnum;
-        @Nullable final Class targetInterface;
+        @Nullable final Class<?> targetEnum;
+        @Nullable final Class<?> targetInterface;
 
-        private MappingItem(@NonNull BeanIntrospection beanIntrospection) {
+        private MappingItem(@NonNull BeanIntrospection<?> beanIntrospection) {
             requireNonNull("beanIntrospection", beanIntrospection);
 
             this.beanIntrospection = beanIntrospection;
@@ -973,7 +976,7 @@ public class GraphQLMappingContext {
             this.targetInterface = null;
         }
 
-        public MappingItem(@Nullable Class targetEnum, @Nullable Class targetInterface) {
+        public MappingItem(@Nullable Class<?> targetEnum, @Nullable Class<?> targetInterface) {
             if (targetEnum == null && targetInterface == null) {
                 throw new IllegalArgumentException("targetEnum and targetInterface both can not be null");
             }

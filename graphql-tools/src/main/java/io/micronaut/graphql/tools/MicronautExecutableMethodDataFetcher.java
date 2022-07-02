@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object> {
 
     private final ObjectMapper objectMapper;
-    private final Executable<Object, Object> executable;
+    private final Executable<Object, ?> executable;
     private final List<ArgumentDetails> argumentDetailsList;
 
     @Nullable
@@ -39,7 +39,7 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
 
     public MicronautExecutableMethodDataFetcher(
             ObjectMapper objectMapper,
-            Executable<Object, Object> executable,
+            Executable<Object, ?> executable,
             List<ArgumentDetails> argumentDetailsList,
             @Nullable Object instance
     ) {
