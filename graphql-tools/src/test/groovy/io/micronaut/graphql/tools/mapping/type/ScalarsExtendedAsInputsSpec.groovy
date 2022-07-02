@@ -7,9 +7,9 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import org.intellij.lang.annotations.Language
 
-class ScalarsExtendedAsInputsSpec  extends AbstractTest {
+class ScalarsExtendedAsInputsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "ScalarInputsSpec4"
+    static final String SPEC_NAME = "io.micronaut.graphql.tools.mapping.type.ScalarsExtendedAsInputsSpec"
 
     void "test mapping extended graphql-java scalars as inputs in GraphQLType annotated entity"() {
         given:
