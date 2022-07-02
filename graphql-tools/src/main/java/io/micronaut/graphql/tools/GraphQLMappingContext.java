@@ -340,7 +340,7 @@ public class GraphQLMappingContext {
 
                 if (!supportedClasses.contains(returnType)) {
                     throw IncorrectClassMappingException.forArgument(
-                            IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
                             IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
                             MappingDetails.forArgument(mappingDetails, i),
                             returnType,
@@ -352,7 +352,7 @@ public class GraphQLMappingContext {
             } else {
                 if (returnType.isInterface()) {
                     throw IncorrectClassMappingException.forArgument(
-                            IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
                             IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
                             MappingDetails.forArgument(mappingDetails, i),
                             returnType,
@@ -410,14 +410,16 @@ public class GraphQLMappingContext {
 
             return clazz;
         } else if (typeDefinition instanceof EnumTypeDefinition) {
-            processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, clazz);
+            processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, clazz, true);
 
             return null;
         } else if (isGraphQlBuiltInType(typeName)) {
             Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
             if (!supportedClasses.contains(clazz)) {
-                throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
+                throw IncorrectClassMappingException.forArgument(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
                         mappingDetails,
                         clazz,
                         supportedClasses
@@ -441,7 +443,7 @@ public class GraphQLMappingContext {
                         || beanIntrospection.getBeanType().isAnnotation()
         ) {
             throw IncorrectClassMappingException.forArgument(
-                    IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                    IncorrectClassMappingException.MappingType.DETECT_TYPE,
                     IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
                     mappingDetails,
                     targetClass,
@@ -601,7 +603,13 @@ public class GraphQLMappingContext {
                     Class<?> interfaceClass = graphQLBeanIntrospectionRegistry.getInterfaceClass(beanIntrospection.getBeanType());
 
                     if (interfaceClass.isPrimitive() || interfaceClass.isEnum() || interfaceClass.isAnnotation()) {
-                        throw IncorrectClassMappingException.ofRequiredCustomClass(mappingDetails, interfaceClass);
+                        throw IncorrectClassMappingException.forField(
+                                IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                                IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
+                                mappingDetails,
+                                interfaceClass,
+                                null
+                        );
                     }
 
                     // TODO better exception
@@ -739,21 +747,22 @@ public class GraphQLMappingContext {
             Set<Class<?>> supportedClasses = getSupportedClasses(getTypeName(graphQlType));
 
             if (!supportedClasses.contains(returnType)) {
-                throw IncorrectClassMappingException.ofBuiltInTypeMappedToCustomClass(
+                throw new IncorrectClassMappingException(
+                        "The field is mapped to the incorrect class.",
                         mappingDetails,
                         returnType,
                         supportedClasses
                 );
             }
         } else {
-            TypeDefinition typeDefinition = getTypeDefinition(typeName);
+            TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
             if (typeDefinition instanceof EnumTypeDefinition) {
-                processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType);
+                processEnumTypeDefinition(mappingDetails, (EnumTypeDefinition) typeDefinition, returnType, false);
             } else {
                 if (isJavaBuiltInClass(returnType)) {
                     throw IncorrectClassMappingException.forField(
-                            IncorrectClassMappingException.MappingType.DETECT_CLASS,
+                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
                             IncorrectClassMappingException.MappingType.CUSTOM_JAVA_CLASS,
                             mappingDetails,
                             returnType,
@@ -804,12 +813,28 @@ public class GraphQLMappingContext {
     }
 
     private void processEnumTypeDefinition(MappingDetails mappingDetails, EnumTypeDefinition typeDefinition,
-                                           Class targetClass) {
+                                           Class targetClass, boolean input) {
         requireNonNull("typeDefinition", typeDefinition);
         requireNonNull("targetClass", targetClass);
 
         if (!targetClass.isEnum()) {
-            throw IncorrectClassMappingException.ofEnumMappedToNotEnum(mappingDetails, targetClass);
+            if (input) {
+                throw IncorrectClassMappingException.forArgument(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.ENUM,
+                        mappingDetails,
+                        targetClass,
+                        null
+                );
+            } else {
+                throw IncorrectClassMappingException.forField(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.ENUM,
+                        mappingDetails,
+                        targetClass,
+                        null
+                );
+            }
         }
 
         String typeName = typeDefinition.getName();

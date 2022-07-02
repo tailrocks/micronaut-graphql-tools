@@ -1,6 +1,7 @@
 package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.graphql.tools.SystemTypes;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,56 +9,14 @@ import java.util.stream.Collectors;
 public class IncorrectClassMappingException extends AbstractMappingMethodException {
 
     public enum MappingType {
+        DETECT_TYPE,
         BUILT_IN_JAVA_CLASS,
         CUSTOM_JAVA_CLASS,
-        ENUM,
-        DETECT_CLASS
+        ENUM
     }
 
     private final Class<?> providedClass;
     private final Set<Class<?>> supportedClasses;
-
-    public static IncorrectClassMappingException ofCustomTypeMappedToBuiltInClass(
-            MappingDetails mappingDetails,
-            Class<?> providedClass
-    ) {
-        return new IncorrectClassMappingException(
-                "The field is mapped to the built-in class, when required custom Java class.",
-                mappingDetails, providedClass, null
-        );
-    }
-
-    public static IncorrectClassMappingException ofBuiltInTypeMappedToCustomClass(
-            MappingDetails mappingDetails,
-            Class<?> providedClass,
-            Set<Class<?>> supportedClasses
-    ) {
-        return new IncorrectClassMappingException(
-                "The field is mapped to the incorrect class.",
-                mappingDetails, providedClass, supportedClasses
-        );
-    }
-
-    public static IncorrectClassMappingException ofEnumMappedToNotEnum(
-            MappingDetails mappingDetails,
-            Class<?> providedClass
-    ) {
-        return new IncorrectClassMappingException(
-                "The field is mapped to the " + toString(providedClass) + ", when required Enum.",
-                mappingDetails, providedClass, null
-        );
-    }
-
-    public static IncorrectClassMappingException ofRequiredCustomClass(
-            MappingDetails mappingDetails,
-            Class<?> providedClass
-    ) {
-
-        return new IncorrectClassMappingException(
-                "The field is mapped to the " + toString(providedClass) + ", when required custom Java class.",
-                mappingDetails, providedClass, null
-        );
-    }
 
     public static IncorrectClassMappingException forField(
             MappingType providedType,
@@ -139,7 +98,7 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
                 return "custom Java class";
             case ENUM:
                 return "enum";
-            case DETECT_CLASS:
+            case DETECT_TYPE:
                 return toString(providedClass);
             default:
                 throw new UnsupportedOperationException();
@@ -159,7 +118,10 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
         if (clazz.isEnum()) {
             return "enum";
         }
-        return "class";
+        if (SystemTypes.isJavaBuiltInClass(clazz)) {
+            return "built-in class";
+        }
+        return "custom Java class";
     }
 
 }
