@@ -93,11 +93,11 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
     private static String toString(MappingType mappingType, Class providedClass) {
         switch (mappingType) {
             case BUILT_IN_JAVA_CLASS:
-                return "built-in class";
+                return "a built-in class";
             case CUSTOM_JAVA_CLASS:
-                return "custom Java class";
+                return "a custom Java class";
             case ENUM:
-                return "enum";
+                return "an enum";
             case DETECT_TYPE:
                 return toString(providedClass);
             default:
@@ -107,21 +107,21 @@ public class IncorrectClassMappingException extends AbstractMappingMethodExcepti
 
     private static String toString(Class<?> clazz) {
         if (clazz.isAnnotation()) {
-            return "annotation";
+            return "an annotation";
         }
         if (clazz.isInterface()) {
-            return "interface";
+            return "an interface";
         }
         if (clazz.isPrimitive()) {
-            return "primitive";
+            return "a primitive";
         }
         if (clazz.isEnum()) {
-            return "enum";
+            return "an enum";
         }
         if (SystemTypes.isJavaBuiltInClass(clazz)) {
-            return "built-in class";
+            return "a built-in class";
         }
-        return "custom Java class";
+        return "a custom Java class";
     }
 
 }
