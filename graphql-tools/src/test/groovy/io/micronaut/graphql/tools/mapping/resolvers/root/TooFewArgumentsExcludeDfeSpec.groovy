@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class TooFewArgumentsExcludeDfeSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "TooFewArgumentsExcludeDfeSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.TooFewArgumentsExcludeDfeSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

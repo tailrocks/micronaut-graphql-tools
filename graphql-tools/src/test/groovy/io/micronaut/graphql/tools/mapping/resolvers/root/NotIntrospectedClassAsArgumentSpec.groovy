@@ -3,16 +3,16 @@ package io.micronaut.graphql.tools.mapping.resolvers.root
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
+import io.micronaut.graphql.tools.annotation.GraphQLInput
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
-import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException
 import org.intellij.lang.annotations.Language
 
-class NotIntrospectedClassAsFieldSpec extends AbstractTest {
+class NotIntrospectedClassAsArgumentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.NotIntrospectedClassAsFieldSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.NotIntrospectedClassAsInputSpec"
 
-    void "test root resolver returns not introspected class"() {
+    void "test root resolver use not introspected class as input argument"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -21,44 +21,46 @@ schema {
 }
 
 type Query {
-  user: User
+  price(input: PriceInput): Float
 }
 
-type User {
-  username: String
+input PriceInput {
+  from: String!
+  to: String!
 }
 """
 
         when:
             startContext(schema, SPEC_NAME)
-            executeQuery('{username}')
+            executeQuery("{month}")
 
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof ClassNotIntrospectedException
-            e.cause.message == """The class ${User.name} is not introspected. Ensure the class is annotated with ${GraphQLType.name}.
+            e.cause.message == """The class ${PriceInput.name} is not introspected. Ensure the class is annotated with ${GraphQLInput.name}.
   GraphQL type: Query
-  GraphQL field: user
+  GraphQL field: price
+  GraphQL argument: input
   Mapped class: ${Query.name}
-  Mapped method: user()"""
+  Mapped method: price(${PriceInput.name} input)"""
             e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'user'
+            e.cause.mappingDetails.graphQlField == 'price'
+            e.cause.mappingDetails.graphQlArgument == 'input'
             e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == "user()"
+            e.cause.mappingDetails.mappedMethod == "price(${PriceInput.name} input)"
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        User user() {
-            return null
+        Float price(PriceInput input) {
+            return 10.00f
         }
     }
 
-    static class User {
-        String username() {
-            return null
-        }
+    static class PriceInput {
+        String from
+        String to
     }
 
 }

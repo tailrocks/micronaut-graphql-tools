@@ -7,9 +7,9 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class IncorrectFieldMappingCustomTypeToBuiltInClassSpec extends AbstractTest {
+class IncorrectFieldMappingObjectTypeToBuiltInClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec2"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec2"
 
     void "test mapping custom GraphQL type to a wrong class"() {
         given:

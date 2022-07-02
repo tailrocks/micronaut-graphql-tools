@@ -1,17 +1,15 @@
-package io.micronaut.graphql.tools.mapping.resolvers.type
+package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
-import io.micronaut.graphql.tools.annotation.GraphQLType
-import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import org.intellij.lang.annotations.Language
 
-class ScalarsStandardAsInputsSpec extends AbstractTest {
+class ScalarsStandardAsArgumentsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "io.micronaut.graphql.tools.mapping.resolvers.type.ScalarsStandardAsInputsSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.ScalarsStandardAsInputsSpec"
 
-    void "test mapping standard graphql scalars as inputs in type resolver"() {
+    void "test mapping standard graphql scalars as inputs in root resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -20,10 +18,6 @@ schema {
 }
 
 type Query {
-  test: Test
-}
-
-type Test {
   hello(
     testString: String
     testBoolean1: Boolean
@@ -42,27 +36,25 @@ type Test {
         when:
             def result = executeQuery("""
 {
-    test {
-        hello(
-            testString: "test",
-            testBoolean1: true,
-            testBoolean2: false,
-            testInt1: 123,
-            testInt2: -123,
-            testFloat1: 1.23,
-            testFloat2: -1.23,
-            testID: "id"
-        )
-    }
+    hello(
+        testString: "test",
+        testBoolean1: true,
+        testBoolean2: false,
+        testInt1: 123,
+        testInt2: -123,
+        testFloat1: 1.23,
+        testFloat2: -1.23,
+        testID: "id"
+    )
 }
 """)
 
         then:
             result.errors.isEmpty()
-            result.data.test.hello == 'World'
+            result.data.hello == 'World'
     }
 
-    void "test mapping standard graphql scalars as inputs in type resolver [required field]"() {
+    void "test mapping standard graphql scalars as inputs in root resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -71,10 +63,6 @@ schema {
 }
 
 type Query {
-  test: Test
-}
-
-type Test {
   hello(
     testString: String!
     testBoolean1: Boolean!
@@ -93,43 +81,28 @@ type Test {
         when:
             def result = executeQuery("""
 {
-    test {
-        hello(
-            testString: "test",
-            testBoolean1: true,
-            testBoolean2: false,
-            testInt1: 123,
-            testInt2: -123,
-            testFloat1: 1.23,
-            testFloat2: -1.23,
-            testID: "id"
-        )
-    }
+    hello(
+        testString: "test",
+        testBoolean1: true,
+        testBoolean2: false,
+        testInt1: 123,
+        testInt2: -123,
+        testFloat1: 1.23,
+        testFloat2: -1.23,
+        testID: "id"
+    )
 }
 """)
 
         then:
             result.errors.isEmpty()
-            result.data.test.hello == 'World'
+            result.data.hello == 'World'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        Test test() {
-            return new Test()
-        }
-    }
-
-    @GraphQLType
-    static class Test {
-    }
-
-    @Requires(property = 'spec.name', value = SPEC_NAME)
-    @GraphQLTypeResolver(Test.class)
-    static class TestResolver {
         String hello(
-                Test test,
                 String testString,
                 boolean testBoolean1,
                 Boolean testBoolean2,

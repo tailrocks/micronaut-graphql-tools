@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class TooManyArgumentsExcludeDfeSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "TooManyArgumentsExcludeDfeSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.TooManyArgumentsExcludeDfeSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -34,11 +34,11 @@ type Query {
             e.cause.message == """The method has too many arguments, provided: 1, required 0 arg(s).
   GraphQL type: Query
   GraphQL field: username
-  Mapped class: ${Query2.name}
+  Mapped class: ${Query.name}
   Mapped method: username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == Query2
+            e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
@@ -46,7 +46,7 @@ type Query {
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
-    static class Query2 {
+    static class Query {
         String username(String uid, DataFetchingEnvironment dfe) {
             return null
         }

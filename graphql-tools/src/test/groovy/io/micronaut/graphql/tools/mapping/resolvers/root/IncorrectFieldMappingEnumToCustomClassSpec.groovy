@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class IncorrectFieldMappingEnumToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec4"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec4"
 
     void "test GraphQL schema enum mapped to a Java class"() {
         given:

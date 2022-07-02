@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class UnionSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "TestSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.TestSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

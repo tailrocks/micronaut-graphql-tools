@@ -8,11 +8,11 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class InterfaceAsInputSpec extends AbstractTest {
+class IncorrectArgumentMappingInputObjectValueToEnumSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "ClassNotIntrospectedExceptionSpec3"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec7"
 
-    void "test root resolver use interface as input argument"() {
+    void "test input argument use enum instead of introspected custom class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -38,7 +38,7 @@ input PriceInput {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The argument is mapped to an interface, when required a custom Java class.
+            e.cause.message == """The argument is mapped to an enum, when required a custom Java class.
   GraphQL type: Query
   GraphQL field: price
   GraphQL argument: input
@@ -62,9 +62,8 @@ input PriceInput {
     }
 
     @GraphQLInput
-    static interface PriceInput {
-        String from
-        String to
+    static enum PriceInput {
+        TEST
     }
 
 }

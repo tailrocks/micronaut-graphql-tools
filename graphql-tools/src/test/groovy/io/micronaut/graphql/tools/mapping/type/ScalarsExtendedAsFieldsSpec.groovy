@@ -8,7 +8,7 @@ import org.intellij.lang.annotations.Language
 
 class ScalarsExtendedAsFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "io.micronaut.graphql.tools.mapping.type.ScalarsExtendedAsFieldsSpec"
+    static final String SPEC_NAME = "mapping.type.ScalarsExtendedAsFieldsSpec"
 
     void "test mapping extended graphql-java scalars in GraphQLType annotated entity"() {
         given:

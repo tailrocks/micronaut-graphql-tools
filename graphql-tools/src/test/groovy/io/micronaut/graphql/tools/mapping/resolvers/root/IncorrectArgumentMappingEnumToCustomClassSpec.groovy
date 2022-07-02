@@ -3,16 +3,15 @@ package io.micronaut.graphql.tools.mapping.resolvers.root
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
-import io.micronaut.graphql.tools.annotation.GraphQLInput
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class IncorrectInputMappingCustomInputToEnumSpec extends AbstractTest {
+class IncorrectArgumentMappingEnumToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec7"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec5"
 
-    void "test input argument use enum instead of introspected custom class"() {
+    void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -21,12 +20,13 @@ schema {
 }
 
 type Query {
-  price(input: PriceInput): Float
+  displayName(value: Month): String
 }
 
-input PriceInput {
-  from: String!
-  to: String!
+enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
 }
 """
 
@@ -38,32 +38,26 @@ input PriceInput {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The argument is mapped to an enum, when required a custom Java class.
+            e.cause.message == """The argument is mapped to a built-in class, when required an enum.
   GraphQL type: Query
-  GraphQL field: price
-  GraphQL argument: input
+  GraphQL field: displayName
+  GraphQL argument: value
   Mapped class: ${Query.name}
-  Mapped method: price(${PriceInput.name} input)
-  Provided class: ${PriceInput.name}"""
+  Mapped method: displayName(java.lang.String value)
+  Provided class: java.lang.String"""
             e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'price'
-            e.cause.mappingDetails.graphQlArgument == 'input'
+            e.cause.mappingDetails.graphQlField == 'displayName'
+            e.cause.mappingDetails.graphQlArgument == 'value'
             e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == "price(${PriceInput.name} input)"
-            e.cause.providedClass == PriceInput
+            e.cause.mappingDetails.mappedMethod == 'displayName(java.lang.String value)'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        Float price(PriceInput input) {
-            return 10.00f
+        String displayName(String value) {
+            return null
         }
-    }
-
-    @GraphQLInput
-    static enum PriceInput {
-        TEST
     }
 
 }

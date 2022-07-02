@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class InvalidSourceArgumentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "InvalidSourceArgumentSpec"
+    static final String SPEC_NAME = "mapping.type.InvalidSourceArgumentSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

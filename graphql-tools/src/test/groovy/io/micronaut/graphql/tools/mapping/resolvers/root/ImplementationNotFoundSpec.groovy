@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class ImplementationNotFoundSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "ImplementationNotFoundExceptionSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.ImplementationNotFoundExceptionSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

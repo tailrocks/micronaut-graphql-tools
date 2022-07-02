@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class TooManyArgumentsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "TooManyArgumentsSpec"
+    static final String SPEC_NAME = "mapping.type.TooManyArgumentsSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

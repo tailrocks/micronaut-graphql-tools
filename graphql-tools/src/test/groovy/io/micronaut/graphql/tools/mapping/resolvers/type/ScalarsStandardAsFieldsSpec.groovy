@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class ScalarsStandardAsFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "io.micronaut.graphql.tools.mapping.resolvers.type.ScalarsStandardAsFieldsSpec"
+    static final String SPEC_NAME = "mapping.resolvers.type.ScalarsStandardAsFieldsSpec"
 
     void "test mapping standard graphql scalars in type resolver"() {
         given:

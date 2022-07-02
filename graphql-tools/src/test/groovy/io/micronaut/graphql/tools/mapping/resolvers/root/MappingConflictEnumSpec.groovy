@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class MappingConflictEnumSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "MappingConflictExceptionSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.MappingConflictExceptionSpec"
 
     void "test enum mapped to a different classes"() {
         given:

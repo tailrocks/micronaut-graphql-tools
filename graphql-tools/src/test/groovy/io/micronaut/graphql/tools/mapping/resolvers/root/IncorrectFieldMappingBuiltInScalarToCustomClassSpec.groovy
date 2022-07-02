@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class IncorrectFieldMappingBuiltInScalarToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectMappingBuiltInScalarToClassSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectMappingBuiltInScalarToClassSpec"
 
     void "test mapping built-in GraphQL type to a wrong class"() {
         given:

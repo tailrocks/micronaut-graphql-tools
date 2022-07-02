@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class MissingEnumValuesSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "MissingEnumValuesExceptionSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.MissingEnumValuesExceptionSpec"
 
     void "test mapping to an enum with missed values"() {
         given:

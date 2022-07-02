@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class IncorrectAnnotationSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectAnnotationExceptionSpec"
+    static final String SPEC_NAME = "mapping.resolvers.type.IncorrectAnnotationExceptionSpec"
 
     void "test GraphQLTypeResolver annotation used with null value class"() {
         given:

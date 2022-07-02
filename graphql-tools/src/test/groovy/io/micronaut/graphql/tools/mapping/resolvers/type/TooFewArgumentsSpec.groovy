@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class TooFewArgumentsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectArgumentCountExceptionSpec4"
+    static final String SPEC_NAME = "mapping.resolvers.type.IncorrectArgumentCountExceptionSpec4"
 
     @Language("GraphQL")
     static final String SCHEMA = """

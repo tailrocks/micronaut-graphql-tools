@@ -8,9 +8,9 @@ import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class IncorrectFieldMappingCustomTypeToEnumSpec extends AbstractTest {
+class IncorrectFieldMappingObjectTypeToEnumSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "IncorrectClassMappingExceptionSpec6"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec6"
 
     void "test enum annotated with GraphQLType instead of custom class"() {
         given:

@@ -5,14 +5,14 @@ import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLInput
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
-import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException
+import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class NotIntrospectedClassAsInputSpec extends AbstractTest {
+class IncorrectArgumentMappingInputObjectValueToInterfaceSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "NotIntrospectedClassAsInputSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.ClassNotIntrospectedExceptionSpec3"
 
-    void "test root resolver use not introspected class as input argument"() {
+    void "test root resolver use interface as input argument"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -30,24 +30,27 @@ input PriceInput {
 }
 """
 
-        when:
             startContext(schema, SPEC_NAME)
+
+        when:
             executeQuery("{month}")
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof ClassNotIntrospectedException
-            e.cause.message == """The class ${PriceInput.name} is not introspected. Ensure the class is annotated with ${GraphQLInput.name}.
+            e.cause instanceof IncorrectClassMappingException
+            e.cause.message == """The argument is mapped to an interface, when required a custom Java class.
   GraphQL type: Query
   GraphQL field: price
   GraphQL argument: input
   Mapped class: ${Query.name}
-  Mapped method: price(${PriceInput.name} input)"""
+  Mapped method: price(${PriceInput.name} input)
+  Provided class: ${PriceInput.name}"""
             e.cause.mappingDetails.graphQlType == 'Query'
             e.cause.mappingDetails.graphQlField == 'price'
             e.cause.mappingDetails.graphQlArgument == 'input'
             e.cause.mappingDetails.mappedClass == Query
             e.cause.mappingDetails.mappedMethod == "price(${PriceInput.name} input)"
+            e.cause.providedClass == PriceInput
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
@@ -58,7 +61,8 @@ input PriceInput {
         }
     }
 
-    static class PriceInput {
+    @GraphQLInput
+    static interface PriceInput {
         String from
         String to
     }
