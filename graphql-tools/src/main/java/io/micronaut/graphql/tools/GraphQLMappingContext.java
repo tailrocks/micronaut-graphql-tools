@@ -465,6 +465,7 @@ public class GraphQLMappingContext {
 
                 if (fieldType instanceof ListType) {
                     if (!returnType.equals(List.class)) {
+                        // TODO
                         throw new RuntimeException("Wrong return type");
                     }
 
@@ -475,6 +476,7 @@ public class GraphQLMappingContext {
                 } else if (fieldType instanceof TypeName) {
                     processInputType((TypeName) fieldType, null, returnType);
                 } else {
+                    // TODO
                     throw new RuntimeException("Unknown field type: " + fieldType);
                 }
             }
@@ -589,10 +591,12 @@ public class GraphQLMappingContext {
                         .collect(Collectors.toList());
 
                 if (beanProperty.isPresent() && !beanMethods.isEmpty()) {
+                    // TODO
                     throw new RuntimeException("Found `" + fieldDefinition.getName() + "` property and bean method: " + beanIntrospection.getBeanType());
                 }
 
                 if (beanMethods.size() > 1) {
+                    // TODO
                     throw new RuntimeException("Found multiple bean methods `" + fieldDefinition.getName() + "`: " + beanIntrospection.getBeanType());
                 }
 
@@ -797,9 +801,11 @@ public class GraphQLMappingContext {
 
         if (mappingItem != null) {
             if (mappingItem.beanIntrospection == null) {
+                // TODO
                 throw new RuntimeException("Empty bean introspection in mapping item");
             }
             if (!beanIntrospection.equals(mappingItem.beanIntrospection)) {
+                // TODO
                 throw new RuntimeException("Detected conflicted type");
             }
             // already processed
@@ -881,12 +887,16 @@ public class GraphQLMappingContext {
         requireNonNull("type", type);
         requireNonNull("interfaceClass", interfaceClass);
 
-        // TODO check if it's an interface
+        if (!interfaceClass.isInterface()) {
+            // TODO
+            throw new RuntimeException("Must be interface");
+        }
 
         MappingItem mappingItem = mappingRegistry.get(type);
 
         if (mappingItem != null) {
             if (!interfaceClass.equals(mappingItem.targetInterface)) {
+                // TODO
                 throw new RuntimeException("Detected conflicted type");
             }
             // already processed
