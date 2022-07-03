@@ -28,9 +28,9 @@ type User {
   username: String
 }
 """
+            startContext(schema, SPEC_NAME)
 
         when:
-            startContext(schema, SPEC_NAME)
             executeQuery('{username}')
 
         then:

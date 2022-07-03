@@ -29,9 +29,9 @@ input PriceInput {
   to: String!
 }
 """
+            startContext(schema, SPEC_NAME)
 
         when:
-            startContext(schema, SPEC_NAME)
             executeQuery("{month}")
 
         then:

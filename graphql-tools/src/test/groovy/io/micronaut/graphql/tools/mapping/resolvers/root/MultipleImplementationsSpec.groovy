@@ -29,8 +29,10 @@ type User {
 """
 
     void "test root resolver returns interface which has multiple introspected implementation classes"() {
-        when:
+        given:
             startContext(SCHEMA, SPEC_NAME)
+
+        when:
             executeQuery('{username}')
 
         then:

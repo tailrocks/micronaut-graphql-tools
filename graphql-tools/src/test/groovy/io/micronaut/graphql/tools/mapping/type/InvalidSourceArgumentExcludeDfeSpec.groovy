@@ -30,8 +30,10 @@ type User {
 """
 
     void "test first argument in GraphQlType method is source instance (exclude DataFetchingEnvironment)"() {
-        when:
+        given:
             startContext(SCHEMA, SPEC_NAME)
+
+        when:
             executeQuery('{username}')
 
         then:

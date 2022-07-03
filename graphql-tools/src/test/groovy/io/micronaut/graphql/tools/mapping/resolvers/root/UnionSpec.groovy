@@ -34,8 +34,10 @@ type ValidationError {
 """
 
     void "test todo"() {
-        when:
+        given:
             startContext(SCHEMA, SPEC_NAME)
+
+        when:
             executeQuery('{username}')
 
         then:

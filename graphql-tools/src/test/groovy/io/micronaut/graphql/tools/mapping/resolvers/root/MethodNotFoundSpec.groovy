@@ -23,11 +23,7 @@ type Query {
             startContext(schema, null)
 
         when:
-            executeQuery("""
-{ 
-    hello
-}
-""")
+            executeQuery("""{hello}""")
 
         then:
             def e = thrown(BeanInstantiationException)

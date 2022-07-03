@@ -29,8 +29,10 @@ type User {
 """
 
     void "test root resolver returns interface which is not implemented in introspected class"() {
-        when:
+        given:
             startContext(SCHEMA, SPEC_NAME)
+
+        when:
             executeQuery('{username}')
 
         then:

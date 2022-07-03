@@ -24,8 +24,10 @@ type Query {
 """
 
     void "test method in the root resolver has one argument (exclude DataFetchingEnvironment) when GraphQL schema has zero"() {
-        when:
+        given:
             startContext(SCHEMA, SPEC_NAME)
+
+        when:
             executeQuery('{username}')
 
         then:
