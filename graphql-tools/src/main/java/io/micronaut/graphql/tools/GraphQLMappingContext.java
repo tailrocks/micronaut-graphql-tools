@@ -80,6 +80,8 @@ import java.util.stream.Collectors;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 import static io.micronaut.graphql.tools.BeanIntrospectionUtils.generateGetMethodName;
+import static io.micronaut.graphql.tools.GraphQLUtils.getTypeName;
+import static io.micronaut.graphql.tools.GraphQLUtils.unwrapNonNullType;
 import static io.micronaut.graphql.tools.SystemTypes.getSupportedClasses;
 import static io.micronaut.graphql.tools.SystemTypes.isGraphQlBuiltInType;
 import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
@@ -906,23 +908,6 @@ public class GraphQLMappingContext {
         mappingRegistry.put(type, new MappingItem(null, interfaceClass));
 
         return true;
-    }
-
-    // TODO move to utils class
-    private static TypeName getTypeName(Type<?> type) {
-        type = unwrapNonNullType(type);
-        if (type instanceof TypeName) {
-            return ((TypeName) type);
-        }
-        throw new UnsupportedOperationException("Unknown type: " + type);
-    }
-
-    // TODO move to utils class
-    private static Type<?> unwrapNonNullType(Type<?> type) {
-        if (type instanceof NonNullType) {
-            return unwrapNonNullType(((NonNullType) type).getType());
-        }
-        return type;
     }
 
     private BeanDefinitionAndMethod findExecutableMethodByFieldName(String operationName) {
