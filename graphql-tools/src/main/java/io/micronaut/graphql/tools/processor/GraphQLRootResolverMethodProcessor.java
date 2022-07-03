@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.graphql.tools;
+package io.micronaut.graphql.tools.processor;
 
 import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
-import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
+import io.micronaut.graphql.tools.GraphQLResolversRegistry;
+import io.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import jakarta.inject.Singleton;
@@ -27,16 +28,16 @@ import jakarta.inject.Singleton;
  */
 @Singleton
 @Infrastructure
-public class GraphQLTypeProcessor implements ExecutableMethodProcessor<GraphQLTypeResolver> {
+public class GraphQLRootResolverMethodProcessor implements ExecutableMethodProcessor<GraphQLRootResolver> {
 
-    private final GraphQLMappingContext graphQLMappingContext;
+    private final GraphQLResolversRegistry graphQLResolversRegistry;
 
-    public GraphQLTypeProcessor(GraphQLMappingContext graphQLMappingContext) {
-        this.graphQLMappingContext = graphQLMappingContext;
+    public GraphQLRootResolverMethodProcessor(GraphQLResolversRegistry graphQLResolversRegistry) {
+        this.graphQLResolversRegistry = graphQLResolversRegistry;
     }
 
     public void process(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
-        graphQLMappingContext.registerTypeExecutableMethod(beanDefinition, (ExecutableMethod<Object, ?>) method);
+        graphQLResolversRegistry.registerRootResolverExecutableMethod(beanDefinition, (ExecutableMethod<Object, ?>) method);
     }
 
 }

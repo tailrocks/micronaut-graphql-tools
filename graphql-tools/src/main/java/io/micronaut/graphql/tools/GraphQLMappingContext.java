@@ -38,8 +38,6 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Infrastructure;
-import io.micronaut.core.annotation.AnnotationClassValue;
-import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.beans.BeanIntrospection;
@@ -50,18 +48,18 @@ import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
-import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
-import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MappingConflictException;
 import io.micronaut.graphql.tools.exceptions.MappingDetails;
-import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
 import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException;
-import io.micronaut.inject.BeanDefinition;
+import io.micronaut.graphql.tools.schema.DefaultWiringFactory;
+import io.micronaut.graphql.tools.schema.MicronautExecutableMethodDataFetcher;
+import io.micronaut.graphql.tools.schema.MicronautIntrospectionDataFetcher;
+import io.micronaut.graphql.tools.schema.UnionTypeResolver;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.jackson.modules.BeanIntrospectionModule;
 import jakarta.inject.Provider;
@@ -71,7 +69,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,13 +92,9 @@ public class GraphQLMappingContext {
 
     private final ApplicationContext applicationContext;
     private final GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry;
+    private final GraphQLResolversRegistry graphQLResolversRegistry;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    // TODO move out from here to another class
-    private final List<BeanDefinitionAndMethods> rootResolvers = new ArrayList<>();
-    // TODO move out from here to another class
-    private final Map<Class<?>, List<BeanDefinitionAndMethods>> typeResolvers = new HashMap<>();
 
     private final Map<String, MappingItem> mappingRegistry = new HashMap<>();
 
@@ -117,9 +110,11 @@ public class GraphQLMappingContext {
     private Provider<GraphQLSchema> graphQLSchemaProvider;
 
     public GraphQLMappingContext(ApplicationContext applicationContext,
-                                 GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry) {
+                                 GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry,
+                                 GraphQLResolversRegistry graphQLResolversRegistry) {
         this.applicationContext = applicationContext;
         this.graphQLBeanIntrospectionRegistry = graphQLBeanIntrospectionRegistry;
+        this.graphQLResolversRegistry = graphQLResolversRegistry;
 
         objectMapper.registerModule(new BeanIntrospectionModule());
     }
@@ -147,32 +142,6 @@ public class GraphQLMappingContext {
         }
 
         return rootRuntimeWiringBuilder.build();
-    }
-
-    // TODO move out from here to another class
-    void registerRootExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<Object, ?> method) {
-        rootResolvers.stream().filter(it -> it.beanDefinition.equals(beanDefinition)).findFirst().orElseGet(() -> {
-            BeanDefinitionAndMethods item = new BeanDefinitionAndMethods(beanDefinition);
-            rootResolvers.add(item);
-            return item;
-        }).addExecutableMethod(method);
-    }
-
-    // TODO move out from here to another class
-    void registerTypeExecutableMethod(BeanDefinition<?> beanDefinition, ExecutableMethod<Object, ?> method) {
-        AnnotationClassValue<Class<?>> annotationValue = (AnnotationClassValue<Class<?>>) beanDefinition
-                .getValue(GraphQLTypeResolver.class, AnnotationMetadata.VALUE_MEMBER)
-                .orElseThrow(() -> new IncorrectAnnotationException(beanDefinition.getBeanType()));
-
-        Class<?> modelClass = annotationValue.getType().get();
-
-        typeResolvers.putIfAbsent(modelClass, new ArrayList<>());
-
-        typeResolvers.get(modelClass).stream().filter(it -> it.beanDefinition.equals(beanDefinition)).findFirst().orElseGet(() -> {
-            BeanDefinitionAndMethods item = new BeanDefinitionAndMethods(beanDefinition);
-            typeResolvers.get(modelClass).add(item);
-            return item;
-        }).addExecutableMethod(method);
     }
 
     private TypeDefinition<?> getTypeDefinition(TypeName typeName) {
@@ -209,13 +178,10 @@ public class GraphQLMappingContext {
             ObjectTypeDefinition objectTypeDefinition,
             TypeRuntimeWiring.Builder typeRuntimeWiringBuilder
     ) {
-        BeanDefinitionAndMethod beanDefinitionAndMethod = findExecutableMethodByFieldName(fieldDefinition.getName());
+        BeanDefinitionAndMethod beanDefinitionAndMethod =
+                graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName());
 
-        if (beanDefinitionAndMethod == null) {
-            throw new MethodNotFoundException(fieldDefinition.getName());
-        }
-
-        ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.executableMethod;
+        ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 
         MappingDetails mappingDetails = MappingDetails.forField(
                 objectTypeDefinition,
@@ -234,7 +200,7 @@ public class GraphQLMappingContext {
                 objectMapper,
                 executable,
                 argumentDetails,
-                applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
+                applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
         ));
 
         Class<?> returnType = unwrapArgument(executable.getReturnType().asArgument()).getType();
@@ -625,24 +591,6 @@ public class GraphQLMappingContext {
         return argument;
     }
 
-    private Optional<BeanDefinitionAndMethod> findModelExecutableMethod(Class<?> beanType, String methodName) {
-        List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);
-
-        if (items == null) {
-            return Optional.empty();
-        }
-
-        for (BeanDefinitionAndMethods item : items) {
-            for (ExecutableMethod<Object, ?> executableMethod : item.executableMethods) {
-                if (executableMethod.getMethodName().equals(methodName)) {
-                    return Optional.of(new BeanDefinitionAndMethod(item.beanDefinition, executableMethod));
-                }
-            }
-        }
-
-        return Optional.empty();
-    }
-
     private void processReturnType(Class<?> returnType, MappingDetails mappingDetails, Type<?> graphQlType) {
         if (graphQlType instanceof NonNullType) {
             graphQlType = unwrapNonNullType(graphQlType);
@@ -753,12 +701,13 @@ public class GraphQLMappingContext {
             }
 
             // TODO better exception
-            BeanDefinitionAndMethod beanDefinitionAndMethod = findModelExecutableMethod(interfaceClass, fieldDefinition.getName())
+            BeanDefinitionAndMethod beanDefinitionAndMethod = graphQLResolversRegistry
+                    .getTypeExecutableMethod(interfaceClass, fieldDefinition.getName())
                     .orElseThrow(() -> new RuntimeException("Property or method `" + fieldDefinition.getName() + "` not found: " + beanIntrospection.getBeanType()));
 
             // TODO validate parameters for executable method
 
-            ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.executableMethod;
+            ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 
             mappingDetails = MappingDetails.forField(mappingDetails, executable.getDeclaringType(),
                     getExecutableMethodFullName(executable));
@@ -774,7 +723,7 @@ public class GraphQLMappingContext {
                     objectMapper,
                     executable,
                     argumentDetails,
-                    applicationContext.getBean(beanDefinitionAndMethod.beanDefinition)
+                    applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
             ));
 
             Argument<?> argument = executable.getReturnType().asArgument();
@@ -922,50 +871,6 @@ public class GraphQLMappingContext {
         mappingRegistry.put(type, new MappingItem(null, interfaceClass));
 
         return true;
-    }
-
-    private BeanDefinitionAndMethod findExecutableMethodByFieldName(String operationName) {
-        // TODO optimize me pls
-        for (BeanDefinitionAndMethods resolverItem : rootResolvers) {
-            for (ExecutableMethod<Object, ?> executableMethod : resolverItem.executableMethods) {
-                if (executableMethod.getMethodName().equals(operationName)) {
-                    return new BeanDefinitionAndMethod(resolverItem.beanDefinition, executableMethod);
-                }
-            }
-        }
-        return null;
-    }
-
-    private static class BeanDefinitionAndMethod {
-        final BeanDefinition<?> beanDefinition;
-        final ExecutableMethod<Object, ?> executableMethod;
-
-        private BeanDefinitionAndMethod(@NonNull BeanDefinition<?> beanDefinition,
-                                        @NonNull ExecutableMethod<Object, ?> executableMethod) {
-            requireNonNull("beanDefinition", beanDefinition);
-            requireNonNull("executableMethod", executableMethod);
-
-            this.beanDefinition = beanDefinition;
-            this.executableMethod = executableMethod;
-        }
-    }
-
-    // TODO move out from here to another class
-    private static class BeanDefinitionAndMethods {
-        final BeanDefinition<?> beanDefinition;
-        final Set<ExecutableMethod<Object, ?>> executableMethods = new HashSet<>();
-
-        private BeanDefinitionAndMethods(@NonNull BeanDefinition<?> beanDefinition) {
-            requireNonNull("beanDefinition", beanDefinition);
-
-            this.beanDefinition = beanDefinition;
-        }
-
-        private void addExecutableMethod(@NonNull ExecutableMethod<Object, ?> executableMethod) {
-            requireNonNull("executableMethod", executableMethod);
-
-            executableMethods.add(executableMethod);
-        }
     }
 
     private static class MappingItem {

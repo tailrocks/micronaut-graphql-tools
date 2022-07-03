@@ -3,11 +3,13 @@ package io.micronaut.graphql.tools.mapping.resolvers.root
 import groovy.transform.CompileStatic
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Requires
+import io.micronaut.context.exceptions.BeanContextException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.SchemaParserDictionary
 import io.micronaut.graphql.tools.SchemaParserDictionaryCustomizer
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
+import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException
 import org.intellij.lang.annotations.Language
 
 class Union2Spec extends AbstractTest {
@@ -40,7 +42,7 @@ type ValidationError {
             startContext(SCHEMA, SPEC_NAME)
 
         when:
-            def result = executeQuery("""
+            executeQuery("""
 {
     unionTypeTest(securityError: true) {
         ... on SecurityError {
@@ -54,9 +56,9 @@ type ValidationError {
 """)
 
         then:
-            result.errors.isEmpty()
-            result.dataPresent
-            result.data.unionTypeTest.securityCode == 'AUTH'
+            def e = thrown(BeanContextException)
+            e.cause instanceof IncorrectAnnotationException
+            e.cause.message == "Empty value member for @GraphQLTypeResolver annotation in ${UserResolver.class.name} class."
     }
 
     @CompileStatic

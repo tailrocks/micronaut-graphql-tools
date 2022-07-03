@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.graphql.tools;
+package io.micronaut.graphql.tools.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.type.Executable;
+import io.micronaut.graphql.tools.ArgumentDetails;
 
 import java.util.ArrayList;
 import java.util.List;

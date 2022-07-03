@@ -22,17 +22,17 @@ import java.util.Optional;
 /**
  * @author Alexey Zhokhov
  */
-class ArgumentDetails {
+public class ArgumentDetails {
 
-    static final String SOURCE_ARGUMENT = "* SOURCE *";
-    static final String DATA_FETCHING_ENVIRONMENT_ARGUMENT = "* DFE *";
+    public static final String SOURCE_ARGUMENT = "* SOURCE *";
+    public static final String DATA_FETCHING_ENVIRONMENT_ARGUMENT = "* DFE *";
 
     private final String name;
 
     @Nullable
-    private final Class inputClass;
+    private final Class<?> inputClass;
 
-    public ArgumentDetails(String name, @Nullable Class inputClass) {
+    public ArgumentDetails(String name, @Nullable Class<?> inputClass) {
         this.name = name;
         this.inputClass = inputClass;
     }
@@ -41,7 +41,7 @@ class ArgumentDetails {
         return name;
     }
 
-    public Optional<Class> getInputClass() {
+    public Optional<Class<?>> getInputClass() {
         return Optional.ofNullable(inputClass);
     }
 
