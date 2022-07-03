@@ -27,14 +27,9 @@ import java.util.Map;
 public class SchemaParserDictionary {
 
     private final Map<String, Class<?>> types = new LinkedHashMap<>();
-    private final Map<String, Class<?>> unions = new LinkedHashMap<>();
 
     public Map<String, Class<?>> getTypes() {
         return Collections.unmodifiableMap(types);
-    }
-
-    public Map<String, Class<?>> getUnions() {
-        return Collections.unmodifiableMap(unions);
     }
 
     public SchemaParserDictionary addType(String graphqlType, Class<?> implementationClass) {
@@ -57,25 +52,6 @@ public class SchemaParserDictionary {
             throw new IllegalArgumentException("One GraphQL type can have only one implementation class, found duplicate: " + implementationClass);
         }
         types.put(graphqlType, implementationClass);
-
-        return this;
-    }
-
-    public SchemaParserDictionary addUnion(String graphqlUnion, Class<?> interfaceClass) {
-        ArgumentUtils.requireNonNull("graphqlUnion", graphqlUnion);
-        ArgumentUtils.requireNonNull("interfaceClass", interfaceClass);
-
-        if (!interfaceClass.isInterface()) {
-            throw new IllegalArgumentException(interfaceClass + " must be an interface.");
-        }
-
-        if (unions.containsKey(graphqlUnion)) {
-            throw new IllegalArgumentException("Duplicated GraphQL type: " + graphqlUnion);
-        }
-        if (unions.containsValue(interfaceClass)) {
-            throw new IllegalArgumentException("One GraphQL union can have only one interface class, found duplicate: " + interfaceClass);
-        }
-        unions.put(graphqlUnion, interfaceClass);
 
         return this;
     }
