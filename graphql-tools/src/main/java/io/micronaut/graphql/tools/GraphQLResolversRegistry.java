@@ -56,7 +56,7 @@ public class GraphQLResolversRegistry {
                 .addExecutableMethod(method);
     }
 
-    public BeanDefinitionAndMethod getRootExecutableMethod(@NonNull String methodName) {
+    BeanDefinitionAndMethod getRootExecutableMethod(@NonNull String methodName) {
         for (BeanDefinitionAndMethods item : rootResolvers) {
             for (ExecutableMethod<Object, ?> executableMethod : item.getExecutableMethods()) {
                 if (executableMethod.getMethodName().equals(methodName)) {
@@ -68,8 +68,8 @@ public class GraphQLResolversRegistry {
     }
 
     // TODO throw an exception
-    public Optional<BeanDefinitionAndMethod> getTypeExecutableMethod(@NonNull Class<?> beanType,
-                                                                     @NonNull String methodName) {
+    Optional<BeanDefinitionAndMethod> getTypeExecutableMethod(@NonNull Class<?> beanType,
+                                                              @NonNull String methodName) {
         List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);
 
         if (items == null) {

@@ -84,7 +84,7 @@ import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
 /**
  * @author Alexey Zhokhov
  */
-public class GraphQLMappingContext {
+class GraphQLMappingContext {
 
     private final ApplicationContext applicationContext;
     private final GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry;
@@ -104,12 +104,12 @@ public class GraphQLMappingContext {
             .scalar(Scalars.GraphQLBigDecimal)
             .scalar(Scalars.GraphQLBigInteger);
 
-    public GraphQLMappingContext(ApplicationContext applicationContext,
-                                 GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry,
-                                 GraphQLResolversRegistry graphQLResolversRegistry,
-                                 TypeDefinitionRegistry typeDefinitionRegistry,
-                                 SchemaParserDictionary schemaParserDictionary,
-                                 Provider<GraphQLSchema> graphQLSchemaProvider) {
+    GraphQLMappingContext(ApplicationContext applicationContext,
+                          GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry,
+                          GraphQLResolversRegistry graphQLResolversRegistry,
+                          TypeDefinitionRegistry typeDefinitionRegistry,
+                          SchemaParserDictionary schemaParserDictionary,
+                          Provider<GraphQLSchema> graphQLSchemaProvider) {
         requireNonNull("applicationContext", applicationContext);
         requireNonNull("graphQLBeanIntrospectionRegistry", graphQLBeanIntrospectionRegistry);
         requireNonNull("graphQLResolversRegistry", graphQLResolversRegistry);
@@ -127,7 +127,7 @@ public class GraphQLMappingContext {
         objectMapper.registerModule(new BeanIntrospectionModule());
     }
 
-    public RuntimeWiring generateRuntimeWiring() {
+    RuntimeWiring generateRuntimeWiring() {
         // TODO this method can not be called twice, make this class not a bean
 
         SchemaDefinition schemaDefinition = typeDefinitionRegistry.schemaDefinition()

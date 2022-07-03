@@ -6,13 +6,13 @@ import io.micronaut.inject.ExecutableMethod;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 
-public class BeanDefinitionAndMethod {
+class BeanDefinitionAndMethod {
 
     private final BeanDefinition<?> beanDefinition;
     private final ExecutableMethod<Object, ?> executableMethod;
 
-    public BeanDefinitionAndMethod(@NonNull BeanDefinition<?> beanDefinition,
-                                   @NonNull ExecutableMethod<Object, ?> executableMethod) {
+    BeanDefinitionAndMethod(@NonNull BeanDefinition<?> beanDefinition,
+                            @NonNull ExecutableMethod<Object, ?> executableMethod) {
         requireNonNull("beanDefinition", beanDefinition);
         requireNonNull("executableMethod", executableMethod);
 
@@ -20,11 +20,11 @@ public class BeanDefinitionAndMethod {
         this.executableMethod = executableMethod;
     }
 
-    public BeanDefinition<?> getBeanDefinition() {
+    BeanDefinition<?> getBeanDefinition() {
         return beanDefinition;
     }
 
-    public ExecutableMethod<Object, ?> getExecutableMethod() {
+    ExecutableMethod<Object, ?> getExecutableMethod() {
         return executableMethod;
     }
 

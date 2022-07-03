@@ -32,6 +32,9 @@ import java.util.stream.Collectors;
 // TODO unmodified types
 public final class SystemTypes {
 
+    private SystemTypes() {
+    }
+
     private static final Map<String, Set<Class<?>>> SYSTEM_TYPES = new HashMap<>();
 
     // https://www.graphql-java.com/documentation/scalars

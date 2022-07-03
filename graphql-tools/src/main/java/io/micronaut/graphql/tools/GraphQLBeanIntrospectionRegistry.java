@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GraphQLBeanIntrospectionRegistry {
+class GraphQLBeanIntrospectionRegistry {
 
     private final Map<Class<?>, BeanIntrospection<Object>> typeIntrospections = new HashMap<>();
 
@@ -45,7 +45,7 @@ public class GraphQLBeanIntrospectionRegistry {
 
     private boolean typeIntrospectionsLoaded = false;
 
-    public GraphQLBeanIntrospectionRegistry() {
+    GraphQLBeanIntrospectionRegistry() {
     }
 
     private void loadTypeIntrospections() {
@@ -73,7 +73,7 @@ public class GraphQLBeanIntrospectionRegistry {
         typeIntrospectionsLoaded = true;
     }
 
-    public BeanIntrospection<Object> getGraphQlTypeBeanIntrospection(
+    BeanIntrospection<Object> getGraphQlTypeBeanIntrospection(
             MappingDetails mappingDetails,
             Class<?> clazz
     ) {
@@ -114,7 +114,7 @@ public class GraphQLBeanIntrospectionRegistry {
      * @param implementationClass the implementation class
      * @return original class or interface class
      */
-    public Class getInterfaceClass(Class implementationClass) {
+    Class getInterfaceClass(Class implementationClass) {
         loadTypeIntrospections();
 
         return implementationToInterface.getOrDefault(implementationClass, implementationClass);

@@ -35,7 +35,7 @@ class GraphQLSchemaProvider implements Provider<GraphQLSchema> {
         return graphQLSchema;
     }
 
-    public void init(GraphQLSchema graphQLSchema) {
+    void init(GraphQLSchema graphQLSchema) {
         if (this.graphQLSchema != null) {
             // TODO custom exception
             throw new RuntimeException("Provider already initialized");

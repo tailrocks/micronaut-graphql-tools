@@ -4,12 +4,12 @@ import graphql.language.NonNullType;
 import graphql.language.Type;
 import graphql.language.TypeName;
 
-public final class GraphQLUtils {
+final class GraphQLUtils {
 
     private GraphQLUtils() {
     }
 
-    public static TypeName getTypeName(Type<?> type) {
+    static TypeName getTypeName(Type<?> type) {
         type = unwrapNonNullType(type);
         if (type instanceof TypeName) {
             return ((TypeName) type);
@@ -17,7 +17,7 @@ public final class GraphQLUtils {
         throw new UnsupportedOperationException("Unknown type: " + type);
     }
 
-    public static Type<?> unwrapNonNullType(Type<?> type) {
+    static Type<?> unwrapNonNullType(Type<?> type) {
         if (type instanceof NonNullType) {
             return unwrapNonNullType(((NonNullType) type).getType());
         }
