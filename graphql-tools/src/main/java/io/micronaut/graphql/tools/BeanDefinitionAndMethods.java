@@ -10,6 +10,7 @@ import java.util.Set;
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 
 public class BeanDefinitionAndMethods {
+
     private final BeanDefinition<?> beanDefinition;
     private final Set<ExecutableMethod<Object, ?>> executableMethods = new HashSet<>();
 

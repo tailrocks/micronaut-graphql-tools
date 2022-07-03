@@ -650,7 +650,7 @@ public class GraphQLMappingContext {
                 typeWiring.defaultDataFetcher(new MicronautIntrospectionDataFetcher(beanIntrospection));
 
                 for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
-                    processRootFieldDefinition(
+                    processFieldDefinition(
                             fieldDefinition,
                             objectTypeDefinition,
                             beanIntrospection,
@@ -663,7 +663,7 @@ public class GraphQLMappingContext {
         }
     }
 
-    private void processRootFieldDefinition(
+    private void processFieldDefinition(
             FieldDefinition fieldDefinition,
             ObjectTypeDefinition objectTypeDefinition,
             BeanIntrospection<Object> beanIntrospection,
