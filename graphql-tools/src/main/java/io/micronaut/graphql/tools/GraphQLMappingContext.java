@@ -173,6 +173,7 @@ public class GraphQLMappingContext {
         });
     }
 
+    // TODO consider merge with processFieldDefinition
     private void processRootFieldDefinition(
             FieldDefinition fieldDefinition,
             ObjectTypeDefinition objectTypeDefinition,
