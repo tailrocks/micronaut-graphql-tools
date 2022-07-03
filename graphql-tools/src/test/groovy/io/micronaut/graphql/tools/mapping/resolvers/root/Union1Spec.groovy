@@ -2,15 +2,17 @@ package io.micronaut.graphql.tools.mapping.resolvers.root
 
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Requires
+import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.SchemaParserDictionaryCustomizer
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
+import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class UnionSpec extends AbstractTest {
+class Union1Spec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.TestSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.Union1Spec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -38,58 +40,29 @@ type ValidationError {
             startContext(SCHEMA, SPEC_NAME)
 
         when:
-            def result = executeQuery("""
-{
-    unionTypeTest(securityError: true) {
-        ... on SecurityError {
-            securityCode: code
-        }
-        ... on ValidationError {
-            validationCode: code
-        }
-    }
-}
-""")
+            executeQuery('{username}')
 
         then:
-            result.errors.isEmpty()
-            result.dataPresent
-            result.data.unionTypeTest.securityCode == 'AUTH'
-    }
-
-    void "test todo2"() {
-        given:
-            startContext(SCHEMA, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    unionTypeTest(securityError: false) {
-        ... on SecurityError {
-            securityCode: code
-        }
-        ... on ValidationError {
-            validationCode: code
-        }
-    }
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.dataPresent
-            result.data.unionTypeTest.validationCode == 123
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof IncorrectClassMappingException
+            e.cause.message == """The field is mapped to a custom class, when required an interface.
+  GraphQL type: Query
+  GraphQL field: unionTypeTest
+  Mapped class: ${Query.name}
+  Mapped method: unionTypeTest(boolean securityError)
+  Provided class: ${SecurityError.name}"""
+            e.cause.mappingDetails.graphQlType == 'Query'
+            e.cause.mappingDetails.graphQlField == 'unionTypeTest'
+            e.cause.mappingDetails.mappedClass == Query
+            e.cause.mappingDetails.mappedMethod == 'unionTypeTest(boolean securityError)'
+            e.cause.providedClass == SecurityError
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        PayloadError unionTypeTest(boolean securityError) {
-            if (securityError) {
-                return new SecurityError()
-            } else {
-                return new ValidationError()
-            }
+        SecurityError unionTypeTest(boolean securityError) {
+            return null
         }
     }
 

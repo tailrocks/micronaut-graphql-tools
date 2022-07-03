@@ -26,18 +26,18 @@ import java.util.Map;
  */
 public class SchemaParserDictionary {
 
-    private final Map<String, Class> types = new LinkedHashMap<>();
-    private final Map<String, Class> unions = new LinkedHashMap<>();
+    private final Map<String, Class<?>> types = new LinkedHashMap<>();
+    private final Map<String, Class<?>> unions = new LinkedHashMap<>();
 
-    public Map<String, Class> getTypes() {
+    public Map<String, Class<?>> getTypes() {
         return Collections.unmodifiableMap(types);
     }
 
-    public Map<String, Class> getUnions() {
+    public Map<String, Class<?>> getUnions() {
         return Collections.unmodifiableMap(unions);
     }
 
-    public SchemaParserDictionary addType(String graphqlType, Class implementationClass) {
+    public SchemaParserDictionary addType(String graphqlType, Class<?> implementationClass) {
         ArgumentUtils.requireNonNull("graphqlType", graphqlType);
         ArgumentUtils.requireNonNull("implementationClass", implementationClass);
 
@@ -61,7 +61,7 @@ public class SchemaParserDictionary {
         return this;
     }
 
-    public SchemaParserDictionary addUnion(String graphqlUnion, Class interfaceClass) {
+    public SchemaParserDictionary addUnion(String graphqlUnion, Class<?> interfaceClass) {
         ArgumentUtils.requireNonNull("graphqlUnion", graphqlUnion);
         ArgumentUtils.requireNonNull("interfaceClass", interfaceClass);
 
