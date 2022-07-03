@@ -25,14 +25,12 @@ import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException;
 import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException;
 import io.micronaut.graphql.tools.exceptions.MappingDetails;
 import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException;
-import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Singleton
 public class GraphQLBeanIntrospectionRegistry {
 
     private final Map<Class<?>, BeanIntrospection<Object>> typeIntrospections = new HashMap<>();

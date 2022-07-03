@@ -37,7 +37,6 @@ import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.beans.BeanIntrospection;
@@ -63,7 +62,6 @@ import io.micronaut.graphql.tools.schema.UnionTypeResolver;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.jackson.modules.BeanIntrospectionModule;
 import jakarta.inject.Provider;
-import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,13 +84,14 @@ import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
 /**
  * @author Alexey Zhokhov
  */
-@Singleton
-@Infrastructure
 public class GraphQLMappingContext {
 
     private final ApplicationContext applicationContext;
     private final GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry;
     private final GraphQLResolversRegistry graphQLResolversRegistry;
+    private final TypeDefinitionRegistry typeDefinitionRegistry;
+    private final SchemaParserDictionary schemaParserDictionary;
+    private final Provider<GraphQLSchema> graphQLSchemaProvider;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -105,37 +104,34 @@ public class GraphQLMappingContext {
             .scalar(Scalars.GraphQLBigDecimal)
             .scalar(Scalars.GraphQLBigInteger);
 
-    private TypeDefinitionRegistry typeDefinitionRegistry;
-    private SchemaParserDictionary schemaParserDictionary;
-    private Provider<GraphQLSchema> graphQLSchemaProvider;
-
     public GraphQLMappingContext(ApplicationContext applicationContext,
                                  GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry,
-                                 GraphQLResolversRegistry graphQLResolversRegistry) {
-        this.applicationContext = applicationContext;
-        this.graphQLBeanIntrospectionRegistry = graphQLBeanIntrospectionRegistry;
-        this.graphQLResolversRegistry = graphQLResolversRegistry;
-
-        objectMapper.registerModule(new BeanIntrospectionModule());
-    }
-
-    public RuntimeWiring generateRuntimeWiring(TypeDefinitionRegistry typeDefinitionRegistry,
-                                               SchemaParserDictionary schemaParserDictionary,
-                                               Provider<GraphQLSchema> graphQLSchemaProvider) {
+                                 GraphQLResolversRegistry graphQLResolversRegistry,
+                                 TypeDefinitionRegistry typeDefinitionRegistry,
+                                 SchemaParserDictionary schemaParserDictionary,
+                                 Provider<GraphQLSchema> graphQLSchemaProvider) {
+        requireNonNull("applicationContext", applicationContext);
+        requireNonNull("graphQLBeanIntrospectionRegistry", graphQLBeanIntrospectionRegistry);
+        requireNonNull("graphQLResolversRegistry", graphQLResolversRegistry);
         requireNonNull("typeDefinitionRegistry", typeDefinitionRegistry);
         requireNonNull("schemaParserDictionary", schemaParserDictionary);
         requireNonNull("graphQLSchemaProvider", graphQLSchemaProvider);
 
+        this.applicationContext = applicationContext;
+        this.graphQLBeanIntrospectionRegistry = graphQLBeanIntrospectionRegistry;
+        this.graphQLResolversRegistry = graphQLResolversRegistry;
         this.typeDefinitionRegistry = typeDefinitionRegistry;
         this.schemaParserDictionary = schemaParserDictionary;
         this.graphQLSchemaProvider = graphQLSchemaProvider;
 
+        objectMapper.registerModule(new BeanIntrospectionModule());
+    }
+
+    public RuntimeWiring generateRuntimeWiring() {
         // TODO this method can not be called twice, make this class not a bean
 
         SchemaDefinition schemaDefinition = typeDefinitionRegistry.schemaDefinition()
                 .orElseThrow(SchemaDefinitionNotProvidedException::new);
-
-        mappingRegistry.clear();
 
         for (OperationTypeDefinition operationTypeDefinition : schemaDefinition.getOperationTypeDefinitions()) {
             processOperationTypeDefinition(operationTypeDefinition);
@@ -149,15 +145,6 @@ public class GraphQLMappingContext {
             // TODO
             throw new RuntimeException("TypeDefinition not found by name: " + typeName.getName());
         });
-    }
-
-    private boolean isUnion(Class<?> modelInterface) {
-        for (Map.Entry<String, MappingItem> entry : mappingRegistry.entrySet()) {
-            if (modelInterface.equals(entry.getValue().targetInterface)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void processOperationTypeDefinition(OperationTypeDefinition operationTypeDefinition) {

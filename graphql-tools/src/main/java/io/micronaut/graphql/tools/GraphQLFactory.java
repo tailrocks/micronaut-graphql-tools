@@ -20,6 +20,7 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import jakarta.inject.Singleton;
@@ -32,18 +33,31 @@ public class GraphQLFactory {
 
     @Bean
     @Singleton
-    public GraphQL graphQL(GraphQLMappingContext graphQLMappingContext, TypeDefinitionRegistry typeRegistry,
+    public GraphQL graphQL(ApplicationContext applicationContext,
+                           GraphQLResolversRegistry graphQLResolversRegistry,
+                           TypeDefinitionRegistry typeDefinitionRegistry,
                            SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer) {
         SchemaParserDictionary schemaParserDictionary = new SchemaParserDictionary();
         schemaParserDictionaryCustomizer.customize(schemaParserDictionary);
 
         GraphQLSchemaProvider graphQLSchemaProvider = new GraphQLSchemaProvider();
 
-        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring(typeRegistry, schemaParserDictionary,
-                graphQLSchemaProvider);
+        GraphQLMappingContext graphQLMappingContext = new GraphQLMappingContext(
+                applicationContext,
+                new GraphQLBeanIntrospectionRegistry(),
+                graphQLResolversRegistry,
+                typeDefinitionRegistry,
+                schemaParserDictionary,
+                graphQLSchemaProvider
+        );
+
+        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring();
+
+        // destroys GraphQLResolversRegistry as it no use in runtime after we initialized RuntimeWiring successfully
+        applicationContext.destroyBean(graphQLResolversRegistry);
 
         SchemaGenerator schemaGenerator = new SchemaGenerator();
-        GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
+        GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(typeDefinitionRegistry, runtimeWiring);
 
         graphQLSchemaProvider.init(graphQLSchema);
 
