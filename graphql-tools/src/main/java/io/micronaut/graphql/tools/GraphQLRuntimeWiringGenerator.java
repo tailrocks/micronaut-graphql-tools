@@ -37,6 +37,7 @@ import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.beans.BeanIntrospection;
@@ -83,6 +84,7 @@ import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 class GraphQLRuntimeWiringGenerator {
 
     private final ApplicationContext applicationContext;

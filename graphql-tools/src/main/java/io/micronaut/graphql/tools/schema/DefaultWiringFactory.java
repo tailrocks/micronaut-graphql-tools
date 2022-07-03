@@ -18,10 +18,12 @@ package io.micronaut.graphql.tools.schema;
 import graphql.schema.DataFetcher;
 import graphql.schema.idl.FieldWiringEnvironment;
 import graphql.schema.idl.WiringFactory;
+import io.micronaut.core.annotation.Internal;
 
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 public class DefaultWiringFactory implements WiringFactory {
 
     @Override

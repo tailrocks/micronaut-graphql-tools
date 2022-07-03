@@ -15,9 +15,12 @@
  */
 package io.micronaut.graphql.tools;
 
+import io.micronaut.core.annotation.Internal;
+
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 final class BeanIntrospectionUtils {
 
     private BeanIntrospectionUtils() {

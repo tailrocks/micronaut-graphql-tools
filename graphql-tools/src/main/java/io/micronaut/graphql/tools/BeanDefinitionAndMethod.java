@@ -1,11 +1,13 @@
 package io.micronaut.graphql.tools;
 
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 
+@Internal
 class BeanDefinitionAndMethod {
 
     private final BeanDefinition<?> beanDefinition;

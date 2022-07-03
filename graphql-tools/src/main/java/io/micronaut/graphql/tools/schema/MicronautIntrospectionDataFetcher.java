@@ -17,12 +17,14 @@ package io.micronaut.graphql.tools.schema;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.beans.BeanIntrospection;
 import io.micronaut.core.beans.BeanProperty;
 
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 public class MicronautIntrospectionDataFetcher implements DataFetcher<Object> {
 
     private final BeanIntrospection<Object> beanIntrospection;

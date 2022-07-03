@@ -16,6 +16,7 @@
 package io.micronaut.graphql.tools;
 
 import graphql.language.TypeName;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.ArgumentUtils;
 
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // TODO unmodified types
+@Internal
 public final class SystemTypes {
 
     private SystemTypes() {

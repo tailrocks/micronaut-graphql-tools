@@ -16,11 +16,13 @@
 package io.micronaut.graphql.tools;
 
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.annotation.Internal;
 import jakarta.inject.Singleton;
 
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 @Singleton
 @Requires(missingBeans = {SchemaParserDictionaryCustomizer.class})
 public class DefaultSchemaParserDictionaryCustomizer implements SchemaParserDictionaryCustomizer {

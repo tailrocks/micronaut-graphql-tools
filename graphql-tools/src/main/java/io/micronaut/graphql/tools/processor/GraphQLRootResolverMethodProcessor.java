@@ -17,6 +17,7 @@ package io.micronaut.graphql.tools.processor;
 
 import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.graphql.tools.GraphQLResolversRegistry;
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 import io.micronaut.inject.BeanDefinition;
@@ -26,6 +27,7 @@ import jakarta.inject.Singleton;
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 @Singleton
 @Infrastructure
 public class GraphQLRootResolverMethodProcessor implements ExecutableMethodProcessor<GraphQLRootResolver> {

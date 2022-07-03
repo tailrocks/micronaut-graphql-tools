@@ -23,11 +23,13 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.core.annotation.Internal;
 import jakarta.inject.Singleton;
 
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 @Factory
 public class GraphQLFactory {
 

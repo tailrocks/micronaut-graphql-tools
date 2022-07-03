@@ -15,6 +15,7 @@
  */
 package io.micronaut.graphql.tools;
 
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.Nullable;
 
 import java.util.Optional;
@@ -22,6 +23,7 @@ import java.util.Optional;
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 public class ArgumentDetails {
 
     public static final String SOURCE_ARGUMENT = "* SOURCE *";

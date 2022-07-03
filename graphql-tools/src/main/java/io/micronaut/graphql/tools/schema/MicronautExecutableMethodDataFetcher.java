@@ -18,6 +18,7 @@ package io.micronaut.graphql.tools.schema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.type.Executable;
 import io.micronaut.graphql.tools.ArgumentDetails;
@@ -29,6 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object> {
 
     private final ObjectMapper objectMapper;

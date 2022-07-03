@@ -93,7 +93,7 @@ public class MappingContext {
     @Nullable
     public InputValueDefinition getInputValueDefinition() {
         if (argumentIndex != null) {
-            return fieldDefinition.getInputValueDefinitions().get(0);
+            return fieldDefinition.getInputValueDefinitions().get(argumentIndex);
         }
         return null;
     }

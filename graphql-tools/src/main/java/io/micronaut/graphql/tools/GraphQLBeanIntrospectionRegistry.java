@@ -17,6 +17,7 @@ package io.micronaut.graphql.tools;
 
 import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.beans.BeanIntrospection;
 import io.micronaut.core.beans.BeanIntrospector;
 import io.micronaut.graphql.tools.annotation.GraphQLType;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Internal
 class GraphQLBeanIntrospectionRegistry {
 
     private final Map<Class<?>, BeanIntrospection<Object>> typeIntrospections = new HashMap<>();

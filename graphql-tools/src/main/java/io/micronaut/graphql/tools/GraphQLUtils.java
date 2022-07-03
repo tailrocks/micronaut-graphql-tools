@@ -3,7 +3,9 @@ package io.micronaut.graphql.tools;
 import graphql.language.NonNullType;
 import graphql.language.Type;
 import graphql.language.TypeName;
+import io.micronaut.core.annotation.Internal;
 
+@Internal
 final class GraphQLUtils {
 
     private GraphQLUtils() {

@@ -19,6 +19,7 @@ import graphql.TypeResolutionEnvironment;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.TypeResolver;
+import io.micronaut.core.annotation.Internal;
 import jakarta.inject.Provider;
 
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Alexey Zhokhov
  */
+@Internal
 public class UnionTypeResolver implements TypeResolver {
 
     private final Provider<GraphQLSchema> graphQLSchemaProvider;

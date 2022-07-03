@@ -16,12 +16,14 @@
 package io.micronaut.graphql.tools;
 
 import graphql.schema.GraphQLSchema;
+import io.micronaut.core.annotation.Internal;
 import jakarta.inject.Provider;
 
 /**
  * @author Alexey Zhokhov
  */
 // TODO late init provider
+@Internal
 class GraphQLSchemaProvider implements Provider<GraphQLSchema> {
 
     private GraphQLSchema graphQLSchema;
