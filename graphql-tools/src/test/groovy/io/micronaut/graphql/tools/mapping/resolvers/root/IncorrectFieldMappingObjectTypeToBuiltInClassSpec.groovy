@@ -42,10 +42,10 @@ type User {
   Mapped class: ${Query.name}
   Mapped method: currentUser()
   Provided class: ${Integer.name}"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'currentUser'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'currentUser()'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'currentUser'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'currentUser()'
             e.cause.providedClass == Integer
     }
 
@@ -80,10 +80,10 @@ type User {
   Mapped class: ${Query.name}
   Mapped method: currentUser()
   Provided class: ${Integer.name}"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'currentUser'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'currentUser()'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'currentUser'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'currentUser()'
             e.cause.providedClass == Integer
     }
 

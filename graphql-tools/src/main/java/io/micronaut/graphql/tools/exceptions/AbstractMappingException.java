@@ -15,25 +15,27 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 public abstract class AbstractMappingException extends RuntimeException {
 
-    private final transient MappingDetails mappingDetails;
+    private final transient MappingContext mappingContext;
 
     protected AbstractMappingException(
             String message,
-            MappingDetails mappingDetails
+            MappingContext mappingContext
     ) {
         super(message);
-        this.mappingDetails = mappingDetails;
+        this.mappingContext = mappingContext;
     }
 
-    public MappingDetails getMappingDetails() {
-        return mappingDetails;
+    public MappingContext getMappingContext() {
+        return mappingContext;
     }
 
     @Override
     public String getMessage() {
-        return mappingDetails.getMessage(super.getMessage());
+        return mappingContext.getMessage(super.getMessage());
     }
 
 }

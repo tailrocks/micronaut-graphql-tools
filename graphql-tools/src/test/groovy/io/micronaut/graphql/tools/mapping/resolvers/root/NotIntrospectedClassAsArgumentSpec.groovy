@@ -43,11 +43,11 @@ input PriceInput {
   GraphQL argument: input
   Mapped class: ${Query.name}
   Mapped method: price(${PriceInput.name} input)"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'price'
-            e.cause.mappingDetails.graphQlArgument == 'input'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == "price(${PriceInput.name} input)"
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'price'
+            e.cause.mappingContext.graphQlArgument == 'input'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == "price(${PriceInput.name} input)"
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

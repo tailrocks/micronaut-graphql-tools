@@ -15,18 +15,20 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 public class IncorrectImplementationException extends AbstractMappingException {
 
     private final Class<?> implementationClass;
 
-    public IncorrectImplementationException(MappingDetails mappingDetails,
+    public IncorrectImplementationException(MappingContext mappingContext,
                                             Class<?> interfaceClass, Class<?> implementationClass) {
         super(
                 String.format(
                         "The annotated implementation class is not implementing the %s interface.",
                         interfaceClass.getName()
                 ),
-                mappingDetails
+                mappingContext
         );
 
         this.implementationClass = implementationClass;

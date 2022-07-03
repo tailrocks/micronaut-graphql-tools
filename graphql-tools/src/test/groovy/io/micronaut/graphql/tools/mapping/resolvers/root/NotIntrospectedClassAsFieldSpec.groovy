@@ -41,10 +41,10 @@ type User {
   GraphQL field: user
   Mapped class: ${Query.name}
   Mapped method: user()"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'user'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == "user()"
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'user'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == "user()"
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

@@ -44,10 +44,10 @@ type User {
   Mapped class: ${Query.name}
   Mapped method: user()
   Implementation class: ${UserImpl.name}"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'user'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == "user()"
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'user'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == "user()"
             e.cause.implementationClass == UserImpl
     }
 

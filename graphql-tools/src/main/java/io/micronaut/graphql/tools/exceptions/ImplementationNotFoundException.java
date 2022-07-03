@@ -15,15 +15,17 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 public class ImplementationNotFoundException extends AbstractMappingException {
 
-    public ImplementationNotFoundException(MappingDetails mappingDetails, Class<?> interfaceClass) {
+    public ImplementationNotFoundException(MappingContext mappingContext, Class<?> interfaceClass) {
         super(
                 String.format(
                         "Can not find implementation class for the interface %s.",
                         interfaceClass.getName()
                 ),
-                mappingDetails
+                mappingContext
         );
     }
 

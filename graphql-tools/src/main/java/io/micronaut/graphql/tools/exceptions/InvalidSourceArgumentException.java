@@ -15,12 +15,14 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 public class InvalidSourceArgumentException extends AbstractMappingException {
 
     private final Class<?> providedClass;
     private final Class<?> requiredClass;
 
-    public InvalidSourceArgumentException(MappingDetails mappingDetails, Class<?> providedClass,
+    public InvalidSourceArgumentException(MappingContext mappingContext, Class<?> providedClass,
                                           Class<?> requiredClass) {
         super(
                 String.format(
@@ -28,7 +30,7 @@ public class InvalidSourceArgumentException extends AbstractMappingException {
                         requiredClass.getName(),
                         providedClass.getName()
                 ),
-                mappingDetails
+                mappingContext
         );
 
         this.providedClass = providedClass;

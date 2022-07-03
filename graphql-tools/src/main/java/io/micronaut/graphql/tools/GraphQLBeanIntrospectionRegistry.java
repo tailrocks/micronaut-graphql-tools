@@ -23,7 +23,6 @@ import io.micronaut.graphql.tools.annotation.GraphQLType;
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
 import io.micronaut.graphql.tools.exceptions.ImplementationNotFoundException;
 import io.micronaut.graphql.tools.exceptions.IncorrectImplementationException;
-import io.micronaut.graphql.tools.exceptions.MappingDetails;
 import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException;
 
 import java.util.ArrayList;
@@ -74,19 +73,19 @@ class GraphQLBeanIntrospectionRegistry {
     }
 
     BeanIntrospection<Object> getGraphQlTypeBeanIntrospection(
-            MappingDetails mappingDetails,
+            MappingContext mappingContext,
             Class<?> clazz
     ) {
         loadTypeIntrospections();
 
         if (clazz.isInterface()) {
             if (!interfaceToImplementation.containsKey(clazz)) {
-                throw new ImplementationNotFoundException(mappingDetails, clazz);
+                throw new ImplementationNotFoundException(mappingContext, clazz);
             }
 
             if (interfaceToImplementation.get(clazz).size() > 1) {
                 throw new MultipleImplementationsFoundException(
-                        mappingDetails,
+                        mappingContext,
                         clazz,
                         interfaceToImplementation.get(clazz)
                 );
@@ -95,13 +94,13 @@ class GraphQLBeanIntrospectionRegistry {
             Class<?> implementationClass = interfaceToImplementation.get(clazz).get(0);
 
             if (!clazz.isAssignableFrom(implementationClass)) {
-                throw new IncorrectImplementationException(mappingDetails, clazz, implementationClass);
+                throw new IncorrectImplementationException(mappingContext, clazz, implementationClass);
             }
 
             return typeIntrospections.get(implementationClass);
         } else {
             if (!typeIntrospections.containsKey(clazz)) {
-                throw new ClassNotIntrospectedException(mappingDetails, clazz, GraphQLType.class);
+                throw new ClassNotIntrospectedException(mappingContext, clazz, GraphQLType.class);
             }
 
             return typeIntrospections.get(clazz);

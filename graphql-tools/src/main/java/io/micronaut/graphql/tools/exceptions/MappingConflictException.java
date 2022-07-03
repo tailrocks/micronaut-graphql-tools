@@ -15,9 +15,11 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 public class MappingConflictException extends AbstractMappingException {
 
-    public MappingConflictException(MappingDetails mappingDetails, String graphQlType,
+    public MappingConflictException(MappingContext mappingContext, String graphQlType,
                                     String conflictedGraphQlTypeName, Class<?> providedClass,
                                     Class<?> registeredClass) {
         super(
@@ -28,7 +30,7 @@ public class MappingConflictException extends AbstractMappingException {
                         providedClass.getName(),
                         registeredClass.getName()
                 ),
-                mappingDetails
+                mappingContext
         );
     }
 

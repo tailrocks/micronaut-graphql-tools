@@ -45,11 +45,11 @@ enum Month {
   Mapped class: ${Query.name}
   Mapped method: displayName(java.lang.String value)
   Provided class: java.lang.String"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'displayName'
-            e.cause.mappingDetails.graphQlArgument == 'value'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'displayName(java.lang.String value)'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'displayName'
+            e.cause.mappingContext.graphQlArgument == 'value'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'displayName(java.lang.String value)'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

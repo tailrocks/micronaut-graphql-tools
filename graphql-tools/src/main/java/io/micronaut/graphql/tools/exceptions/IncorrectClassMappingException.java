@@ -16,6 +16,7 @@
 package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.graphql.tools.MappingContext;
 import io.micronaut.graphql.tools.SystemTypes;
 
 import java.util.Set;
@@ -37,7 +38,7 @@ public class IncorrectClassMappingException extends AbstractMappingException {
     public static IncorrectClassMappingException forField(
             MappingType providedType,
             MappingType requiredType,
-            MappingDetails mappingDetails,
+            MappingContext mappingContext,
             Class<?> providedClass,
             @Nullable Set<Class<?>> supportedClasses
     ) {
@@ -47,7 +48,7 @@ public class IncorrectClassMappingException extends AbstractMappingException {
                         toString(providedType, providedClass),
                         toString(requiredType, null)
                 ),
-                mappingDetails,
+                mappingContext,
                 providedClass,
                 supportedClasses
         );
@@ -56,7 +57,7 @@ public class IncorrectClassMappingException extends AbstractMappingException {
     public static IncorrectClassMappingException forArgument(
             MappingType providedType,
             MappingType requiredType,
-            MappingDetails mappingDetails,
+            MappingContext mappingContext,
             Class<?> providedClass,
             @Nullable Set<Class<?>> supportedClasses
     ) {
@@ -66,15 +67,15 @@ public class IncorrectClassMappingException extends AbstractMappingException {
                         toString(providedType, providedClass),
                         toString(requiredType, null)
                 ),
-                mappingDetails,
+                mappingContext,
                 providedClass,
                 supportedClasses
         );
     }
 
-    public IncorrectClassMappingException(String message, MappingDetails mappingDetails, Class<?> providedClass,
+    public IncorrectClassMappingException(String message, MappingContext mappingContext, Class<?> providedClass,
                                           @Nullable Set<Class<?>> supportedClasses) {
-        super(message, mappingDetails);
+        super(message, mappingContext);
 
         this.providedClass = providedClass;
         this.supportedClasses = supportedClasses;

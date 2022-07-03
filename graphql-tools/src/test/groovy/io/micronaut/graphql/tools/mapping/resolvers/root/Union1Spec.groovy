@@ -51,10 +51,10 @@ type ValidationError {
   Mapped class: ${Query.name}
   Mapped method: unionTypeTest(boolean securityError)
   Provided class: ${SecurityError.name}"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'unionTypeTest'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'unionTypeTest(boolean securityError)'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'unionTypeTest'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'unionTypeTest(boolean securityError)'
             e.cause.providedClass == SecurityError
     }
 

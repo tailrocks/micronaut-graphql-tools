@@ -38,10 +38,10 @@ type Query {
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'hello'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'hello()'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'hello'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }
@@ -73,10 +73,10 @@ type Query {
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'hello'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'hello()'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'hello'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'hello()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }

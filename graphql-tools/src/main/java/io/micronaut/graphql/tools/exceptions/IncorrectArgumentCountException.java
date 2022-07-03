@@ -16,13 +16,14 @@
 package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.graphql.tools.MappingContext;
 
 public class IncorrectArgumentCountException extends AbstractMappingException {
 
     private final int providedCount;
     private final int requiredCount;
 
-    public IncorrectArgumentCountException(MappingDetails mappingDetails, boolean few, int providedCount,
+    public IncorrectArgumentCountException(MappingContext mappingContext, boolean few, int providedCount,
                                            int requiredCount, @Nullable String requiredMethodArgs) {
         super(
                 String.format(
@@ -32,7 +33,7 @@ public class IncorrectArgumentCountException extends AbstractMappingException {
                         requiredCount,
                         requiredMethodArgs != null ? ": " + requiredMethodArgs : "."
                 ),
-                mappingDetails
+                mappingContext
         );
 
         this.providedCount = providedCount;

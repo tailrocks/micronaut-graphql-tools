@@ -44,10 +44,10 @@ enum Month {
   GraphQL field: nextMonth
   Mapped class: ${Query.name}
   Mapped method: nextMonth()"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'nextMonth'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == 'nextMonth()'
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'nextMonth'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'nextMonth()'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

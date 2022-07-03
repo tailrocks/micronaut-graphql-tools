@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.graphql.tools.exceptions;
+package io.micronaut.graphql.tools;
 
 import graphql.language.FieldDefinition;
 import graphql.language.InputValueDefinition;
@@ -24,7 +24,7 @@ import io.micronaut.core.annotation.Nullable;
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 import static io.micronaut.core.util.ArgumentUtils.requirePositive;
 
-public class MappingDetails {
+public class MappingContext {
 
     private final ObjectTypeDefinition objectTypeDefinition;
     private final FieldDefinition fieldDefinition;
@@ -32,48 +32,48 @@ public class MappingDetails {
     private final Class<?> mappedClass;
     private final String mappedMethod;
 
-    public static MappingDetails forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
+    public static MappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
                                           @NonNull FieldDefinition fieldDefinition) {
         requireNonNull("objectTypeDefinition", objectTypeDefinition);
         requireNonNull("fieldDefinition", fieldDefinition);
 
-        return new MappingDetails(objectTypeDefinition, fieldDefinition, null, null, null);
+        return new MappingContext(objectTypeDefinition, fieldDefinition, null, null, null);
     }
 
-    public static MappingDetails forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
+    public static MappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
                                           @NonNull FieldDefinition fieldDefinition,
                                           @NonNull Class<?> mappedClass, @Nullable String mappedMethod) {
         requireNonNull("objectTypeDefinition", objectTypeDefinition);
         requireNonNull("fieldDefinition", fieldDefinition);
         requireNonNull("mappedClass", mappedClass);
 
-        return new MappingDetails(objectTypeDefinition, fieldDefinition, null, mappedClass, mappedMethod);
+        return new MappingContext(objectTypeDefinition, fieldDefinition, null, mappedClass, mappedMethod);
     }
 
-    public static MappingDetails forField(@NonNull MappingDetails mappingDetails,
+    public static MappingContext forField(@NonNull MappingContext mappingContext,
                                           @NonNull Class<?> mappedClass, @Nullable String mappedMethod) {
-        requireNonNull("mappingDetails", mappingDetails);
+        requireNonNull("mappingDetails", mappingContext);
         requireNonNull("mappedClass", mappedClass);
 
-        return new MappingDetails(mappingDetails.getObjectTypeDefinition(), mappingDetails.getFieldDefinition(),
+        return new MappingContext(mappingContext.getObjectTypeDefinition(), mappingContext.getFieldDefinition(),
                 null, mappedClass, mappedMethod);
     }
 
-    public static MappingDetails forArgument(@NonNull MappingDetails mappingDetails,
+    public static MappingContext forArgument(@NonNull MappingContext mappingContext,
                                              int position) {
-        requireNonNull("mappingDetails", mappingDetails);
+        requireNonNull("mappingDetails", mappingContext);
         requirePositive("position", position);
 
-        return new MappingDetails(
-                mappingDetails.getObjectTypeDefinition(),
-                mappingDetails.getFieldDefinition(),
+        return new MappingContext(
+                mappingContext.getObjectTypeDefinition(),
+                mappingContext.getFieldDefinition(),
                 position,
-                mappingDetails.getMappedClass(),
-                mappingDetails.getMappedMethod()
+                mappingContext.getMappedClass(),
+                mappingContext.getMappedMethod()
         );
     }
 
-    private MappingDetails(ObjectTypeDefinition objectTypeDefinition, FieldDefinition fieldDefinition, @Nullable Integer argumentIndex,
+    private MappingContext(ObjectTypeDefinition objectTypeDefinition, FieldDefinition fieldDefinition, @Nullable Integer argumentIndex,
                            @Nullable Class<?> mappedClass, @Nullable String mappedMethod) {
         this.objectTypeDefinition = objectTypeDefinition;
         this.fieldDefinition = fieldDefinition;

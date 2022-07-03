@@ -15,6 +15,8 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,10 +24,10 @@ public class MissingEnumValuesException extends AbstractMappingException {
 
     private final List<String> missingValues;
 
-    public MissingEnumValuesException(MappingDetails mappingDetails, List<String> missingValues) {
+    public MissingEnumValuesException(MappingContext mappingContext, List<String> missingValues) {
         super(
                 "Some enum values are missing.",
-                mappingDetails
+                mappingContext
         );
 
         this.missingValues = missingValues;

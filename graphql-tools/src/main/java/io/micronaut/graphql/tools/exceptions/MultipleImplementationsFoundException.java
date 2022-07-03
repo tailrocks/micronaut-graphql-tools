@@ -15,6 +15,8 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,14 +25,14 @@ public class MultipleImplementationsFoundException extends AbstractMappingExcept
 
     private final List<Class<?>> implementationClasses;
 
-    public MultipleImplementationsFoundException(MappingDetails mappingDetails, Class<?> interfaceClass,
+    public MultipleImplementationsFoundException(MappingContext mappingContext, Class<?> interfaceClass,
                                                  List<Class<?>> implementationClasses) {
         super(
                 String.format(
                         "Found multiple implementations for the interface %s.",
                         interfaceClass.getName()
                 ),
-                mappingDetails
+                mappingContext
         );
 
         this.implementationClasses = implementationClasses.stream()

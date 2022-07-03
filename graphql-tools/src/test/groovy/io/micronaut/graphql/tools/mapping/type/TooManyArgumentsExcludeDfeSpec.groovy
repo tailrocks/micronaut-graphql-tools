@@ -44,10 +44,10 @@ type User {
   GraphQL field: username
   Mapped class: ${User.name}
   Mapped method: username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.mappingDetails.graphQlType == 'User'
-            e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == User
-            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlField == 'username'
+            e.cause.mappingContext.mappedClass == User
+            e.cause.mappingContext.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }

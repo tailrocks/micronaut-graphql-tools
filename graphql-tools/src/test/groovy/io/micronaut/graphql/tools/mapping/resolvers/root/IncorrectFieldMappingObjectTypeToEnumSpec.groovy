@@ -41,8 +41,8 @@ type User {
   GraphQL type: User
   GraphQL field: username
   Provided class: ${User.name}"""
-            e.cause.mappingDetails.graphQlType == 'User'
-            e.cause.mappingDetails.graphQlField == 'username'
+            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlField == 'username'
             e.cause.providedClass == User
     }
 

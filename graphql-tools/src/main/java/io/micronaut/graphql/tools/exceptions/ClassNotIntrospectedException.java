@@ -15,9 +15,11 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 public class ClassNotIntrospectedException extends AbstractMappingException {
 
-    public ClassNotIntrospectedException(MappingDetails mappingDetails, Class<?> returningType,
+    public ClassNotIntrospectedException(MappingContext mappingContext, Class<?> returningType,
                                          Class<?> annotationClass) {
         super(
                 String.format(
@@ -25,7 +27,7 @@ public class ClassNotIntrospectedException extends AbstractMappingException {
                         returningType.getName(),
                         annotationClass.getName()
                 ),
-                mappingDetails
+                mappingContext
         );
     }
 

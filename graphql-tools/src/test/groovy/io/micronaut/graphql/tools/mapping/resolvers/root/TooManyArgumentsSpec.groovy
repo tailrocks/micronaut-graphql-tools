@@ -37,10 +37,10 @@ type Query {
   GraphQL field: username
   Mapped class: ${Query.name}
   Mapped method: username(${String.name} uid)"""
-            e.cause.mappingDetails.graphQlType == 'Query'
-            e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == Query
-            e.cause.mappingDetails.mappedMethod == "username(${String.name} uid)"
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'username'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == "username(${String.name} uid)"
             e.cause.providedCount == 1
             e.cause.requiredCount == 0
     }

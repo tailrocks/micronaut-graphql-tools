@@ -42,7 +42,7 @@ public class GraphQLFactory {
 
         GraphQLSchemaProvider graphQLSchemaProvider = new GraphQLSchemaProvider();
 
-        GraphQLMappingContext graphQLMappingContext = new GraphQLMappingContext(
+        GraphQLRuntimeWiringGenerator graphQLRuntimeWiringGenerator = new GraphQLRuntimeWiringGenerator(
                 applicationContext,
                 new GraphQLBeanIntrospectionRegistry(),
                 graphQLResolversRegistry,
@@ -51,7 +51,7 @@ public class GraphQLFactory {
                 graphQLSchemaProvider
         );
 
-        RuntimeWiring runtimeWiring = graphQLMappingContext.generateRuntimeWiring();
+        RuntimeWiring runtimeWiring = graphQLRuntimeWiringGenerator.generateRuntimeWiring();
 
         // destroys GraphQLResolversRegistry as it no use in runtime after we initialized RuntimeWiring successfully
         applicationContext.destroyBean(graphQLResolversRegistry);

@@ -44,10 +44,10 @@ type User {
   Mapped method: getUsername()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingDetails.graphQlType == 'User'
-            e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == User
-            e.cause.mappingDetails.mappedMethod == 'getUsername()'
+            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlField == 'username'
+            e.cause.mappingContext.mappedClass == User
+            e.cause.mappingContext.mappedMethod == 'getUsername()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }
@@ -84,10 +84,10 @@ type User {
   Mapped method: getUsername()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingDetails.graphQlType == 'User'
-            e.cause.mappingDetails.graphQlField == 'username'
-            e.cause.mappingDetails.mappedClass == User
-            e.cause.mappingDetails.mappedMethod == 'getUsername()'
+            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlField == 'username'
+            e.cause.mappingContext.mappedClass == User
+            e.cause.mappingContext.mappedMethod == 'getUsername()'
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }
