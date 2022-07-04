@@ -19,10 +19,11 @@ import graphql.schema.GraphQLSchema;
 import io.micronaut.core.annotation.Internal;
 import jakarta.inject.Provider;
 
+import java.util.NoSuchElementException;
+
 /**
  * @author Alexey Zhokhov
  */
-// TODO late init provider
 @Internal
 class GraphQLSchemaProvider implements Provider<GraphQLSchema> {
 
@@ -31,17 +32,12 @@ class GraphQLSchemaProvider implements Provider<GraphQLSchema> {
     @Override
     public GraphQLSchema get() {
         if (graphQLSchema == null) {
-            // TODO custom exception
-            throw new RuntimeException("Provider is not initialized");
+            throw new NoSuchElementException("No graphQLSchema present");
         }
         return graphQLSchema;
     }
 
     void init(GraphQLSchema graphQLSchema) {
-        if (this.graphQLSchema != null) {
-            // TODO custom exception
-            throw new RuntimeException("Provider already initialized");
-        }
         this.graphQLSchema = graphQLSchema;
     }
 
