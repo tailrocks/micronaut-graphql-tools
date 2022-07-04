@@ -128,9 +128,7 @@ class GraphQLRuntimeWiringGenerator {
         objectMapper.registerModule(new BeanIntrospectionModule());
     }
 
-    RuntimeWiring generateRuntimeWiring() {
-        // TODO this method can not be called twice, make this class not a bean
-
+    RuntimeWiring generate() {
         SchemaDefinition schemaDefinition = typeDefinitionRegistry.schemaDefinition()
                 .orElseThrow(SchemaDefinitionNotProvidedException::new);
 
