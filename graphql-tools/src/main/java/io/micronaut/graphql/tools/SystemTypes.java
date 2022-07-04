@@ -31,6 +31,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // TODO unmodified types
+
+/**
+ * @author Alexey Zhokhov
+ */
 @Internal
 public final class SystemTypes {
 

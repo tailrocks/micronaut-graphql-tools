@@ -17,6 +17,9 @@ package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.graphql.tools.MappingContext;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public class InvalidSourceArgumentException extends AbstractMappingException {
 
     private final Class<?> providedClass;

@@ -24,6 +24,9 @@ import io.micronaut.core.annotation.Nullable;
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 import static io.micronaut.core.util.ArgumentUtils.requirePositive;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public class MappingContext {
 
     private final ObjectTypeDefinition objectTypeDefinition;

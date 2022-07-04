@@ -20,6 +20,9 @@ import graphql.language.Type;
 import graphql.language.TypeName;
 import io.micronaut.core.annotation.Internal;
 
+/**
+ * @author Alexey Zhokhov
+ */
 @Internal
 final class GraphQLUtils {
 

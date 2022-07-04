@@ -18,6 +18,9 @@ package io.micronaut.graphql.tools.exceptions;
 import io.micronaut.graphql.tools.MappingContext;
 import io.micronaut.graphql.tools.SchemaParserDictionary;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public class UnionTypeMappingNotProvidedException extends AbstractMappingException {
 
     public UnionTypeMappingNotProvidedException(MappingContext mappingContext, String objectType, String unionType) {

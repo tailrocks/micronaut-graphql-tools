@@ -22,6 +22,9 @@ import io.micronaut.graphql.tools.SystemTypes;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public class IncorrectClassMappingException extends AbstractMappingException {
 
     public enum MappingType {

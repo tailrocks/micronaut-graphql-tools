@@ -15,6 +15,9 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public class MethodNotFoundException extends RuntimeException {
 
     private final String methodName;

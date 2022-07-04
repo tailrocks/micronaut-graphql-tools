@@ -17,6 +17,9 @@ package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public class IncorrectAnnotationException extends RuntimeException {
 
     public IncorrectAnnotationException(Class annotatedClass) {
