@@ -3,18 +3,18 @@ package io.micronaut.graphql.tools.mapping.resolvers.root
 import groovy.transform.CompileStatic
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Requires
-import io.micronaut.context.exceptions.BeanContextException
+import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.SchemaParserDictionary
 import io.micronaut.graphql.tools.SchemaParserDictionaryCustomizer
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
-import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException
+import io.micronaut.graphql.tools.exceptions.UnionTypeMappingNotProvidedException
 import org.intellij.lang.annotations.Language
 
-class Union2Spec extends AbstractTest {
+class UnionTypeMappingNotProvidedSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.Union2Spec"
+    static final String SPEC_NAME = "mapping.resolvers.root.UnionTypeMappingNotProvidedSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -37,7 +37,7 @@ type ValidationError {
 }
 """
 
-    void "test todo"() {
+    void "test unable to detect representation class for type member of union"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -45,9 +45,17 @@ type ValidationError {
             getGraphQLBean()
 
         then:
-            def e = thrown(BeanContextException)
-            e.cause instanceof IncorrectAnnotationException
-            e.cause.message == "Empty value member for @GraphQLTypeResolver annotation in ${UserResolver.class.name} class."
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof UnionTypeMappingNotProvidedException
+            e.cause.message == """Can not detect representation class for type ValidationError, member of PayloadError union. Ensure the representation class is registered via ${SchemaParserDictionary.name}.
+  GraphQL type: Query
+  GraphQL field: unionTest
+  Mapped class: ${Query.name}
+  Mapped method: unionTest()"""
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'unionTest'
+            e.cause.mappingContext.mappedClass == Query
+            e.cause.mappingContext.mappedMethod == 'unionTest()'
     }
 
     @CompileStatic
@@ -85,7 +93,7 @@ type ValidationError {
             return new SchemaParserDictionaryCustomizer() {
                 @Override
                 void customize(SchemaParserDictionary schemaParserDictionary) {
-                    schemaParserDictionary.addType("SecurityError", SecurityError.class)
+                    schemaParserDictionary.registerType("SecurityError", SecurityError.class)
                 }
             }
         }

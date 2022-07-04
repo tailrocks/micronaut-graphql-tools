@@ -122,8 +122,8 @@ type ValidationError {
             return new SchemaParserDictionaryCustomizer() {
                 @Override
                 void customize(SchemaParserDictionary schemaParserDictionary) {
-                    schemaParserDictionary.addType("SecurityError", SecurityError.class)
-                    schemaParserDictionary.addType("ValidationError", ValidationError.class)
+                    schemaParserDictionary.registerType("SecurityError", SecurityError.class)
+                    schemaParserDictionary.registerType("ValidationError", ValidationError.class)
                 }
             }
         }

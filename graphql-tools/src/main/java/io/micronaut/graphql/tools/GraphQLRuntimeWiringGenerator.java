@@ -55,6 +55,7 @@ import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MappingConflictException;
 import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException;
+import io.micronaut.graphql.tools.exceptions.UnionTypeMappingNotProvidedException;
 import io.micronaut.graphql.tools.schema.DefaultWiringFactory;
 import io.micronaut.graphql.tools.schema.MicronautExecutableMethodDataFetcher;
 import io.micronaut.graphql.tools.schema.MicronautIntrospectionDataFetcher;
@@ -347,11 +348,11 @@ class GraphQLRuntimeWiringGenerator {
                 TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
                 if (typeDefinition instanceof ObjectTypeDefinition) {
-                    Class<?> clazz = Optional.ofNullable(schemaParserDictionary.getTypes().get(typeDefinition.getName()))
-                            .orElseThrow(() -> {
-                                // TODO
-                                return new RuntimeException("Type is not provided for ...");
-                            });
+                    Class<?> clazz = Optional
+                            .ofNullable(schemaParserDictionary.getTypes().get(typeDefinition.getName()))
+                            .orElseThrow(() -> new UnionTypeMappingNotProvidedException(
+                                    mappingContext, typeName.getName(), unionTypeDefinition.getName()
+                            ));
 
                     processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, clazz, mappingContext);
 
@@ -617,6 +618,14 @@ class GraphQLRuntimeWiringGenerator {
 
     private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, Class<?> returnType,
                                              MappingContext mappingContext) {
+        Optional.ofNullable(schemaParserDictionary.getTypes().get(objectTypeDefinition.getName()))
+                .ifPresent((it) -> {
+                    if (!it.equals(returnType)) {
+
+                    }
+                });
+
+
         if (isJavaBuiltInClass(returnType)) {
             throw IncorrectClassMappingException.forField(
                     IncorrectClassMappingException.MappingType.DETECT_TYPE,

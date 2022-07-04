@@ -15,6 +15,7 @@
  */
 package io.micronaut.graphql.tools;
 
+import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.ArgumentUtils;
 
 import java.util.Collections;
@@ -32,7 +33,7 @@ public class SchemaParserDictionary {
         return Collections.unmodifiableMap(types);
     }
 
-    public SchemaParserDictionary addType(String graphqlType, Class<?> implementationClass) {
+    public SchemaParserDictionary registerType(@NonNull String graphqlType, @NonNull Class<?> implementationClass) {
         ArgumentUtils.requireNonNull("graphqlType", graphqlType);
         ArgumentUtils.requireNonNull("implementationClass", implementationClass);
 

@@ -4,4 +4,4 @@
 2. don't process return type for same class twice
 3. lists support
 4. SchemaParserDictionary coverage
-5. 
+5. schema conflicts, one field mapped to different types, etc

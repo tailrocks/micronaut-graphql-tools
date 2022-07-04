@@ -86,8 +86,8 @@ type ValidationError {
         @jakarta.inject.Singleton
         SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer() {
             return (schemaParserDictionary) -> schemaParserDictionary
-                    .addType("SecurityError", SecurityError.class)
-                    .addType("ValidationError", ValidationError.class)
+                    .registerType("SecurityError", SecurityError.class)
+                    .registerType("ValidationError", ValidationError.class)
         }
 
     }
