@@ -32,7 +32,7 @@ input PriceInput {
             startContext(schema, SPEC_NAME)
 
         when:
-            executeQuery("{month}")
+            getGraphQLBean()
 
         then:
             def e = thrown(BeanInstantiationException)

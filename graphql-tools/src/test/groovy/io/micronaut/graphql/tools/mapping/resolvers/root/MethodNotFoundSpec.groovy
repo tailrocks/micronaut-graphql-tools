@@ -23,7 +23,7 @@ type Query {
             startContext(schema, null)
 
         when:
-            executeQuery("""{hello}""")
+            getGraphQLBean()
 
         then:
             def e = thrown(BeanInstantiationException)

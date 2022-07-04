@@ -28,7 +28,7 @@ type Query {
             startContext(SCHEMA, SPEC_NAME)
 
         when:
-            executeQuery('{username}')
+            getGraphQLBean()
 
         then:
             def e = thrown(BeanInstantiationException)

@@ -21,7 +21,7 @@ schema {
 }
 
 type Query {
-  unionTypeTest(securityError: Boolean!): PayloadError
+  unionTest(securityError: Boolean!): PayloadError
 }
 
 union PayloadError = SecurityError | ValidationError
@@ -42,7 +42,7 @@ type ValidationError {
         when:
             def result = executeQuery("""
 {
-    unionTypeTest(securityError: true) {
+    unionTest(securityError: true) {
         ... on SecurityError {
             securityCode: code
         }
@@ -56,7 +56,7 @@ type ValidationError {
         then:
             result.errors.isEmpty()
             result.dataPresent
-            result.data.unionTypeTest.securityCode == 'AUTH'
+            result.data.unionTest.securityCode == 'AUTH'
     }
 
     void "test todo2"() {
@@ -66,7 +66,7 @@ type ValidationError {
         when:
             def result = executeQuery("""
 {
-    unionTypeTest(securityError: false) {
+    unionTest(securityError: false) {
         ... on SecurityError {
             securityCode: code
         }
@@ -80,14 +80,14 @@ type ValidationError {
         then:
             result.errors.isEmpty()
             result.dataPresent
-            result.data.unionTypeTest.validationCode == 123
+            result.data.unionTest.validationCode == 123
     }
 
     @CompileStatic
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        PayloadError unionTypeTest(boolean securityError) {
+        PayloadError unionTest(boolean securityError) {
             if (securityError) {
                 return new SecurityError()
             } else {

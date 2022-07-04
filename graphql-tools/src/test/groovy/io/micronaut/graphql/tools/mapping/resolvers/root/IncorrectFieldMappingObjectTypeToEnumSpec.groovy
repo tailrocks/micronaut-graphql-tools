@@ -32,7 +32,7 @@ type User {
             startContext(schema, SPEC_NAME)
 
         when:
-            executeQuery('{username}')
+            getGraphQLBean()
 
         then:
             def e = thrown(BeanInstantiationException)

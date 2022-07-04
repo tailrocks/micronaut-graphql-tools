@@ -29,8 +29,12 @@ abstract class AbstractTest extends Specification {
         applicationContext = ctxBuilder.start()
     }
 
+    GraphQL getGraphQLBean() {
+        applicationContext.getBean(GraphQL.class)
+    }
+
     ExecutionResult executeQuery(@NonNull String query) {
-        applicationContext.getBean(GraphQL.class).execute(query.trim())
+        getGraphQLBean().execute(query.trim())
     }
 
     void cleanup() {

@@ -23,7 +23,7 @@ schema {
 }
 
 type Query {
-  unionTypeTest: PayloadError
+  unionTest: PayloadError
 }
 
 union PayloadError = SecurityError | ValidationError
@@ -42,18 +42,7 @@ type ValidationError {
             startContext(SCHEMA, SPEC_NAME)
 
         when:
-            executeQuery("""
-{
-    unionTypeTest(securityError: true) {
-        ... on SecurityError {
-            securityCode: code
-        }
-        ... on ValidationError {
-            validationCode: code
-        }
-    }
-}
-""")
+            getGraphQLBean()
 
         then:
             def e = thrown(BeanContextException)
@@ -65,7 +54,7 @@ type ValidationError {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        PayloadError unionTypeTest() {
+        PayloadError unionTest() {
             return null
         }
     }
