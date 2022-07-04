@@ -13,9 +13,6 @@ type Query {
   catalogSectionList(max: Int, options: CatalogSectionListOptions): CatalogSectionListPayload!
 
   unionTypeTest(securityError: Boolean!): PayloadError
-
-  # TODO
-  #unionEnumTest: EnumPayload
 }
 
 union PayloadError = SecurityError | ValidationError
@@ -27,19 +24,6 @@ type SecurityError {
 type ValidationError {
   code: Int!
 }
-
-# TODO
-#union EnumPayload = Enum1 | Enum2
-
-#enum Enum1 {
-#  TEST1
-#  TEST2
-#}
-
-#enum Enum2 {
-#  ABC
-#  XYZ
-#}
 
 type Mutation {
   emailValidate(input: EmailValidateInput!): EmailValidatePayload!
