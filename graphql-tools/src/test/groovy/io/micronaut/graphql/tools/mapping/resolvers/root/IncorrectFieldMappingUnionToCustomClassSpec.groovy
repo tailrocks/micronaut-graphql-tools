@@ -10,9 +10,9 @@ import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class Union1Spec extends AbstractTest {
+class IncorrectFieldMappingUnionToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.Union1Spec"
+    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectFieldMappingUnionToCustomClassSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -21,7 +21,7 @@ schema {
 }
 
 type Query {
-  unionTypeTest(securityError: Boolean!): PayloadError
+  testUnion: PayloadError
 }
 
 union PayloadError = SecurityError | ValidationError
@@ -35,7 +35,7 @@ type ValidationError {
 }
 """
 
-    void "test todo"() {
+    void "test union field returns custom class"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -47,21 +47,21 @@ type ValidationError {
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to a custom class, when required an interface.
   GraphQL type: Query
-  GraphQL field: unionTypeTest
+  GraphQL field: testUnion
   Mapped class: ${Query.name}
-  Mapped method: unionTypeTest(boolean securityError)
+  Mapped method: testUnion()
   Provided class: ${SecurityError.name}"""
             e.cause.mappingContext.graphQlType == 'Query'
-            e.cause.mappingContext.graphQlField == 'unionTypeTest'
+            e.cause.mappingContext.graphQlField == 'testUnion'
             e.cause.mappingContext.mappedClass == Query
-            e.cause.mappingContext.mappedMethod == 'unionTypeTest(boolean securityError)'
+            e.cause.mappingContext.mappedMethod == 'testUnion()'
             e.cause.providedClass == SecurityError
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        SecurityError unionTypeTest(boolean securityError) {
+        SecurityError testUnion() {
             return null
         }
     }
