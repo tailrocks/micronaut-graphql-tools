@@ -77,12 +77,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
+import static io.micronaut.graphql.tools.GraphQLUtils.getTypeName;
+import static io.micronaut.graphql.tools.GraphQLUtils.unwrapNonNullType;
 import static io.micronaut.graphql.tools.MicronautUtils.getExecutableMethodFullName;
 import static io.micronaut.graphql.tools.MicronautUtils.getMethodName;
 import static io.micronaut.graphql.tools.MicronautUtils.getPropertyMethodName;
 import static io.micronaut.graphql.tools.MicronautUtils.unwrapArgument;
-import static io.micronaut.graphql.tools.GraphQLUtils.getTypeName;
-import static io.micronaut.graphql.tools.GraphQLUtils.unwrapNonNullType;
 import static io.micronaut.graphql.tools.SystemTypes.getSupportedClasses;
 import static io.micronaut.graphql.tools.SystemTypes.isGraphQlBuiltInType;
 import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
@@ -155,40 +155,27 @@ class GraphQLRuntimeWiringGenerator {
         });
     }
 
-    void processExecutableMethod(
-            ObjectTypeDefinition objectTypeDefinition,
-            FieldDefinition fieldDefinition,
-            TypeRuntimeWiring.Builder typeRuntimeWiringBuilder,
-            Executable<Object, ?> executable,
-            ReturnType<?> returnType,
-            @Nullable Class<?> sourceClass,
-            @Nullable Object instance
-    ) {
-        MappingContext mappingContext = MappingContext.forField(
-                objectTypeDefinition,
-                fieldDefinition,
+    void processExecutableMethod(Executable<Object, ?> executable, ReturnType<?> returnType,
+                                 @Nullable Class<?> sourceClass, @Nullable Object instance,
+                                 TypeRuntimeWiring.Builder typeRuntimeWiringBuilder, MappingContext mappingContext) {
+        mappingContext = MappingContext.forField(
+                mappingContext,
                 executable.getDeclaringType(),
                 getExecutableMethodFullName(executable)
         );
 
-        checkInputValueDefinitions(mappingContext, executable, sourceClass);
+        List<ArgumentDetails> argumentDetails = processInputArguments(executable, sourceClass, mappingContext);
 
-        List<ArgumentDetails> argumentDetails = processInputArguments(mappingContext, executable, sourceClass);
+        typeRuntimeWiringBuilder.dataFetcher(
+                mappingContext.getFieldDefinition().getName(),
+                new MicronautExecutableMethodDataFetcher(objectMapper, executable, argumentDetails, instance)
+        );
 
-        typeRuntimeWiringBuilder.dataFetcher(fieldDefinition.getName(), new MicronautExecutableMethodDataFetcher(
-                objectMapper,
-                executable,
-                argumentDetails,
-                instance
-        ));
-
-        Argument<?> argument = returnType.asArgument();
-
-        processArgument(argument, mappingContext);
+        processArgument(returnType.asArgument(), mappingContext);
     }
 
-    private void checkInputValueDefinitions(MappingContext mappingContext, Executable<?, ?> executable,
-                                            @Nullable Class<?> sourceClass) {
+    private void checkInputValueDefinitions(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
+                                            MappingContext mappingContext) {
         int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
 
         if (sourceClass != null) {
@@ -244,7 +231,7 @@ class GraphQLRuntimeWiringGenerator {
         }
     }
 
-    private void checkInputValueDefinitions(MappingContext mappingContext, BeanProperty<?, ?> beanProperty) {
+    private void checkInputValueDefinitions(BeanProperty<?, ?> beanProperty, MappingContext mappingContext) {
         if (mappingContext.getFieldDefinition().getInputValueDefinitions().size() == 0) {
             return;
         }
@@ -256,11 +243,10 @@ class GraphQLRuntimeWiringGenerator {
         }
     }
 
-    private List<ArgumentDetails> processInputArguments(
-            MappingContext mappingContext,
-            Executable<?, ?> executable,
-            @Nullable Class<?> sourceClass
-    ) {
+    private List<ArgumentDetails> processInputArguments(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
+                                                        MappingContext mappingContext) {
+        checkInputValueDefinitions(executable, sourceClass, mappingContext);
+
         List<InputValueDefinition> inputs = mappingContext.getFieldDefinition().getInputValueDefinitions();
         List<Argument<?>> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
 
@@ -366,8 +352,8 @@ class GraphQLRuntimeWiringGenerator {
 
                 Class<?> inputClass = processInputType(
                         typeName,
-                        MappingContext.forArgument(mappingContext, i),
-                        returnType
+                        returnType,
+                        MappingContext.forArgument(mappingContext, i)
                 );
 
                 result.add(new ArgumentDetails(inputs.get(i).getName(), inputClass));
@@ -399,13 +385,13 @@ class GraphQLRuntimeWiringGenerator {
 
             // TODO is mapping details is corrrect?
 
-            processReturnType(listReturnType, mappingContext, listFieldType);
+            processReturnType(listReturnType, listFieldType, mappingContext);
         } else {
-            processReturnType(returnType, mappingContext, fieldType);
+            processReturnType(returnType, fieldType, mappingContext);
         }
     }
 
-    private void processReturnType(Class<?> returnType, MappingContext mappingContext, Type<?> graphQlType) {
+    private void processReturnType(Class<?> returnType, Type<?> graphQlType, MappingContext mappingContext) {
         if (graphQlType instanceof NonNullType) {
             graphQlType = unwrapNonNullType(graphQlType);
         }
@@ -446,31 +432,25 @@ class GraphQLRuntimeWiringGenerator {
         ObjectTypeDefinition objectTypeDefinition = (ObjectTypeDefinition)
                 getTypeDefinition(operationTypeDefinition.getTypeName());
 
-        rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeWiring -> {
+        rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
-                processRootFieldDefinition(fieldDefinition, objectTypeDefinition, typeWiring);
+                BeanDefinitionAndMethod beanDefinitionAndMethod =
+                        graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName());
+
+                ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
+
+                processExecutableMethod(
+                        executable,
+                        executable.getReturnType(),
+                        null,
+                        applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition()),
+                        typeRuntimeWiringBuilder,
+                        MappingContext.forField(objectTypeDefinition, fieldDefinition)
+                );
             }
 
-            return typeWiring;
+            return typeRuntimeWiringBuilder;
         });
-    }
-
-    private void processRootFieldDefinition(FieldDefinition fieldDefinition, ObjectTypeDefinition objectTypeDefinition,
-                                            TypeRuntimeWiring.Builder typeRuntimeWiringBuilder) {
-        BeanDefinitionAndMethod beanDefinitionAndMethod =
-                graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName());
-
-        ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
-
-        processExecutableMethod(
-                objectTypeDefinition,
-                fieldDefinition,
-                typeRuntimeWiringBuilder,
-                executable,
-                executable.getReturnType(),
-                null,
-                applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
-        );
     }
 
     private void processEnumTypeDefinition(EnumTypeDefinition typeDefinition, Class<?> targetClass, boolean input,
@@ -607,29 +587,26 @@ class GraphQLRuntimeWiringGenerator {
         );
 
         if (registerBeanIntrospectionMapping(objectTypeDefinition.getName(), beanIntrospection)) {
-            rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeWiring -> {
-                typeWiring.defaultDataFetcher(new MicronautIntrospectionDataFetcher(beanIntrospection));
+            rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeRuntimeWiringBuilder -> {
+                typeRuntimeWiringBuilder.defaultDataFetcher(new MicronautIntrospectionDataFetcher(beanIntrospection));
 
                 for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
                     processFieldDefinition(
                             fieldDefinition,
                             objectTypeDefinition,
-                            beanIntrospection,
-                            typeWiring
+                            typeRuntimeWiringBuilder,
+                            beanIntrospection
                     );
                 }
 
-                return typeWiring;
+                return typeRuntimeWiringBuilder;
             });
         }
     }
 
-    private void processFieldDefinition(
-            FieldDefinition fieldDefinition,
-            ObjectTypeDefinition objectTypeDefinition,
-            BeanIntrospection<Object> beanIntrospection,
-            TypeRuntimeWiring.Builder typeRuntimeWiringBuilder
-    ) {
+    private void processFieldDefinition(FieldDefinition fieldDefinition, ObjectTypeDefinition objectTypeDefinition,
+                                        TypeRuntimeWiring.Builder typeRuntimeWiringBuilder,
+                                        BeanIntrospection<Object> beanIntrospection) {
         MappingContext mappingContext = MappingContext.forField(objectTypeDefinition, fieldDefinition);
 
         Optional<BeanProperty<Object, Object>> beanProperty =
@@ -657,7 +634,7 @@ class GraphQLRuntimeWiringGenerator {
                     getPropertyMethodName(beanProperty.get())
             );
 
-            checkInputValueDefinitions(mappingContext, beanProperty.get());
+            checkInputValueDefinitions(beanProperty.get(), mappingContext);
 
             processArgument(argument, mappingContext);
 
@@ -668,13 +645,12 @@ class GraphQLRuntimeWiringGenerator {
             BeanMethod<Object, ?> beanMethod = beanMethods.get(0);
 
             processExecutableMethod(
-                    objectTypeDefinition,
-                    fieldDefinition,
-                    typeRuntimeWiringBuilder,
                     beanMethod,
                     beanMethod.getReturnType(),
                     null,
-                    null
+                    null,
+                    typeRuntimeWiringBuilder,
+                    MappingContext.forField(objectTypeDefinition, fieldDefinition)
             );
 
             return;
@@ -698,18 +674,17 @@ class GraphQLRuntimeWiringGenerator {
         ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 
         processExecutableMethod(
-                objectTypeDefinition,
-                fieldDefinition,
-                typeRuntimeWiringBuilder,
                 executable,
                 executable.getReturnType(),
                 sourceClass,
-                applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
+                applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition()),
+                typeRuntimeWiringBuilder,
+                MappingContext.forField(objectTypeDefinition, fieldDefinition)
         );
     }
 
-    private void processInputObjectTypeDefinition(InputObjectTypeDefinition objectTypeDefinition,
-                                                  MappingContext mappingContext, Class<?> targetClass) {
+    private void processInputObjectTypeDefinition(InputObjectTypeDefinition objectTypeDefinition, Class<?> targetClass,
+                                                  MappingContext mappingContext) {
         BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED
                 .findIntrospection((Class<Object>) targetClass)
                 .orElseThrow(() -> new ClassNotIntrospectedException(mappingContext, targetClass, GraphQLInput.class));
@@ -760,7 +735,8 @@ class GraphQLRuntimeWiringGenerator {
             // TODO process sub types
             //throw new UnsupportedOperationException();
         } else if (fieldType instanceof TypeName) {
-            processInputType((TypeName) fieldType, null, returnType);
+            // TODO
+            processInputType((TypeName) fieldType, returnType, null);
         } else {
             // TODO
             throw new RuntimeException("Unknown field type: " + fieldType);
@@ -768,11 +744,11 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     @Nullable
-    private Class<?> processInputType(TypeName typeName, MappingContext mappingContext, Class<?> clazz) {
+    private Class<?> processInputType(TypeName typeName, Class<?> clazz, MappingContext mappingContext) {
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
-            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, mappingContext, clazz);
+            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, clazz, mappingContext);
 
             return clazz;
         } else if (typeDefinition instanceof EnumTypeDefinition) {
