@@ -46,13 +46,7 @@ public class UnionTypeResolver implements TypeResolver {
     public GraphQLObjectType getType(TypeResolutionEnvironment env) {
         String graphQlType = objectTypes.get(env.getObject().getClass());
 
-        if (graphQlType == null) {
-            // TODO custom exception
-            throw new RuntimeException("Unregistered GraphQL type: " + env.getObject().getClass());
-        }
-
-        GraphQLObjectType graphQLObjectType = graphQLSchemaProvider.get().getObjectType(graphQlType);
-        return graphQLObjectType;
+        return graphQLSchemaProvider.get().getObjectType(graphQlType);
     }
 
 }
