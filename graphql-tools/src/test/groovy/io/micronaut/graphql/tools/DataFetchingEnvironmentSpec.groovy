@@ -10,6 +10,7 @@ import org.intellij.lang.annotations.Language
 
 import static java.util.Arrays.asList
 
+// TODO split into three tests
 class DataFetchingEnvironmentSpec extends AbstractTest {
 
     static final String SPEC_NAME = "DataFetchingEnvironmentSpec"
