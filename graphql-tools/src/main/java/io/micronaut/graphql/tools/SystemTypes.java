@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// TODO unmodified types
+import static java.util.Collections.unmodifiableSet;
 
 /**
  * @author Alexey Zhokhov
@@ -45,16 +45,16 @@ public final class SystemTypes {
 
     // https://www.graphql-java.com/documentation/scalars
     static {
-        SYSTEM_TYPES.put("String", new HashSet<>(Collections.singletonList(String.class)));
-        SYSTEM_TYPES.put("Boolean", new HashSet<>(Arrays.asList(boolean.class, Boolean.class)));
-        SYSTEM_TYPES.put("Int", new HashSet<>(Arrays.asList(int.class, Integer.class)));
-        SYSTEM_TYPES.put("Float", new HashSet<>(Arrays.asList(float.class, Float.class)));
-        SYSTEM_TYPES.put("ID", new HashSet<>(Collections.singletonList(String.class)));
+        SYSTEM_TYPES.put("String", unmodifiableSet(new HashSet<>(Collections.singletonList(String.class))));
+        SYSTEM_TYPES.put("Boolean", unmodifiableSet(new HashSet<>(Arrays.asList(boolean.class, Boolean.class))));
+        SYSTEM_TYPES.put("Int", unmodifiableSet(new HashSet<>(Arrays.asList(int.class, Integer.class))));
+        SYSTEM_TYPES.put("Float", unmodifiableSet(new HashSet<>(Arrays.asList(float.class, Float.class))));
+        SYSTEM_TYPES.put("ID", unmodifiableSet(new HashSet<>(Collections.singletonList(String.class))));
 
-        SYSTEM_TYPES.put("Long", new HashSet<>(Arrays.asList(long.class, Long.class)));
-        SYSTEM_TYPES.put("Short", new HashSet<>(Arrays.asList(short.class, Short.class)));
-        SYSTEM_TYPES.put("BigDecimal", new HashSet<>(Collections.singletonList(BigDecimal.class)));
-        SYSTEM_TYPES.put("BigInteger", new HashSet<>(Collections.singletonList(BigInteger.class)));
+        SYSTEM_TYPES.put("Long", unmodifiableSet(new HashSet<>(Arrays.asList(long.class, Long.class))));
+        SYSTEM_TYPES.put("Short", unmodifiableSet(new HashSet<>(Arrays.asList(short.class, Short.class))));
+        SYSTEM_TYPES.put("BigDecimal", unmodifiableSet(new HashSet<>(Collections.singletonList(BigDecimal.class))));
+        SYSTEM_TYPES.put("BigInteger", unmodifiableSet(new HashSet<>(Collections.singletonList(BigInteger.class))));
     }
 
     private static final Set<Class<?>> SYSTEM_TYPES_CACHE = SYSTEM_TYPES.values().stream()
