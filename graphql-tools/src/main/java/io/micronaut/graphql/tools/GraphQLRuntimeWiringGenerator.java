@@ -54,6 +54,7 @@ import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MappingConflictException;
 import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
+import io.micronaut.graphql.tools.exceptions.RootResolverNotFoundException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException;
 import io.micronaut.graphql.tools.exceptions.UnionTypeMappingNotProvidedException;
 import io.micronaut.graphql.tools.schema.DefaultWiringFactory;
@@ -132,6 +133,10 @@ class GraphQLRuntimeWiringGenerator {
     RuntimeWiring generate() {
         SchemaDefinition schemaDefinition = typeDefinitionRegistry.schemaDefinition()
                 .orElseThrow(SchemaDefinitionNotProvidedException::new);
+
+        if (!graphQLResolversRegistry.hasRootResolvers()) {
+            throw new RootResolverNotFoundException();
+        }
 
         for (OperationTypeDefinition operationTypeDefinition : schemaDefinition.getOperationTypeDefinitions()) {
             processOperationTypeDefinition(operationTypeDefinition);

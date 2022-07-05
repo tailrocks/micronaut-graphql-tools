@@ -29,9 +29,11 @@ import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +79,10 @@ public class GraphQLResolversRegistry {
                 .addExecutableMethod(method);
     }
 
+    boolean hasRootResolvers() {
+        return !rootResolvers.isEmpty();
+    }
+
     BeanDefinitionAndMethod getRootExecutableMethod(@NonNull String methodName) {
         for (BeanDefinitionAndMethods item : rootResolvers) {
             for (ExecutableMethod<Object, ?> executableMethod : item.getExecutableMethods()) {
@@ -88,6 +94,7 @@ public class GraphQLResolversRegistry {
 
         List<Class<?>> resolvers = rootResolvers.stream()
                 .map(it -> it.getBeanDefinition().getBeanType())
+                .sorted(Comparator.comparing((Function<Class<?>, String>) Class::getName))
                 .collect(Collectors.toList());
 
         throw MethodNotFoundException.forRoot(methodName, resolvers);
