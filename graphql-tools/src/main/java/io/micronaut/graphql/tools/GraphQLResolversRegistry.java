@@ -100,7 +100,6 @@ public class GraphQLResolversRegistry {
         throw MethodNotFoundException.forRoot(methodName, resolvers);
     }
 
-    // TODO throw an exception
     BeanDefinitionAndMethod getTypeExecutableMethod(@NonNull Class<?> beanType,
                                                     @NonNull String methodName) {
         List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);

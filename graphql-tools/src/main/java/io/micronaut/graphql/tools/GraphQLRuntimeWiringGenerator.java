@@ -147,8 +147,7 @@ class GraphQLRuntimeWiringGenerator {
 
     private TypeDefinition<?> getTypeDefinition(TypeName typeName) {
         return typeDefinitionRegistry.getType(typeName.getName()).orElseThrow(() -> {
-            // TODO
-            throw new RuntimeException("TypeDefinition not found by name: " + typeName.getName());
+            throw new IllegalStateException("TypeDefinition not found by name: " + typeName.getName());
         });
     }
 
