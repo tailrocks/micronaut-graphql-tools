@@ -57,17 +57,29 @@ final class MicronautUtils {
         return argument;
     }
 
-    static String getExecutableMethodFullName(Executable<?, ?> executable) {
+    static String getMethodName(Executable<?, ?> executable) {
         if (executable instanceof ExecutableMethod) {
             ExecutableMethod<?, ?> executableMethod = (ExecutableMethod<?, ?>) executable;
-
-            String args = Arrays.stream(executableMethod.getArguments())
-                    .map(arg -> arg.getTypeString(false) + " " + arg.getName())
-                    .collect(Collectors.joining(", "));
-            return executableMethod.getName() + "(" + args + ")";
+            return executableMethod.getName();
         } else if (executable instanceof BeanMethod) {
             BeanMethod<?, ?> beanMethod = (BeanMethod<?, ?>) executable;
             return beanMethod.getName();
+        } else {
+            throw new UnsupportedOperationException("Unsupported executable class: " + executable.getClass());
+        }
+    }
+
+    static String getExecutableMethodFullName(Executable<?, ?> executable) {
+        String args = Arrays.stream(executable.getArguments())
+                .map(arg -> arg.getTypeString(false) + " " + arg.getName())
+                .collect(Collectors.joining(", "));
+
+        if (executable instanceof ExecutableMethod) {
+            ExecutableMethod<?, ?> executableMethod = (ExecutableMethod<?, ?>) executable;
+            return executableMethod.getName() + "(" + args + ")";
+        } else if (executable instanceof BeanMethod) {
+            BeanMethod<?, ?> beanMethod = (BeanMethod<?, ?>) executable;
+            return beanMethod.getName() + "(" + args + ")";
         } else {
             throw new UnsupportedOperationException("Unsupported executable class: " + executable.getClass());
         }

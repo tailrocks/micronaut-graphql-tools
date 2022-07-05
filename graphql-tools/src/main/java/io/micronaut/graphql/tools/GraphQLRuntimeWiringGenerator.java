@@ -174,8 +174,8 @@ class GraphQLRuntimeWiringGenerator {
         processArgument(returnType.asArgument(), mappingContext);
     }
 
-    private void checkInputValueDefinitions(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
-                                            MappingContext mappingContext) {
+    private void checkArgumentsCount(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
+                                     MappingContext mappingContext) {
         int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
 
         if (sourceClass != null) {
@@ -194,6 +194,44 @@ class GraphQLRuntimeWiringGenerator {
             return;
         }
 
+        if (currentArgs > requiredArgs) {
+            throw new IncorrectArgumentCountException(
+                    mappingContext,
+                    false,
+                    currentArgs,
+                    requiredArgs,
+                    generateSuggestedMethod(getMethodName(executable), sourceClass, mappingContext)
+            );
+        } else {
+            throw new IncorrectArgumentCountException(
+                    mappingContext,
+                    true,
+                    currentArgs,
+                    requiredArgs,
+                    generateSuggestedMethod(getMethodName(executable), sourceClass, mappingContext)
+            );
+        }
+    }
+
+    private void checkArgumentsCount(BeanProperty<?, ?> beanProperty, MappingContext mappingContext) {
+        if (mappingContext.getFieldDefinition().getInputValueDefinitions().isEmpty()) {
+            return;
+        }
+
+        int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
+        if (requiredArgs > 0) {
+            throw new IncorrectArgumentCountException(
+                    mappingContext,
+                    true,
+                    0,
+                    requiredArgs,
+                    generateSuggestedMethod(getMethodName(beanProperty.getName()), null, mappingContext)
+            );
+        }
+    }
+
+    private String generateSuggestedMethod(String methodName, @Nullable Class<?> sourceClass,
+                                           MappingContext mappingContext) {
         ArrayList<String> suggestedMethodArgs = new ArrayList<>();
 
         if (sourceClass != null) {
@@ -208,43 +246,13 @@ class GraphQLRuntimeWiringGenerator {
                         .collect(Collectors.toList())
         );
 
-        String suggestedMethodArgsAsString = suggestedMethodArgs.isEmpty()
-                ? null : "(" + String.join(", ", suggestedMethodArgs) + ")";
-
-        if (currentArgs > requiredArgs) {
-            throw new IncorrectArgumentCountException(
-                    mappingContext,
-                    false,
-                    currentArgs,
-                    requiredArgs,
-                    suggestedMethodArgsAsString
-            );
-        } else {
-            throw new IncorrectArgumentCountException(
-                    mappingContext,
-                    true,
-                    currentArgs,
-                    requiredArgs,
-                    suggestedMethodArgsAsString
-            );
-        }
+        return suggestedMethodArgs.isEmpty() ? null : methodName + "(" + String.join(", ", suggestedMethodArgs) + ")";
     }
 
-    private void checkInputValueDefinitions(BeanProperty<?, ?> beanProperty, MappingContext mappingContext) {
-        if (mappingContext.getFieldDefinition().getInputValueDefinitions().size() == 0) {
-            return;
-        }
-
-        int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
-        if (requiredArgs > 0) {
-            // TODO custom exception
-            throw new RuntimeException("Too less arguments in the property `" + beanProperty.getName() + "` (" + beanProperty.getDeclaringType() + "), required " + requiredArgs + " (excluded DataFetchingEnvironment)");
-        }
-    }
-
+    // TODO rename me pls
     private List<ArgumentDetails> processInputArguments(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
                                                         MappingContext mappingContext) {
-        checkInputValueDefinitions(executable, sourceClass, mappingContext);
+        checkArgumentsCount(executable, sourceClass, mappingContext);
 
         List<InputValueDefinition> inputs = mappingContext.getFieldDefinition().getInputValueDefinitions();
         List<Argument<?>> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
@@ -633,7 +641,8 @@ class GraphQLRuntimeWiringGenerator {
                     getPropertyMethodName(beanProperty.get())
             );
 
-            checkInputValueDefinitions(beanProperty.get(), mappingContext);
+            // the bean property don't have arguments, that's why we only validates arguments count, not exact types
+            checkArgumentsCount(beanProperty.get(), mappingContext);
 
             processArgument(argument, mappingContext);
 

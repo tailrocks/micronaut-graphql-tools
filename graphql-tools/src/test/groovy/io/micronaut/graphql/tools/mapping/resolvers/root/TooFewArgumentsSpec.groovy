@@ -32,7 +32,7 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectArgumentCountException
-            e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): (ID uid)
+            e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): username(ID uid)
   GraphQL type: Query
   GraphQL field: username
   Mapped class: ${Query1.name}
