@@ -61,7 +61,7 @@ type Query {
             startContext(schema, SPEC_NAME)
 
         when:
-            executeQuery('{hello}')
+            getGraphQLBean()
 
         then:
             def e = thrown(BeanInstantiationException)
