@@ -15,6 +15,9 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author Alexey Zhokhov
  */
@@ -22,8 +25,36 @@ public class MethodNotFoundException extends RuntimeException {
 
     private final String methodName;
 
-    public MethodNotFoundException(String methodName) {
-        super(String.format("The method `%s` not found in any GraphQL query resolvers.", methodName));
+    public static MethodNotFoundException forRoot(String methodName, List<Class<?>> resolvers) {
+        return new MethodNotFoundException(
+                String.format(
+                        "The method `%s` not found in any root resolvers: %s.",
+                        methodName,
+                        "[" + resolvers.stream()
+                                .map(Class::getName)
+                                .collect(Collectors.joining(", ")) + "]"
+                ),
+                methodName
+        );
+    }
+
+    public static MethodNotFoundException forType(String methodName, Class<?> objectTypeClass,
+                                                  List<Class<?>> resolvers) {
+        return new MethodNotFoundException(
+                String.format(
+                        "The method `%s` not found in %s's type resolvers: %s.",
+                        methodName,
+                        objectTypeClass.getName(),
+                        "[" + resolvers.stream()
+                                .map(Class::getName)
+                                .collect(Collectors.joining(", ")) + "]"
+                ),
+                methodName
+        );
+    }
+
+    private MethodNotFoundException(String message, String methodName) {
+        super(message);
         this.methodName = methodName;
     }
 

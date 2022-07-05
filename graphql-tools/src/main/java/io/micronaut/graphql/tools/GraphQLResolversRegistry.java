@@ -28,10 +28,11 @@ import io.micronaut.inject.ExecutableMethod;
 import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexey Zhokhov
@@ -84,27 +85,36 @@ public class GraphQLResolversRegistry {
                 }
             }
         }
-        throw new MethodNotFoundException(methodName);
+
+        List<Class<?>> resolvers = rootResolvers.stream()
+                .map(it -> it.getBeanDefinition().getBeanType())
+                .collect(Collectors.toList());
+
+        throw MethodNotFoundException.forRoot(methodName, resolvers);
     }
 
     // TODO throw an exception
-    Optional<BeanDefinitionAndMethod> getTypeExecutableMethod(@NonNull Class<?> beanType,
-                                                              @NonNull String methodName) {
+    BeanDefinitionAndMethod getTypeExecutableMethod(@NonNull Class<?> beanType,
+                                                    @NonNull String methodName) {
         List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);
 
-        if (items == null) {
-            return Optional.empty();
-        }
-
-        for (BeanDefinitionAndMethods item : items) {
-            for (ExecutableMethod<Object, ?> executableMethod : item.getExecutableMethods()) {
-                if (executableMethod.getMethodName().equals(methodName)) {
-                    return Optional.of(new BeanDefinitionAndMethod(item.getBeanDefinition(), executableMethod));
+        if (items != null) {
+            for (BeanDefinitionAndMethods item : items) {
+                for (ExecutableMethod<Object, ?> executableMethod : item.getExecutableMethods()) {
+                    if (executableMethod.getMethodName().equals(methodName)) {
+                        return new BeanDefinitionAndMethod(item.getBeanDefinition(), executableMethod);
+                    }
                 }
             }
         }
 
-        return Optional.empty();
+        List<Class<?>> resolvers = items != null
+                ? items.stream()
+                .map(it -> it.getBeanDefinition().getBeanType())
+                .collect(Collectors.toList())
+                : Collections.emptyList();
+
+        throw MethodNotFoundException.forType(methodName, beanType, resolvers);
     }
 
 }

@@ -28,7 +28,7 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
-            e.cause.message == 'The method `hello` not found in any GraphQL query resolvers.'
+            e.cause.message == 'The method `hello` not found in any root resolvers: []'
             e.cause.methodName == 'hello'
     }
 
@@ -57,7 +57,7 @@ type Mutation {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
-            e.cause.message == 'The method `hello` not found in any GraphQL query resolvers.'
+            e.cause.message == 'The method `hello` not found in any root resolvers: [].'
             e.cause.methodName == 'hello'
     }
 

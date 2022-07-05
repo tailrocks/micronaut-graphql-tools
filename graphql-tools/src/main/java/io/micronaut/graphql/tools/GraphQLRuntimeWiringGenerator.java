@@ -696,12 +696,8 @@ class GraphQLRuntimeWiringGenerator {
                 );
             }
 
-            // TODO better exception
             BeanDefinitionAndMethod beanDefinitionAndMethod = graphQLResolversRegistry
-                    .getTypeExecutableMethod(interfaceClass, fieldDefinition.getName())
-                    .orElseThrow(() -> new RuntimeException("Property or method `" + fieldDefinition.getName() + "` not found: " + beanIntrospection.getBeanType()));
-
-            // TODO validate parameters for executable method
+                    .getTypeExecutableMethod(interfaceClass, fieldDefinition.getName());
 
             ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 
