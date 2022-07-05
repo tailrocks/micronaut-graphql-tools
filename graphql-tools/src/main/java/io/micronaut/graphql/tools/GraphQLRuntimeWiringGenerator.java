@@ -202,7 +202,6 @@ class GraphQLRuntimeWiringGenerator {
             suggestedMethodArgs.add(sourceClass.getName() + " " + parameterName);
         }
 
-        // TODO map arguments to real classes?
         suggestedMethodArgs.addAll(
                 mappingContext.getFieldDefinition().getInputValueDefinitions().stream()
                         .map(it -> getTypeName(it.getType()).getName() + " " + it.getName())

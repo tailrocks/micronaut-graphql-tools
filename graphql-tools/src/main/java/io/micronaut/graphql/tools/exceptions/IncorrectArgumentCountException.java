@@ -27,14 +27,14 @@ public class IncorrectArgumentCountException extends AbstractMappingException {
     private final int requiredCount;
 
     public IncorrectArgumentCountException(MappingContext mappingContext, boolean few, int providedCount,
-                                           int requiredCount, @Nullable String requiredMethodArgs) {
+                                           int requiredCount, @Nullable String suggestedMethodArgs) {
         super(
                 String.format(
                         "The method has too %s arguments, provided: %s, required %s arg(s)%s",
                         few ? "few" : "many",
                         providedCount,
                         requiredCount,
-                        requiredMethodArgs != null ? ": " + requiredMethodArgs : "."
+                        suggestedMethodArgs != null ? ": " + suggestedMethodArgs : "."
                 ),
                 mappingContext
         );
