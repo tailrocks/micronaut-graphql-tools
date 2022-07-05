@@ -46,6 +46,7 @@ import io.micronaut.core.beans.BeanMethod;
 import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
+import io.micronaut.core.type.ReturnType;
 import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
@@ -164,7 +165,6 @@ class GraphQLRuntimeWiringGenerator {
         });
     }
 
-    // TODO consider merge with processFieldDefinition
     private void processRootFieldDefinition(
             FieldDefinition fieldDefinition,
             ObjectTypeDefinition objectTypeDefinition,
@@ -175,29 +175,15 @@ class GraphQLRuntimeWiringGenerator {
 
         ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 
-        MappingContext mappingContext = MappingContext.forField(
+        processExecutableMethod(
                 objectTypeDefinition,
                 fieldDefinition,
-                executable.getDeclaringType(),
-                getExecutableMethodFullName(executable)
-        );
-
-        checkInputValueDefinitions(mappingContext, executable, null);
-
-        List<ArgumentDetails> argumentDetails = processInputArguments(
-                mappingContext, executable, null
-        );
-
-        typeRuntimeWiringBuilder.dataFetcher(fieldDefinition.getName(), new MicronautExecutableMethodDataFetcher(
-                objectMapper,
+                typeRuntimeWiringBuilder,
                 executable,
-                argumentDetails,
+                executable.getReturnType(),
+                null,
                 applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
-        ));
-
-        Class<?> returnType = unwrapArgument(executable.getReturnType().asArgument()).getType();
-
-        processReturnType(returnType, mappingContext, mappingContext.getFieldDefinition().getType());
+        );
     }
 
     private List<ArgumentDetails> processInputArguments(
@@ -470,7 +456,7 @@ class GraphQLRuntimeWiringGenerator {
 
     private void checkInputValueDefinitions(MappingContext mappingContext,
                                             Executable<?, ?> executable,
-                                            Class<?> sourceClass) {
+                                            @Nullable Class<?> sourceClass) {
         int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
 
         if (sourceClass != null) {
@@ -504,8 +490,8 @@ class GraphQLRuntimeWiringGenerator {
                         .collect(Collectors.toList())
         );
 
-        String suggestedMethodArgsAsString = suggestedMethodArgs.isEmpty() ? null : "(" + suggestedMethodArgs.stream()
-                .collect(Collectors.joining(", ")) + ")";
+        String suggestedMethodArgsAsString = suggestedMethodArgs.isEmpty()
+                ? null : "(" + String.join(", ", suggestedMethodArgs) + ")";
 
         if (currentArgs > requiredArgs) {
             throw new IncorrectArgumentCountException(
@@ -687,45 +673,7 @@ class GraphQLRuntimeWiringGenerator {
             throw new RuntimeException("Found multiple bean methods `" + fieldDefinition.getName() + "`: " + beanIntrospection.getBeanType());
         }
 
-        if (!beanProperty.isPresent() && beanMethods.isEmpty()) {
-            Class<?> interfaceClass = graphQLBeanIntrospectionRegistry.getInterfaceClass(beanIntrospection.getBeanType());
-
-            if (interfaceClass.isPrimitive() || interfaceClass.isEnum() || interfaceClass.isAnnotation()) {
-                throw IncorrectClassMappingException.forField(
-                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                        IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
-                        mappingContext,
-                        interfaceClass,
-                        null
-                );
-            }
-
-            BeanDefinitionAndMethod beanDefinitionAndMethod = graphQLResolversRegistry
-                    .getTypeExecutableMethod(interfaceClass, fieldDefinition.getName());
-
-            ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
-
-            mappingContext = MappingContext.forField(mappingContext, executable.getDeclaringType(),
-                    getExecutableMethodFullName(executable));
-
-            // count with source argument
-            checkInputValueDefinitions(mappingContext, executable, interfaceClass);
-
-            List<ArgumentDetails> argumentDetails = processInputArguments(
-                    mappingContext, executable, interfaceClass
-            );
-
-            typeRuntimeWiringBuilder.dataFetcher(fieldDefinition.getName(), new MicronautExecutableMethodDataFetcher(
-                    objectMapper,
-                    executable,
-                    argumentDetails,
-                    applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
-            ));
-
-            Argument<?> argument = executable.getReturnType().asArgument();
-
-            processArgument(argument, mappingContext);
-        } else if (beanProperty.isPresent()) {
+        if (beanProperty.isPresent()) {
             Argument<?> argument = beanProperty.get().asArgument();
 
             mappingContext = MappingContext.forField(mappingContext, beanIntrospection.getBeanType(),
@@ -734,29 +682,84 @@ class GraphQLRuntimeWiringGenerator {
             checkInputValueDefinitions(mappingContext, beanProperty.get());
 
             processArgument(argument, mappingContext);
-        } else if (!beanMethods.isEmpty()) {
+
+            return;
+        }
+
+        if (!beanMethods.isEmpty()) {
             BeanMethod<Object, ?> beanMethod = beanMethods.get(0);
 
-            mappingContext = MappingContext.forField(mappingContext, beanMethod.getDeclaringType(),
-                    getExecutableMethodFullName(beanMethod));
-
-            checkInputValueDefinitions(mappingContext, beanMethod, null);
-
-            List<ArgumentDetails> argumentDetails = processInputArguments(
-                    mappingContext, beanMethod, null
+            processExecutableMethod(
+                    objectTypeDefinition,
+                    fieldDefinition,
+                    typeRuntimeWiringBuilder,
+                    beanMethod,
+                    beanMethod.getReturnType(),
+                    null,
+                    null
             );
 
-            typeRuntimeWiringBuilder.dataFetcher(fieldDefinition.getName(), new MicronautExecutableMethodDataFetcher(
-                    objectMapper,
-                    beanMethod,
-                    argumentDetails,
-                    null
-            ));
-
-            Argument<?> argument = beanMethod.getReturnType().asArgument();
-
-            processArgument(argument, mappingContext);
+            return;
         }
+
+        Class<?> sourceClass = graphQLBeanIntrospectionRegistry.getInterfaceClass(beanIntrospection.getBeanType());
+
+        if (sourceClass.isPrimitive() || sourceClass.isEnum() || sourceClass.isAnnotation()) {
+            throw IncorrectClassMappingException.forField(
+                    IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                    IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
+                    mappingContext,
+                    sourceClass,
+                    null
+            );
+        }
+
+        BeanDefinitionAndMethod beanDefinitionAndMethod = graphQLResolversRegistry
+                .getTypeExecutableMethod(sourceClass, fieldDefinition.getName());
+
+        ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
+
+        processExecutableMethod(
+                objectTypeDefinition,
+                fieldDefinition,
+                typeRuntimeWiringBuilder,
+                executable,
+                executable.getReturnType(),
+                sourceClass,
+                applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition())
+        );
+    }
+
+    void processExecutableMethod(
+            ObjectTypeDefinition objectTypeDefinition,
+            FieldDefinition fieldDefinition,
+            TypeRuntimeWiring.Builder typeRuntimeWiringBuilder,
+            Executable<Object, ?> executable,
+            ReturnType<?> returnType,
+            @Nullable Class<?> sourceClass,
+            @Nullable Object instance
+    ) {
+        MappingContext mappingContext = MappingContext.forField(
+                objectTypeDefinition,
+                fieldDefinition,
+                executable.getDeclaringType(),
+                getExecutableMethodFullName(executable)
+        );
+
+        checkInputValueDefinitions(mappingContext, executable, sourceClass);
+
+        List<ArgumentDetails> argumentDetails = processInputArguments(mappingContext, executable, sourceClass);
+
+        typeRuntimeWiringBuilder.dataFetcher(fieldDefinition.getName(), new MicronautExecutableMethodDataFetcher(
+                objectMapper,
+                executable,
+                argumentDetails,
+                instance
+        ));
+
+        Argument<?> argument = returnType.asArgument();
+
+        processArgument(argument, mappingContext);
     }
 
     private boolean registerBeanIntrospectionMapping(String type, BeanIntrospection<?> beanIntrospection) {

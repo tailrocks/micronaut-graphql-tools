@@ -77,6 +77,7 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
         }
 
         if (instance != null) {
+            // execute root query
             return executable.invoke(instance, arguments.toArray());
         } else {
             return executable.invoke(environment.getSource(), arguments.toArray());
