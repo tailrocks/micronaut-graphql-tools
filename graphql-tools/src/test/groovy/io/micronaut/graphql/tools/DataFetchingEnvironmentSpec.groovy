@@ -2,6 +2,7 @@ package io.micronaut.graphql.tools
 
 import graphql.schema.DataFetchingEnvironment
 import io.micronaut.context.annotation.Requires
+import io.micronaut.graphql.tools.annotation.GraphQLParameterized
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
@@ -13,7 +14,7 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
 
     static final String SPEC_NAME = "DataFetchingEnvironmentSpec"
 
-    void "test DataFetchingEnvironment passed to GraphQLRootResolver"() {
+    void "test DataFetchingEnvironment passed to GraphQLRootResolver's method"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -32,7 +33,26 @@ class DataFetchingEnvironmentSpec extends AbstractTest {
             result.data.userSignedIn.email == 'me@test.com'
     }
 
-    void "test DataFetchingEnvironment passed to GraphQLTypeResolver"() {
+    void "test DataFetchingEnvironment passed to GraphQLType's method"() {
+        given:
+            startContext(SCHEMA, SPEC_NAME)
+
+        when:
+            def result = executeQuery("""
+{ 
+    userSignedIn {
+        username
+    }
+}
+""")
+
+        then:
+            result.errors.isEmpty()
+            result.dataPresent
+            result.data.userSignedIn.username == 'test'
+    }
+
+    void "test DataFetchingEnvironment passed to GraphQLTypeResolver's method"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -67,6 +87,7 @@ type Query {
 
 type User {
   email: String!
+  username: String!
   paymentMethodList: [PaymentMethod!]!
 }
 
@@ -79,10 +100,33 @@ type PaymentMethod {
     @GraphQLRootResolver
     static class Query {
         User userSignedIn(DataFetchingEnvironment env) {
-            if (env == null) {
-                throw new NullPointerException()
-            }
-            return new User('me@test.com')
+            assert env != null
+            assert env.field.name == 'userSignedIn'
+            assert env.parentType.name == 'Query'
+            return new User('me@test.com', 'test')
+        }
+    }
+
+    @GraphQLType
+    static class User {
+        private final String email
+        private final String username
+
+        User(String email, String username) {
+            this.email = email
+            this.username = username
+        }
+
+        String getEmail() {
+            return email
+        }
+
+        @GraphQLParameterized
+        String getUsername(DataFetchingEnvironment env) {
+            assert env != null
+            assert env.field.name == 'username'
+            assert env.parentType.name == 'User'
+            return username
         }
     }
 
@@ -90,29 +134,13 @@ type PaymentMethod {
     @GraphQLTypeResolver(User.class)
     static class UserResolver {
         List<PaymentMethod> paymentMethodList(User user, DataFetchingEnvironment env) {
-            if (user == null) {
-                throw new NullPointerException()
-            }
-            if (env == null) {
-                throw new NullPointerException()
-            }
+            assert env != null
+            assert env.field.name == 'paymentMethodList'
+            assert env.parentType.name == 'User'
             return asList(
                     new PaymentMethod('123'),
                     new PaymentMethod('456')
             )
-        }
-    }
-
-    @GraphQLType
-    static class User {
-        private final String email
-
-        User(String email) {
-            this.email = email
-        }
-
-        String getEmail() {
-            return email
         }
     }
 
