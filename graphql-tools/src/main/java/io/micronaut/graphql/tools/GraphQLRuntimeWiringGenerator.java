@@ -265,8 +265,6 @@ class GraphQLRuntimeWiringGenerator {
                 .map(TypeInformation::getType)
                 .collect(Collectors.toList());
 
-        // TODO validates the first argument is source argument
-
         boolean containsSourceArgument = false;
 
         if (sourceClass != null) {
