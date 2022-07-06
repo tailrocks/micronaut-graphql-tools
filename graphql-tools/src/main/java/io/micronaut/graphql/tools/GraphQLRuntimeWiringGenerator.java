@@ -268,27 +268,6 @@ class GraphQLRuntimeWiringGenerator {
         boolean containsSourceArgument = false;
 
         if (sourceClass != null) {
-            // TODO, do we still need it
-            /*
-            if (sourceClass.isInterface()) {
-                if (sourceClass.isAssignableFrom(argumentClasses.get(0))) {
-                    argumentClasses.remove(0);
-
-                    containsSourceArgument = true;
-                } else {
-                    throw new InvalidSourceArgumentException(
-                            objectTypeDefinition.getName(),
-                            fieldDefinition.getName(),
-                            executable.getDeclaringType(),
-                            getExecutableMethodFullName(executable),
-                            argumentClasses.get(0),
-                            sourceClass
-                    );
-                }
-            } else {
-
-             */
-
             if (argumentClasses.get(0).equals(sourceClass)) {
                 argumentClasses.remove(0);
 
@@ -300,12 +279,6 @@ class GraphQLRuntimeWiringGenerator {
                         sourceClass
                 );
             }
-
-            // TODO need it?
-                /*
-            }
-
-                 */
         }
 
         boolean containsEnvironmentArgument = false;

@@ -1,6 +1,6 @@
 package io.micronaut.graphql.tools.mapping.resolvers.root
 
-import groovy.transform.CompileStatic
+
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -58,7 +58,6 @@ type ValidationError {
             e.cause.mappingContext.mappedMethod == 'unionTest()'
     }
 
-    @CompileStatic
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
@@ -67,23 +66,19 @@ type ValidationError {
         }
     }
 
-    @CompileStatic
     static interface PayloadError {
     }
 
-    @CompileStatic
     @GraphQLType
     static class SecurityError implements PayloadError {
         String code = "AUTH"
     }
 
-    @CompileStatic
     @GraphQLType
     static class ValidationError implements PayloadError {
         Integer code = 123
     }
 
-    @CompileStatic
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @io.micronaut.context.annotation.Factory
     static class GraphQLFactory {
