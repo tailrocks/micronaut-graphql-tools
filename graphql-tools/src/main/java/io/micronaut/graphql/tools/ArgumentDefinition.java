@@ -24,7 +24,7 @@ import java.util.Optional;
  * @author Alexey Zhokhov
  */
 @Internal
-public class ArgumentDetails {
+public class ArgumentDefinition {
 
     public static final String SOURCE_ARGUMENT = "* SOURCE *";
     public static final String DATA_FETCHING_ENVIRONMENT_ARGUMENT = "* DFE *";
@@ -34,7 +34,7 @@ public class ArgumentDetails {
     @Nullable
     private final Class<?> inputClass;
 
-    public ArgumentDetails(String name, @Nullable Class<?> inputClass) {
+    public ArgumentDefinition(String name, @Nullable Class<?> inputClass) {
         this.name = name;
         this.inputClass = inputClass;
     }

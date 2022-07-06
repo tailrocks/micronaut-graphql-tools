@@ -21,7 +21,7 @@ import graphql.schema.DataFetchingEnvironment;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.type.Executable;
-import io.micronaut.graphql.tools.ArgumentDetails;
+import io.micronaut.graphql.tools.ArgumentDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
 
     private final ObjectMapper objectMapper;
     private final Executable<Object, ?> executable;
-    private final List<ArgumentDetails> argumentDetailsList;
+    private final List<ArgumentDefinition> argumentDefinitions;
 
     @Nullable
     private final Object instance;
@@ -43,12 +43,12 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
     public MicronautExecutableMethodDataFetcher(
             ObjectMapper objectMapper,
             Executable<Object, ?> executable,
-            List<ArgumentDetails> argumentDetailsList,
+            List<ArgumentDefinition> argumentDefinitions,
             @Nullable Object instance
     ) {
         this.objectMapper = objectMapper;
         this.executable = executable;
-        this.argumentDetailsList = new CopyOnWriteArrayList<>(argumentDetailsList);
+        this.argumentDefinitions = new CopyOnWriteArrayList<>(argumentDefinitions);
         this.instance = instance;
     }
 
@@ -56,23 +56,23 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
     public Object get(DataFetchingEnvironment environment) {
         List<Object> arguments = new ArrayList<>();
 
-        for (ArgumentDetails argumentDetails : argumentDetailsList) {
-            if (argumentDetails.getInputClass().isPresent()) {
-                Object argumentValue = environment.getArgument(argumentDetails.getName());
+        for (ArgumentDefinition argumentDefinition : argumentDefinitions) {
+            if (argumentDefinition.getInputClass().isPresent()) {
+                Object argumentValue = environment.getArgument(argumentDefinition.getName());
 
                 if (argumentValue != null) {
-                    Object convertedValue = objectMapper.convertValue(argumentValue, argumentDetails.getInputClass().get());
+                    Object convertedValue = objectMapper.convertValue(argumentValue, argumentDefinition.getInputClass().get());
 
                     arguments.add(convertedValue);
                 } else {
                     arguments.add(null);
                 }
-            } else if (argumentDetails.getName().equals(ArgumentDetails.SOURCE_ARGUMENT)) {
+            } else if (argumentDefinition.getName().equals(ArgumentDefinition.SOURCE_ARGUMENT)) {
                 arguments.add(environment.getSource());
-            } else if (argumentDetails.getName().equals(ArgumentDetails.DATA_FETCHING_ENVIRONMENT_ARGUMENT)) {
+            } else if (argumentDefinition.getName().equals(ArgumentDefinition.DATA_FETCHING_ENVIRONMENT_ARGUMENT)) {
                 arguments.add(environment);
             } else {
-                arguments.add(environment.getArgument(argumentDetails.getName()));
+                arguments.add(environment.getArgument(argumentDefinition.getName()));
             }
         }
 
