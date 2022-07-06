@@ -38,7 +38,6 @@ import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.TypeRuntimeWiring;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.core.annotation.Internal;
-import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.beans.BeanIntrospection;
 import io.micronaut.core.beans.BeanIntrospector;
@@ -99,17 +98,10 @@ class GraphQLRuntimeWiringGenerator {
     private final TypeDefinitionRegistry typeDefinitionRegistry;
     private final SchemaParserDictionary schemaParserDictionary;
     private final Provider<GraphQLSchema> graphQLSchemaProvider;
+    private final ObjectMapper objectMapper;
+    private final RuntimeWiring.Builder rootRuntimeWiringBuilder;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final Map<String, MappingItem> mappingRegistry = new HashMap<>();
-
-    private final RuntimeWiring.Builder rootRuntimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
-            .wiringFactory(new DefaultWiringFactory())
-            .scalar(Scalars.GraphQLLong)
-            .scalar(Scalars.GraphQLShort)
-            .scalar(Scalars.GraphQLBigDecimal)
-            .scalar(Scalars.GraphQLBigInteger);
+    private final Map<String, Class<?>> processedTypes = new HashMap<>();
 
     GraphQLRuntimeWiringGenerator(ApplicationContext applicationContext,
                                   GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry,
@@ -131,7 +123,14 @@ class GraphQLRuntimeWiringGenerator {
         this.schemaParserDictionary = schemaParserDictionary;
         this.graphQLSchemaProvider = graphQLSchemaProvider;
 
-        objectMapper.registerModule(new BeanIntrospectionModule());
+        this.objectMapper = new ObjectMapper()
+                .registerModule(new BeanIntrospectionModule());
+        this.rootRuntimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
+                .wiringFactory(new DefaultWiringFactory())
+                .scalar(Scalars.GraphQLLong)
+                .scalar(Scalars.GraphQLShort)
+                .scalar(Scalars.GraphQLBigDecimal)
+                .scalar(Scalars.GraphQLBigInteger);
     }
 
     RuntimeWiring generate() {
@@ -430,140 +429,116 @@ class GraphQLRuntimeWiringGenerator {
         });
     }
 
-    private void processEnumTypeDefinition(EnumTypeDefinition typeDefinition, Class<?> targetClass, boolean input,
+    private void processEnumTypeDefinition(EnumTypeDefinition enumTypeDefinition, Class<?> targetClass, boolean input,
                                            MappingContext mappingContext) {
-        requireNonNull("typeDefinition", typeDefinition);
-        requireNonNull("targetClass", targetClass);
-
-        if (!targetClass.isEnum()) {
-            if (input) {
-                throw IncorrectClassMappingException.forArgument(
-                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                        IncorrectClassMappingException.MappingType.ENUM,
-                        mappingContext,
-                        targetClass,
-                        null
-                );
-            } else {
-                throw IncorrectClassMappingException.forField(
-                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                        IncorrectClassMappingException.MappingType.ENUM,
-                        mappingContext,
-                        targetClass,
-                        null
-                );
-            }
-        }
-
-        String typeName = typeDefinition.getName();
-
-        MappingItem mappingItem = mappingRegistry.get(typeName);
-
-        if (mappingItem != null) {
-            if (!targetClass.equals(mappingItem.targetEnum)) {
-                throw new MappingConflictException(
-                        mappingContext,
-                        "enum",
-                        typeName,
-                        targetClass,
-                        mappingItem.targetEnum
-                );
+        processIfNotProcessed(enumTypeDefinition, targetClass, mappingContext, () -> {
+            if (!targetClass.isEnum()) {
+                if (input) {
+                    throw IncorrectClassMappingException.forArgument(
+                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                            IncorrectClassMappingException.MappingType.ENUM,
+                            mappingContext,
+                            targetClass,
+                            null
+                    );
+                } else {
+                    throw IncorrectClassMappingException.forField(
+                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                            IncorrectClassMappingException.MappingType.ENUM,
+                            mappingContext,
+                            targetClass,
+                            null
+                    );
+                }
             }
 
-            // already processed
-            return;
-        }
+            List<String> expectedValues = enumTypeDefinition.getEnumValueDefinitions().stream()
+                    .map(EnumValueDefinition::getName)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
 
-        List<String> expectedValues = typeDefinition.getEnumValueDefinitions().stream()
-                .map(EnumValueDefinition::getName)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+            List<String> existingValues = Arrays.stream(targetClass.getEnumConstants()).map(it -> ((Enum<?>) it).name())
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
 
-        List<String> existingValues = Arrays.stream(targetClass.getEnumConstants()).map(it -> ((Enum<?>) it).name())
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+            List<String> missingValues = expectedValues.stream()
+                    .filter(it -> !existingValues.contains(it))
+                    .collect(Collectors.toList());
 
-        List<String> missingValues = expectedValues.stream()
-                .filter(it -> !existingValues.contains(it))
-                .collect(Collectors.toList());
-
-        if (!missingValues.isEmpty()) {
-            throw new MissingEnumValuesException(mappingContext, missingValues);
-        }
-
-        mappingRegistry.put(typeName, new MappingItem(targetClass, null));
+            if (!missingValues.isEmpty()) {
+                throw new MissingEnumValuesException(mappingContext, missingValues);
+            }
+        });
     }
 
     private void processUnionTypeDefinition(UnionTypeDefinition unionTypeDefinition, Class<?> returnType,
                                             MappingContext mappingContext) {
-        // TODO skip processing already processed type
-
-        if (!returnType.isInterface()) {
-            throw IncorrectClassMappingException.forField(
-                    IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                    IncorrectClassMappingException.MappingType.INTERFACE,
-                    mappingContext,
-                    returnType,
-                    null
-            );
-        }
-
-        rootRuntimeWiringBuilder.type(unionTypeDefinition.getName(), typeRuntimeWiringBuilder -> {
-            registerUnionMapping(unionTypeDefinition.getName(), returnType);
-
-            Map<Class<?>, String> objectTypes = new HashMap<>();
-
-            for (Type<?> type : unionTypeDefinition.getMemberTypes()) {
-                TypeName typeName = getTypeName(type);
-                TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
-
-                if (typeDefinition instanceof ObjectTypeDefinition) {
-                    Class<?> clazz = Optional
-                            .ofNullable(schemaParserDictionary.getTypes().get(typeDefinition.getName()))
-                            .orElseThrow(() -> new UnionTypeMappingNotProvidedException(
-                                    mappingContext, typeName.getName(), unionTypeDefinition.getName()
-                            ));
-
-                    processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, clazz, mappingContext);
-
-                    objectTypes.put(clazz, typeName.getName());
-                } else {
-                    throw new UnsupportedOperationException("Unsupported type definition: " + typeDefinition);
-                }
+        processIfNotProcessed(unionTypeDefinition, returnType, mappingContext, () -> {
+            if (!returnType.isInterface()) {
+                throw IncorrectClassMappingException.forField(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.INTERFACE,
+                        mappingContext,
+                        returnType,
+                        null
+                );
             }
 
-            typeRuntimeWiringBuilder.typeResolver(new UnionTypeResolver(graphQLSchemaProvider, objectTypes));
-            return typeRuntimeWiringBuilder;
+            rootRuntimeWiringBuilder.type(unionTypeDefinition.getName(), typeRuntimeWiringBuilder -> {
+                Map<Class<?>, String> objectTypes = new HashMap<>();
+
+                for (Type<?> type : unionTypeDefinition.getMemberTypes()) {
+                    TypeName typeName = getTypeName(type);
+                    TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
+
+                    if (typeDefinition instanceof ObjectTypeDefinition) {
+                        Class<?> clazz = Optional
+                                .ofNullable(schemaParserDictionary.getTypes().get(typeDefinition.getName()))
+                                .orElseThrow(() -> new UnionTypeMappingNotProvidedException(
+                                        mappingContext, typeName.getName(), unionTypeDefinition.getName()
+                                ));
+
+                        processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, clazz, mappingContext);
+
+                        objectTypes.put(clazz, typeName.getName());
+                    } else {
+                        throw new UnsupportedOperationException("Unsupported type definition: " + typeDefinition);
+                    }
+                }
+
+                typeRuntimeWiringBuilder.typeResolver(new UnionTypeResolver(graphQLSchemaProvider, objectTypes));
+                return typeRuntimeWiringBuilder;
+            });
         });
     }
 
     private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, Class<?> returnType,
                                              MappingContext mappingContext) {
-        Optional.ofNullable(schemaParserDictionary.getTypes().get(objectTypeDefinition.getName()))
-                .ifPresent((it) -> {
-                    if (!it.equals(returnType)) {
-                        // TODO compare types
-                    }
-                });
+        processIfNotProcessed(objectTypeDefinition, returnType, mappingContext, () -> {
+            Optional.ofNullable(schemaParserDictionary.getTypes().get(objectTypeDefinition.getName()))
+                    .ifPresent((it) -> {
+                        if (!it.equals(returnType)) {
+                            // TODO compare types
+                        }
+                    });
 
-        if (isJavaBuiltInClass(returnType)) {
-            throw IncorrectClassMappingException.forField(
-                    IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                    IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
+            if (isJavaBuiltInClass(returnType)) {
+                throw IncorrectClassMappingException.forField(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
+                        mappingContext,
+                        returnType,
+                        null
+                );
+            }
+
+            BeanIntrospection<Object> beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
                     mappingContext,
-                    returnType,
-                    null
+                    returnType
             );
-        }
 
-        BeanIntrospection<Object> beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
-                mappingContext,
-                returnType
-        );
-
-        if (registerBeanIntrospectionMapping(objectTypeDefinition.getName(), beanIntrospection)) {
             rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeRuntimeWiringBuilder -> {
                 typeRuntimeWiringBuilder.defaultDataFetcher(new MicronautIntrospectionDataFetcher(beanIntrospection));
 
@@ -578,7 +553,7 @@ class GraphQLRuntimeWiringGenerator {
 
                 return typeRuntimeWiringBuilder;
             });
-        }
+        });
     }
 
     private void processFieldDefinition(FieldDefinition fieldDefinition, ObjectTypeDefinition objectTypeDefinition,
@@ -661,31 +636,31 @@ class GraphQLRuntimeWiringGenerator {
         );
     }
 
-    private void processInputObjectTypeDefinition(InputObjectTypeDefinition objectTypeDefinition, Class<?> targetClass,
-                                                  MappingContext mappingContext) {
-        BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED
-                .findIntrospection((Class<Object>) targetClass)
-                .orElseThrow(() -> new ClassNotIntrospectedException(mappingContext, targetClass, GraphQLInput.class));
+    private void processInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectTypeDefinition,
+                                                  Class<?> targetClass, MappingContext mappingContext) {
+        processIfNotProcessed(inputObjectTypeDefinition, targetClass, mappingContext, () -> {
+            BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED
+                    .findIntrospection((Class<Object>) targetClass)
+                    .orElseThrow(() -> new ClassNotIntrospectedException(mappingContext, targetClass, GraphQLInput.class));
 
-        if (
-                beanIntrospection.getBeanType().isInterface()
-                        || beanIntrospection.getBeanType().isEnum()
-                        || beanIntrospection.getBeanType().isAnnotation()
-        ) {
-            throw IncorrectClassMappingException.forArgument(
-                    IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                    IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
-                    mappingContext,
-                    targetClass,
-                    null
-            );
-        }
+            if (
+                    beanIntrospection.getBeanType().isInterface()
+                            || beanIntrospection.getBeanType().isEnum()
+                            || beanIntrospection.getBeanType().isAnnotation()
+            ) {
+                throw IncorrectClassMappingException.forArgument(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
+                        mappingContext,
+                        targetClass,
+                        null
+                );
+            }
 
-        if (registerBeanIntrospectionMapping(objectTypeDefinition.getName(), beanIntrospection)) {
-            for (InputValueDefinition inputValueDefinition : objectTypeDefinition.getInputValueDefinitions()) {
+            for (InputValueDefinition inputValueDefinition : inputObjectTypeDefinition.getInputValueDefinitions()) {
                 processInputValueDefinition(inputValueDefinition, beanIntrospection);
             }
-        }
+        });
     }
 
     private void processInputValueDefinition(InputValueDefinition inputValueDefinition,
@@ -752,78 +727,41 @@ class GraphQLRuntimeWiringGenerator {
         }
     }
 
-    private boolean registerBeanIntrospectionMapping(String type, BeanIntrospection<?> beanIntrospection) {
-        requireNonNull("type", type);
-        requireNonNull("beanIntrospection", beanIntrospection);
+    private void processIfNotProcessed(TypeDefinition<?> typeDefinition, Class<?> targetClass,
+                                       MappingContext mappingContext, Runnable runnable) {
+        if (processedTypes.containsKey(typeDefinition.getName())) {
+            Class<?> processedClass = processedTypes.get(typeDefinition.getName());
 
-        MappingItem mappingItem = mappingRegistry.get(type);
+            String graphQlType;
+            if (typeDefinition instanceof EnumTypeDefinition) {
+                graphQlType = "enum";
+            } else if (typeDefinition instanceof UnionTypeDefinition) {
+                graphQlType = "union";
+            } else if (typeDefinition instanceof ObjectTypeDefinition) {
+                graphQlType = "type";
+            } else if (typeDefinition instanceof InputObjectTypeDefinition) {
+                graphQlType = "input";
+            } else {
+                throw new UnsupportedOperationException("Unsupported type definition: " + typeDefinition);
+            }
 
-        if (mappingItem != null) {
-            if (mappingItem.beanIntrospection == null) {
-                // TODO
-                throw new RuntimeException("Empty bean introspection in mapping item");
+            if (!targetClass.equals(processedClass)) {
+                throw new MappingConflictException(
+                        mappingContext,
+                        graphQlType,
+                        typeDefinition.getName(),
+                        targetClass,
+                        processedClass
+                );
             }
-            if (!beanIntrospection.equals(mappingItem.beanIntrospection)) {
-                // TODO
-                throw new RuntimeException("Detected conflicted type");
-            }
-            // already processed
-            return false;
+
+            // do nothing as it already processed
+            return;
         }
 
-        mappingRegistry.put(type, new MappingItem(beanIntrospection));
+        runnable.run();
 
-        return true;
-    }
-
-    private boolean registerUnionMapping(String type, Class<?> interfaceClass) {
-        requireNonNull("type", type);
-        requireNonNull("interfaceClass", interfaceClass);
-
-        MappingItem mappingItem = mappingRegistry.get(type);
-
-        if (mappingItem != null) {
-            if (!interfaceClass.equals(mappingItem.targetInterface)) {
-                // TODO
-                throw new RuntimeException("Detected conflicted type");
-            }
-            // already processed
-            return false;
-        }
-
-        mappingRegistry.put(type, new MappingItem(null, interfaceClass));
-
-        return true;
-    }
-
-    private static class MappingItem {
-
-        @Nullable final BeanIntrospection<?> beanIntrospection;
-
-        @Nullable final Class<?> targetEnum;
-        @Nullable final Class<?> targetInterface;
-
-        private MappingItem(@NonNull BeanIntrospection<?> beanIntrospection) {
-            requireNonNull("beanIntrospection", beanIntrospection);
-
-            this.beanIntrospection = beanIntrospection;
-            this.targetEnum = null;
-            this.targetInterface = null;
-        }
-
-        public MappingItem(@Nullable Class<?> targetEnum, @Nullable Class<?> targetInterface) {
-            if (targetEnum == null && targetInterface == null) {
-                throw new IllegalArgumentException("targetEnum and targetInterface both can not be null");
-            }
-
-            if (targetEnum != null && targetInterface != null) {
-                throw new IllegalArgumentException("targetEnum and targetInterface both can not be not-null");
-            }
-
-            this.beanIntrospection = null;
-            this.targetEnum = targetEnum;
-            this.targetInterface = targetInterface;
-        }
+        processedTypes.put(typeDefinition.getName(), targetClass);
     }
 
 }
