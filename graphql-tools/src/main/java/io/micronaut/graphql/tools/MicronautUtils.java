@@ -34,10 +34,6 @@ final class MicronautUtils {
     private MicronautUtils() {
     }
 
-    static String getMethodName(String propertyName) {
-        return "get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
-    }
-
     static String getPropertyMethodName(BeanProperty<?, ?> beanProperty) {
         return "get" + beanProperty.getName().substring(0, 1).toUpperCase()
                 + beanProperty.getName().substring(1) + "()";

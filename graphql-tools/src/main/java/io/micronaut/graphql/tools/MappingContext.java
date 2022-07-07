@@ -35,36 +35,28 @@ public class MappingContext {
     private final Class<?> mappedClass;
     private final String mappedMethod;
 
-    public static MappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
-                                          @NonNull FieldDefinition fieldDefinition) {
+    static MappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
+                                   @NonNull FieldDefinition fieldDefinition) {
         requireNonNull("objectTypeDefinition", objectTypeDefinition);
         requireNonNull("fieldDefinition", fieldDefinition);
 
         return new MappingContext(objectTypeDefinition, fieldDefinition, null, null, null);
     }
 
-    public static MappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
-                                          @NonNull FieldDefinition fieldDefinition,
-                                          @NonNull Class<?> mappedClass, @Nullable String mappedMethod) {
-        requireNonNull("objectTypeDefinition", objectTypeDefinition);
-        requireNonNull("fieldDefinition", fieldDefinition);
-        requireNonNull("mappedClass", mappedClass);
-
-        return new MappingContext(objectTypeDefinition, fieldDefinition, null, mappedClass, mappedMethod);
-    }
-
-    public static MappingContext forField(@NonNull MappingContext mappingContext,
-                                          @NonNull Class<?> mappedClass, @Nullable String mappedMethod) {
-        requireNonNull("mappingDetails", mappingContext);
+    static MappingContext forField(@NonNull MappingContext mappingContext,
+                                   @NonNull Class<?> mappedClass, @Nullable String mappedMethod) {
+        requireNonNull("mappingContext", mappingContext);
         requireNonNull("mappedClass", mappedClass);
 
         return new MappingContext(mappingContext.getObjectTypeDefinition(), mappingContext.getFieldDefinition(),
                 null, mappedClass, mappedMethod);
     }
 
-    public static MappingContext forArgument(@NonNull MappingContext mappingContext,
-                                             int position) {
-        requireNonNull("mappingDetails", mappingContext);
+    static MappingContext forArgument(@NonNull MappingContext mappingContext,
+                                      int position) {
+        requireNonNull("mappingContext", mappingContext);
+        requireNonNull("mappingContext.objectTypeDefinition", mappingContext.getObjectTypeDefinition());
+        requireNonNull("mappingContext.fieldDefinition", mappingContext.getFieldDefinition());
         requirePositive("position", position);
 
         return new MappingContext(
@@ -76,8 +68,9 @@ public class MappingContext {
         );
     }
 
-    private MappingContext(ObjectTypeDefinition objectTypeDefinition, FieldDefinition fieldDefinition, @Nullable Integer argumentIndex,
-                           @Nullable Class<?> mappedClass, @Nullable String mappedMethod) {
+    private MappingContext(ObjectTypeDefinition objectTypeDefinition, FieldDefinition fieldDefinition,
+                           @Nullable Integer argumentIndex, @Nullable Class<?> mappedClass,
+                           @Nullable String mappedMethod) {
         this.objectTypeDefinition = objectTypeDefinition;
         this.fieldDefinition = fieldDefinition;
         this.argumentIndex = argumentIndex;

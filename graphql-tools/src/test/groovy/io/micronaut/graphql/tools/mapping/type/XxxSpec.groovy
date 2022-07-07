@@ -1,6 +1,6 @@
 package io.micronaut.graphql.tools.mapping.type
 
-import graphql.schema.DataFetchingEnvironment
+
 import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLParameterized
@@ -8,9 +8,10 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import org.intellij.lang.annotations.Language
 
-class DataFetchingEnvironmentSpec extends AbstractTest {
+// TODO rename me pls
+class XxxSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.type.DataFetchingEnvironmentSpec"
+    static final String SPEC_NAME = "mapping.type.XxxSpec"
 
     @Language("GraphQL")
     static String SCHEMA = """
@@ -27,7 +28,7 @@ type User {
 }
 """
 
-    void "test DataFetchingEnvironment passed to GraphQLType's method"() {
+    void "test TODO"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -49,7 +50,7 @@ type User {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        User user(DataFetchingEnvironment env) {
+        User user() {
             return new User('test')
         }
     }
@@ -62,11 +63,12 @@ type User {
             this.username = username
         }
 
+        String getUsername() {
+            return username
+        }
+
         @GraphQLParameterized
-        String username(DataFetchingEnvironment env) {
-            assert env != null
-            assert env.field.name == 'username'
-            assert env.parentType.name == 'User'
+        String username() {
             return username
         }
     }

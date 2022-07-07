@@ -27,6 +27,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * @author Alexey Zhokhov
  */
+// TODO rename
 @Documented
 @Retention(RUNTIME)
 @Target({ElementType.METHOD})

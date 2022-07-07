@@ -83,12 +83,15 @@ public class GraphQLResolversRegistry {
         return !rootResolvers.isEmpty();
     }
 
-    BeanDefinitionAndMethod getRootExecutableMethod(@NonNull String methodName) {
+    List<BeanDefinitionAndMethod> getRootExecutableMethod(@NonNull String methodName) {
         for (BeanDefinitionAndMethods item : rootResolvers) {
-            for (ExecutableMethod<Object, ?> executableMethod : item.getExecutableMethods()) {
-                if (executableMethod.getMethodName().equals(methodName)) {
-                    return new BeanDefinitionAndMethod(item.getBeanDefinition(), executableMethod);
-                }
+            List<BeanDefinitionAndMethod> result = item.getExecutableMethods().stream()
+                    .filter(executableMethod -> executableMethod.getMethodName().equals(methodName))
+                    .map(executableMethod -> new BeanDefinitionAndMethod(item.getBeanDefinition(), executableMethod))
+                    .collect(Collectors.toList());
+
+            if (!result.isEmpty()) {
+                return result;
             }
         }
 
@@ -100,17 +103,24 @@ public class GraphQLResolversRegistry {
         throw MethodNotFoundException.forRoot(methodName, resolvers);
     }
 
-    BeanDefinitionAndMethod getTypeExecutableMethod(@NonNull Class<?> beanType,
-                                                    @NonNull String methodName) {
+    List<BeanDefinitionAndMethod> getTypeExecutableMethod(@NonNull Class<?> beanType,
+                                                          @NonNull String methodName) {
         List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);
 
         if (items != null) {
+            List<BeanDefinitionAndMethod> result = new ArrayList<>();
+
             for (BeanDefinitionAndMethods item : items) {
-                for (ExecutableMethod<Object, ?> executableMethod : item.getExecutableMethods()) {
-                    if (executableMethod.getMethodName().equals(methodName)) {
-                        return new BeanDefinitionAndMethod(item.getBeanDefinition(), executableMethod);
-                    }
-                }
+                result.addAll(
+                        item.getExecutableMethods().stream()
+                                .filter(executableMethod -> executableMethod.getMethodName().equals(methodName))
+                                .map(executableMethod -> new BeanDefinitionAndMethod(item.getBeanDefinition(), executableMethod))
+                                .collect(Collectors.toList())
+                );
+            }
+
+            if (!result.isEmpty()) {
+                return result;
             }
         }
 

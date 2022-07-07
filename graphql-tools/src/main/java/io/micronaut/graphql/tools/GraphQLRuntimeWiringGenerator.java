@@ -224,7 +224,7 @@ class GraphQLRuntimeWiringGenerator {
                     true,
                     0,
                     requiredArgs,
-                    generateSuggestedMethod(getMethodName(beanProperty.getName()), null, mappingContext)
+                    generateSuggestedMethod(beanProperty.getName(), null, mappingContext)
             );
         }
     }
@@ -410,8 +410,14 @@ class GraphQLRuntimeWiringGenerator {
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
-                BeanDefinitionAndMethod beanDefinitionAndMethod =
+                List<BeanDefinitionAndMethod> beanDefinitionAndMethods =
                         graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName());
+
+                if (beanDefinitionAndMethods.size() > 1) {
+                    throw new RuntimeException("Found multiple methods");
+                }
+
+                BeanDefinitionAndMethod beanDefinitionAndMethod = beanDefinitionAndMethods.get(0);
 
                 ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 
@@ -570,7 +576,7 @@ class GraphQLRuntimeWiringGenerator {
         Optional<BeanProperty<Object, Object>> beanProperty =
                 beanIntrospection.getProperty(fieldDefinition.getName());
         List<BeanMethod<Object, ?>> beanMethods = beanIntrospection.getBeanMethods().stream()
-                .filter(it -> it.getName().equals(fieldDefinition.getName()) || it.getName().equals(getMethodName(fieldDefinition.getName())))
+                .filter(it -> it.getName().equals(fieldDefinition.getName()))
                 .collect(Collectors.toList());
 
         if (beanProperty.isPresent() && !beanMethods.isEmpty()) {
@@ -627,8 +633,14 @@ class GraphQLRuntimeWiringGenerator {
             );
         }
 
-        BeanDefinitionAndMethod beanDefinitionAndMethod = graphQLResolversRegistry
+        List<BeanDefinitionAndMethod> beanDefinitionAndMethods = graphQLResolversRegistry
                 .getTypeExecutableMethod(sourceClass, fieldDefinition.getName());
+
+        if (beanDefinitionAndMethods.size() > 1) {
+            throw new RuntimeException("Found multiple methods");
+        }
+
+        BeanDefinitionAndMethod beanDefinitionAndMethod = beanDefinitionAndMethods.get(0);
 
         ExecutableMethod<Object, ?> executable = beanDefinitionAndMethod.getExecutableMethod();
 

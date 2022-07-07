@@ -39,15 +39,15 @@ type User {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectArgumentCountException
-            e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): getUsername(Boolean unmasked)
+            e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): username(Boolean unmasked)
   GraphQL type: User
   GraphQL field: username
   Mapped class: ${User.name}
-  Mapped method: getUsername(${DataFetchingEnvironment.name} dfe)"""
+  Mapped method: username(${DataFetchingEnvironment.name} dfe)"""
             e.cause.mappingContext.graphQlType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.mappingContext.mappedClass == User
-            e.cause.mappingContext.mappedMethod == "getUsername(${DataFetchingEnvironment.name} dfe)"
+            e.cause.mappingContext.mappedMethod == "username(${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 0
             e.cause.requiredCount == 1
     }
@@ -63,7 +63,7 @@ type User {
     @GraphQLType
     static class User {
         @GraphQLParameterized
-        String getUsername(DataFetchingEnvironment dfe) {
+        String username(DataFetchingEnvironment dfe) {
             return null
         }
     }
