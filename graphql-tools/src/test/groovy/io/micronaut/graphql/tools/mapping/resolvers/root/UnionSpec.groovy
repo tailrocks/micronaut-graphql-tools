@@ -1,11 +1,9 @@
 package io.micronaut.graphql.tools.mapping.resolvers.root
 
-
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.AbstractTest
-import io.micronaut.graphql.tools.SchemaParserDictionary
-import io.micronaut.graphql.tools.SchemaParserDictionaryCustomizer
+import io.micronaut.graphql.tools.SchemaMappingDictionaryCustomizer
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import org.intellij.lang.annotations.Language
@@ -113,16 +111,11 @@ type ValidationError {
     static class GraphQLFactory {
         @Bean
         @jakarta.inject.Singleton
-        SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer() {
-            return new SchemaParserDictionaryCustomizer() {
-                @Override
-                void customize(SchemaParserDictionary schemaParserDictionary) {
-                    schemaParserDictionary.registerType("SecurityError", SecurityError.class)
-                    schemaParserDictionary.registerType("ValidationError", ValidationError.class)
-                }
-            }
+        SchemaMappingDictionaryCustomizer schemaMappingDictionaryCustomizer() {
+            return (schemaMappingDictionary) -> schemaMappingDictionary
+                    .registerType("SecurityError", SecurityError.class)
+                    .registerType("ValidationError", ValidationError.class)
         }
-
     }
 
 }

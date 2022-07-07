@@ -24,11 +24,11 @@ import jakarta.inject.Singleton;
  */
 @Internal
 @Singleton
-@Requires(missingBeans = {SchemaParserDictionaryCustomizer.class})
-public class DefaultSchemaParserDictionaryCustomizer implements SchemaParserDictionaryCustomizer {
+@Requires(missingBeans = {SchemaMappingDictionaryCustomizer.class})
+public class DefaultSchemaMappingDictionaryCustomizer implements SchemaMappingDictionaryCustomizer {
 
     @Override
-    public void customize(SchemaParserDictionary schemaParserDictionary) {
+    public void customize(SchemaMappingDictionary schemaMappingDictionary) {
         // do nothing, can be overridden with another implementation
     }
 

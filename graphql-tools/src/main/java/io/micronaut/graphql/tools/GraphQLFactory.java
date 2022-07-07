@@ -38,9 +38,9 @@ public class GraphQLFactory {
     public GraphQL graphQL(ApplicationContext applicationContext,
                            GraphQLResolversRegistry graphQLResolversRegistry,
                            TypeDefinitionRegistry typeDefinitionRegistry,
-                           SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer) {
-        SchemaParserDictionary schemaParserDictionary = new SchemaParserDictionary();
-        schemaParserDictionaryCustomizer.customize(schemaParserDictionary);
+                           SchemaMappingDictionaryCustomizer schemaMappingDictionaryCustomizer) {
+        SchemaMappingDictionary schemaMappingDictionary = new SchemaMappingDictionary();
+        schemaMappingDictionaryCustomizer.customize(schemaMappingDictionary);
 
         GraphQLSchemaProvider graphQLSchemaProvider = new GraphQLSchemaProvider();
 
@@ -49,7 +49,7 @@ public class GraphQLFactory {
                 new GraphQLBeanIntrospectionRegistry(),
                 graphQLResolversRegistry,
                 typeDefinitionRegistry,
-                schemaParserDictionary,
+                schemaMappingDictionary,
                 graphQLSchemaProvider
         );
 

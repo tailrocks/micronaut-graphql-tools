@@ -5,8 +5,8 @@ import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
-import io.micronaut.graphql.tools.SchemaParserDictionary
-import io.micronaut.graphql.tools.SchemaParserDictionaryCustomizer
+import io.micronaut.graphql.tools.SchemaMappingDictionary
+import io.micronaut.graphql.tools.SchemaMappingDictionaryCustomizer
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.UnionTypeMappingNotProvidedException
@@ -47,7 +47,7 @@ type ValidationError {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof UnionTypeMappingNotProvidedException
-            e.cause.message == """Can not detect representation class for type ValidationError, member of PayloadError union. Ensure the representation class is registered via ${SchemaParserDictionary.name}.
+            e.cause.message == """Can not detect representation class for type ValidationError, member of PayloadError union. Ensure the representation class is registered via ${SchemaMappingDictionary.name}.
   GraphQL type: Query
   GraphQL field: unionTest
   Mapped class: ${Query.name}
@@ -84,13 +84,9 @@ type ValidationError {
     static class GraphQLFactory {
         @Bean
         @jakarta.inject.Singleton
-        SchemaParserDictionaryCustomizer schemaParserDictionaryCustomizer() {
-            return new SchemaParserDictionaryCustomizer() {
-                @Override
-                void customize(SchemaParserDictionary schemaParserDictionary) {
-                    schemaParserDictionary.registerType("SecurityError", SecurityError.class)
-                }
-            }
+        SchemaMappingDictionaryCustomizer schemaMappingDictionaryCustomizer() {
+            return (schemaMappingDictionary) -> schemaMappingDictionary
+                    .registerType("SecurityError", SecurityError.class)
         }
 
     }

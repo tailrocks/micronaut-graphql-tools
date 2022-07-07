@@ -18,8 +18,8 @@ package io.micronaut.graphql.tools;
 /**
  * @author Alexey Zhokhov
  */
-public interface SchemaParserDictionaryCustomizer {
+public interface SchemaMappingDictionaryCustomizer {
 
-    void customize(SchemaParserDictionary schemaParserDictionary);
+    void customize(SchemaMappingDictionary schemaMappingDictionary);
 
 }

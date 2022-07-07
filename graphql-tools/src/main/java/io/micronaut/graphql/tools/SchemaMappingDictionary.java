@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * @author Alexey Zhokhov
  */
-public class SchemaParserDictionary {
+public class SchemaMappingDictionary {
 
     private final Map<String, Class<?>> types = new LinkedHashMap<>();
 
@@ -33,7 +33,7 @@ public class SchemaParserDictionary {
         return Collections.unmodifiableMap(types);
     }
 
-    public SchemaParserDictionary registerType(@NonNull String graphqlType, @NonNull Class<?> implementationClass) {
+    public SchemaMappingDictionary registerType(@NonNull String graphqlType, @NonNull Class<?> implementationClass) {
         ArgumentUtils.requireNonNull("graphqlType", graphqlType);
         ArgumentUtils.requireNonNull("implementationClass", implementationClass);
 

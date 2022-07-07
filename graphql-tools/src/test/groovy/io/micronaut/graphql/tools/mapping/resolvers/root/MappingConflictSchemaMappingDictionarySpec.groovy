@@ -7,12 +7,12 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.SchemaMappingDictionaryCustomizer
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
-import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
+import io.micronaut.graphql.tools.exceptions.MappingConflictException
 import org.intellij.lang.annotations.Language
 
-class IncorrectFieldMappingUnionToCustomClassSpec extends AbstractTest {
+class MappingConflictSchemaMappingDictionarySpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectFieldMappingUnionToCustomClassSpec"
+    static final String SPEC_NAME = "mapping.resolvers.root.MappingConflictSchemaMappingDictionarySpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """
@@ -21,21 +21,15 @@ schema {
 }
 
 type Query {
-  testUnion: PayloadError
+  user: User
 }
 
-union PayloadError = SecurityError | ValidationError
-
-type SecurityError {
-  code: String!
-}
-
-type ValidationError {
-  code: Int!
+type User {
+  username: String!
 }
 """
 
-    void "test union field returns custom class"() {
+    void "test todo"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -44,39 +38,34 @@ type ValidationError {
 
         then:
             def e = thrown(BeanInstantiationException)
-            e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to a custom class, when required an interface.
+            e.cause instanceof MappingConflictException
+            e.cause.message == """Unable to map GraphQL type `User` to ${User.name}, as it is already mapped to ${AnotherUser.name}.
   GraphQL type: Query
-  GraphQL field: testUnion
+  GraphQL field: user
   Mapped class: ${Query.name}
-  Mapped method: testUnion()
-  Provided class: ${SecurityError.name}"""
+  Mapped method: user()"""
             e.cause.mappingContext.graphQlType == 'Query'
-            e.cause.mappingContext.graphQlField == 'testUnion'
+            e.cause.mappingContext.graphQlField == 'user'
             e.cause.mappingContext.mappedClass == Query
-            e.cause.mappingContext.mappedMethod == 'testUnion()'
-            e.cause.providedClass == SecurityError
+            e.cause.mappingContext.mappedMethod == 'user()'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        SecurityError testUnion() {
-            return null
+        User user() {
+            return new User(username: 'test')
         }
     }
 
-    static interface PayloadError {
+    @GraphQLType
+    static class User {
+        String username
     }
 
     @GraphQLType
-    static class SecurityError implements PayloadError {
-        String code = "AUTH"
-    }
-
-    @GraphQLType
-    static class ValidationError implements PayloadError {
-        Integer code = 123
+    static class AnotherUser {
+        String username
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
@@ -86,10 +75,8 @@ type ValidationError {
         @jakarta.inject.Singleton
         SchemaMappingDictionaryCustomizer schemaMappingDictionaryCustomizer() {
             return (schemaMappingDictionary) -> schemaMappingDictionary
-                    .registerType("SecurityError", SecurityError.class)
-                    .registerType("ValidationError", ValidationError.class)
+                    .registerType("User", AnotherUser.class)
         }
-
     }
 
 }

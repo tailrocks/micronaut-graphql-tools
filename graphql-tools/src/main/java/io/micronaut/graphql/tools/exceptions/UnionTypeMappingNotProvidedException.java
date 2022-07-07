@@ -16,7 +16,7 @@
 package io.micronaut.graphql.tools.exceptions;
 
 import io.micronaut.graphql.tools.MappingContext;
-import io.micronaut.graphql.tools.SchemaParserDictionary;
+import io.micronaut.graphql.tools.SchemaMappingDictionary;
 
 /**
  * @author Alexey Zhokhov
@@ -30,7 +30,7 @@ public class UnionTypeMappingNotProvidedException extends AbstractMappingExcepti
                                 "Ensure the representation class is registered via %s.",
                         objectType,
                         unionType,
-                        SchemaParserDictionary.class.getName()
+                        SchemaMappingDictionary.class.getName()
                 ),
                 mappingContext
         );

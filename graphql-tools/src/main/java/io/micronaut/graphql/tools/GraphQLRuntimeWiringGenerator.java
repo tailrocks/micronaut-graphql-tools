@@ -96,7 +96,7 @@ class GraphQLRuntimeWiringGenerator {
     private final GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry;
     private final GraphQLResolversRegistry graphQLResolversRegistry;
     private final TypeDefinitionRegistry typeDefinitionRegistry;
-    private final SchemaParserDictionary schemaParserDictionary;
+    private final SchemaMappingDictionary schemaMappingDictionary;
     private final Provider<GraphQLSchema> graphQLSchemaProvider;
     private final ObjectMapper objectMapper;
     private final RuntimeWiring.Builder rootRuntimeWiringBuilder;
@@ -107,20 +107,20 @@ class GraphQLRuntimeWiringGenerator {
                                   GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry,
                                   GraphQLResolversRegistry graphQLResolversRegistry,
                                   TypeDefinitionRegistry typeDefinitionRegistry,
-                                  SchemaParserDictionary schemaParserDictionary,
+                                  SchemaMappingDictionary schemaMappingDictionary,
                                   Provider<GraphQLSchema> graphQLSchemaProvider) {
         requireNonNull("applicationContext", applicationContext);
         requireNonNull("graphQLBeanIntrospectionRegistry", graphQLBeanIntrospectionRegistry);
         requireNonNull("graphQLResolversRegistry", graphQLResolversRegistry);
         requireNonNull("typeDefinitionRegistry", typeDefinitionRegistry);
-        requireNonNull("schemaParserDictionary", schemaParserDictionary);
+        requireNonNull("schemaParserDictionary", schemaMappingDictionary);
         requireNonNull("graphQLSchemaProvider", graphQLSchemaProvider);
 
         this.applicationContext = applicationContext;
         this.graphQLBeanIntrospectionRegistry = graphQLBeanIntrospectionRegistry;
         this.graphQLResolversRegistry = graphQLResolversRegistry;
         this.typeDefinitionRegistry = typeDefinitionRegistry;
-        this.schemaParserDictionary = schemaParserDictionary;
+        this.schemaMappingDictionary = schemaMappingDictionary;
         this.graphQLSchemaProvider = graphQLSchemaProvider;
 
         this.objectMapper = new ObjectMapper()
@@ -495,7 +495,7 @@ class GraphQLRuntimeWiringGenerator {
 
                     if (typeDefinition instanceof ObjectTypeDefinition) {
                         Class<?> clazz = Optional
-                                .ofNullable(schemaParserDictionary.getTypes().get(typeDefinition.getName()))
+                                .ofNullable(schemaMappingDictionary.getTypes().get(typeDefinition.getName()))
                                 .orElseThrow(() -> new UnionTypeMappingNotProvidedException(
                                         mappingContext, typeName.getName(), unionTypeDefinition.getName()
                                 ));
@@ -514,29 +514,35 @@ class GraphQLRuntimeWiringGenerator {
         });
     }
 
-    private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, Class<?> returnType,
+    private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, Class<?> targetClass,
                                              MappingContext mappingContext) {
-        processIfNotProcessed(objectTypeDefinition, returnType, mappingContext, () -> {
-            Optional.ofNullable(schemaParserDictionary.getTypes().get(objectTypeDefinition.getName()))
-                    .ifPresent((it) -> {
-                        if (!it.equals(returnType)) {
-                            // TODO compare types
+        processIfNotProcessed(objectTypeDefinition, targetClass, mappingContext, () -> {
+            Optional.ofNullable(schemaMappingDictionary.getTypes().get(objectTypeDefinition.getName()))
+                    .ifPresent(registeredClass -> {
+                        if (!registeredClass.equals(targetClass)) {
+                            throw new MappingConflictException(
+                                    mappingContext,
+                                    "type",
+                                    objectTypeDefinition.getName(),
+                                    targetClass,
+                                    registeredClass
+                            );
                         }
                     });
 
-            if (isJavaBuiltInClass(returnType)) {
+            if (isJavaBuiltInClass(targetClass)) {
                 throw IncorrectClassMappingException.forField(
                         IncorrectClassMappingException.MappingType.DETECT_TYPE,
                         IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
                         mappingContext,
-                        returnType,
+                        targetClass,
                         null
                 );
             }
 
             BeanIntrospection<Object> beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
                     mappingContext,
-                    returnType
+                    targetClass
             );
 
             rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeRuntimeWiringBuilder -> {
