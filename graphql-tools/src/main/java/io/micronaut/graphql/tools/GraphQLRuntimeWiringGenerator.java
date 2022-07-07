@@ -609,7 +609,7 @@ class GraphQLRuntimeWiringGenerator {
                     null,
                     null,
                     typeRuntimeWiringBuilder,
-                    MappingContext.forField(objectTypeDefinition, fieldDefinition)
+                    mappingContext
             );
 
             return;
@@ -638,7 +638,7 @@ class GraphQLRuntimeWiringGenerator {
                 sourceClass,
                 applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition()),
                 typeRuntimeWiringBuilder,
-                MappingContext.forField(objectTypeDefinition, fieldDefinition)
+                mappingContext
         );
     }
 

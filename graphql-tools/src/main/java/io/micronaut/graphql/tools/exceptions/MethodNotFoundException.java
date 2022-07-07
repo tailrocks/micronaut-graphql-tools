@@ -42,7 +42,9 @@ public class MethodNotFoundException extends RuntimeException {
                                                   List<Class<?>> resolvers) {
         return new MethodNotFoundException(
                 String.format(
-                        "The method `%s` not found in %s's type resolvers: %s.",
+                       resolvers.isEmpty()
+                               ? "The property or method `%s` not found in %s's type."
+                               : "The property or method `%s` not found in %s's type or it resolvers: %s.",
                         methodName,
                         objectTypeClass.getName(),
                         "[" + resolvers.stream()
