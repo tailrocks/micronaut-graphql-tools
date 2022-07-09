@@ -3,7 +3,7 @@ package io.micronaut.graphql.tools.mapping.type
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
-import io.micronaut.graphql.tools.annotation.GraphQLParameterized
+import io.micronaut.graphql.tools.annotation.GraphQLField
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException
@@ -61,7 +61,7 @@ type User {
 
     @GraphQLType
     static class User {
-        @GraphQLParameterized
+        @GraphQLField
         String username(String uid) {
             return null
         }

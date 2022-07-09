@@ -32,5 +32,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ElementType.TYPE})
 @Introspected
 public @interface GraphQLInput {
-
 }

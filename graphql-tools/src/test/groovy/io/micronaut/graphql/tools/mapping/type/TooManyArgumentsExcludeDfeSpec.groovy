@@ -4,7 +4,7 @@ import graphql.schema.DataFetchingEnvironment
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
-import io.micronaut.graphql.tools.annotation.GraphQLParameterized
+import io.micronaut.graphql.tools.annotation.GraphQLField
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException
@@ -62,7 +62,7 @@ type User {
 
     @GraphQLType
     static class User {
-        @GraphQLParameterized
+        @GraphQLField
         String username(String uid, DataFetchingEnvironment dfe) {
             return null
         }

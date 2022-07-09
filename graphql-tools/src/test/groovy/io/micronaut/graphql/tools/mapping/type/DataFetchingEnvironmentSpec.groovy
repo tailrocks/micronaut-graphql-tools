@@ -3,7 +3,7 @@ package io.micronaut.graphql.tools.mapping.type
 import graphql.schema.DataFetchingEnvironment
 import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.AbstractTest
-import io.micronaut.graphql.tools.annotation.GraphQLParameterized
+import io.micronaut.graphql.tools.annotation.GraphQLField
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import org.intellij.lang.annotations.Language
@@ -62,7 +62,7 @@ type User {
             this.username = username
         }
 
-        @GraphQLParameterized
+        @GraphQLField
         String username(DataFetchingEnvironment env) {
             assert env != null
             assert env.field.name == 'username'
