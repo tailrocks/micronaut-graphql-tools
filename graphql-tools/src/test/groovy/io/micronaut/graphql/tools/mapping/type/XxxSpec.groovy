@@ -2,10 +2,12 @@ package io.micronaut.graphql.tools.mapping.type
 
 
 import io.micronaut.context.annotation.Requires
+import io.micronaut.context.exceptions.BeanInstantiationException
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLField
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
+import io.micronaut.graphql.tools.exceptions.MultipleMethodsFoundException
 import org.intellij.lang.annotations.Language
 
 // TODO rename me pls
@@ -33,18 +35,21 @@ type User {
             startContext(SCHEMA, SPEC_NAME)
 
         when:
-            def result = executeQuery("""
-{ 
-    user {
-        username
-    }
-}
-""")
+            getGraphQLBean()
 
         then:
-            result.errors.isEmpty()
-            result.dataPresent
-            result.data.user.username == 'test'
+            def e = thrown(BeanInstantiationException)
+            e.cause instanceof MultipleMethodsFoundException
+            e.cause.message == """Found multiple methods for one GraphQL field.
+  GraphQL type: User
+  GraphQL field: username
+  Methods: 
+  1) ${User.name} getUsername()
+  2) ${User.name} username()"""
+            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlField == 'username'
+            e.cause.mappingContext.mappedClass == null
+            e.cause.mappingContext.mappedMethod == null
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

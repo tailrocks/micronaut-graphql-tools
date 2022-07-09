@@ -16,13 +16,18 @@
 package io.micronaut.graphql.tools;
 
 import io.micronaut.core.annotation.Internal;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.beans.BeanMethod;
 import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
 import io.micronaut.inject.ExecutableMethod;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -79,6 +84,35 @@ final class MicronautUtils {
         } else {
             throw new UnsupportedOperationException("Unsupported executable class: " + executable.getClass());
         }
+    }
+
+    static Map<Class<?>, List<String>> toMap(List<BeanDefinitionAndMethod> beanDefinitionAndMethods) {
+        Map<Class<?>, List<String>> methods = new HashMap<>();
+
+        for (BeanDefinitionAndMethod it : beanDefinitionAndMethods) {
+            methods.putIfAbsent(it.getBeanDefinition().getBeanType(), new ArrayList<>());
+            methods.get(it.getBeanDefinition().getBeanType())
+                    .add(getExecutableMethodFullName(it.getExecutableMethod()));
+        }
+
+        return methods;
+    }
+
+    static Map<Class<?>, List<String>> toMap(List<BeanMethod<Object, ?>> beanMethods,
+                                             @Nullable BeanProperty<Object, Object> beanProperty) {
+        Map<Class<?>, List<String>> methods = new HashMap<>();
+
+        if (beanProperty != null) {
+            methods.putIfAbsent(beanProperty.getDeclaringBean().getBeanType(), new ArrayList<>());
+            methods.get(beanProperty.getDeclaringBean().getBeanType()).add(getPropertyMethodName(beanProperty));
+        }
+
+        for (BeanMethod<Object, ?> it : beanMethods) {
+            methods.putIfAbsent(it.getDeclaringBean().getBeanType(), new ArrayList<>());
+            methods.get(it.getDeclaringBean().getBeanType()).add(getExecutableMethodFullName(it));
+        }
+
+        return methods;
     }
 
 }

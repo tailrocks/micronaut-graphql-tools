@@ -54,6 +54,7 @@ import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MappingConflictException;
 import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
+import io.micronaut.graphql.tools.exceptions.MultipleMethodsFoundException;
 import io.micronaut.graphql.tools.exceptions.RootResolverNotFoundException;
 import io.micronaut.graphql.tools.exceptions.SchemaDefinitionNotProvidedException;
 import io.micronaut.graphql.tools.exceptions.UnionTypeMappingNotProvidedException;
@@ -81,6 +82,7 @@ import static io.micronaut.graphql.tools.GraphQLUtils.unwrapNonNullType;
 import static io.micronaut.graphql.tools.MicronautUtils.getExecutableMethodFullName;
 import static io.micronaut.graphql.tools.MicronautUtils.getMethodName;
 import static io.micronaut.graphql.tools.MicronautUtils.getPropertyMethodName;
+import static io.micronaut.graphql.tools.MicronautUtils.toMap;
 import static io.micronaut.graphql.tools.MicronautUtils.unwrapArgument;
 import static io.micronaut.graphql.tools.SystemTypes.getSupportedClasses;
 import static io.micronaut.graphql.tools.SystemTypes.isGraphQlBuiltInType;
@@ -410,11 +412,13 @@ class GraphQLRuntimeWiringGenerator {
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
+                MappingContext mappingContext = MappingContext.forField(objectTypeDefinition, fieldDefinition);
+
                 List<BeanDefinitionAndMethod> beanDefinitionAndMethods =
                         graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName());
 
                 if (beanDefinitionAndMethods.size() > 1) {
-                    throw new RuntimeException("Found multiple methods");
+                    throw new MultipleMethodsFoundException(mappingContext, toMap(beanDefinitionAndMethods));
                 }
 
                 BeanDefinitionAndMethod beanDefinitionAndMethod = beanDefinitionAndMethods.get(0);
@@ -427,7 +431,7 @@ class GraphQLRuntimeWiringGenerator {
                         null,
                         applicationContext.getBean(beanDefinitionAndMethod.getBeanDefinition()),
                         typeRuntimeWiringBuilder,
-                        MappingContext.forField(objectTypeDefinition, fieldDefinition)
+                        mappingContext
                 );
             }
 
@@ -580,13 +584,11 @@ class GraphQLRuntimeWiringGenerator {
                 .collect(Collectors.toList());
 
         if (beanProperty.isPresent() && !beanMethods.isEmpty()) {
-            // TODO
-            throw new RuntimeException("Found `" + fieldDefinition.getName() + "` property and bean method: " + beanIntrospection.getBeanType());
+            throw new MultipleMethodsFoundException(mappingContext, toMap(beanMethods, beanProperty.get()));
         }
 
         if (beanMethods.size() > 1) {
-            // TODO
-            throw new RuntimeException("Found multiple bean methods `" + fieldDefinition.getName() + "`: " + beanIntrospection.getBeanType());
+            throw new MultipleMethodsFoundException(mappingContext, toMap(beanMethods, null));
         }
 
         if (beanProperty.isPresent()) {
@@ -637,7 +639,7 @@ class GraphQLRuntimeWiringGenerator {
                 .getTypeExecutableMethod(sourceClass, fieldDefinition.getName());
 
         if (beanDefinitionAndMethods.size() > 1) {
-            throw new RuntimeException("Found multiple methods");
+            throw new MultipleMethodsFoundException(mappingContext, toMap(beanDefinitionAndMethods));
         }
 
         BeanDefinitionAndMethod beanDefinitionAndMethod = beanDefinitionAndMethods.get(0);
