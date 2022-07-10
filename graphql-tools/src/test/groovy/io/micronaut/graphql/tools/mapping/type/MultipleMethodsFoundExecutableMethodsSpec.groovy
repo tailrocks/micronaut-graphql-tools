@@ -10,8 +10,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.exceptions.MultipleMethodsFoundException
 import org.intellij.lang.annotations.Language
 
-// TODO rename me pls
-class Xxx2Spec extends AbstractTest {
+class MultipleMethodsFoundExecutableMethodsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "mapping.type.Xxx2Spec"
 
