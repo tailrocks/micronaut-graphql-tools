@@ -46,7 +46,6 @@ final class MicronautUtils {
 
     static Argument<?> unwrapArgument(Argument<?> argument) {
         if (argument.isAsync()) {
-            // TODO type not specified
             return argument.getFirstTypeVariable().get();
         }
 
