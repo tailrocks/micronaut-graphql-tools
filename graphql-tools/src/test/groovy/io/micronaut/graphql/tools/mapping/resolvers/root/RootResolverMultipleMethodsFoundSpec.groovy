@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverMultipleMethodsFoundSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.XxxSpec"
+    static final String SPEC_NAME = "RootResolverMultipleMethodsFoundSpec"
 
     @Language("GraphQL")
     static String SCHEMA = """

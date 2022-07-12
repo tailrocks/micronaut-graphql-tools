@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeResolverInvalidSourceArgumentExcludeDfeSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.InvalidSourceArgumentExcludeDfeSpec"
+    static final String SPEC_NAME = "TypeResolverInvalidSourceArgumentExcludeDfeSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

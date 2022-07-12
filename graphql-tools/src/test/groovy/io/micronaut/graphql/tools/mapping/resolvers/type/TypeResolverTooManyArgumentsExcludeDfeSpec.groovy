@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeResolverTooManyArgumentsExcludeDfeSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.IncorrectArgumentCountExceptionSpec8"
+    static final String SPEC_NAME = "TypeResolverTooManyArgumentsExcludeDfeSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

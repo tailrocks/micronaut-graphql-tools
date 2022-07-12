@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeResolverScalarsExtendedAsArgumentsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.ScalarsExtendedAsArgumentsSpec"
+    static final String SPEC_NAME = "TypeResolverScalarsExtendedAsArgumentsSpec"
 
     void "test mapping extended graphql-java scalars as inputs in type resolver"() {
         given:

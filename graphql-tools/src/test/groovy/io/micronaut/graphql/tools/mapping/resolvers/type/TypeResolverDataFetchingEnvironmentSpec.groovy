@@ -12,7 +12,7 @@ import static java.util.Arrays.asList
 
 class TypeResolverDataFetchingEnvironmentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.DataFetchingEnvironmentSpec"
+    static final String SPEC_NAME = "TypeResolverDataFetchingEnvironmentSpec"
 
     @Language("GraphQL")
     static String SCHEMA = """

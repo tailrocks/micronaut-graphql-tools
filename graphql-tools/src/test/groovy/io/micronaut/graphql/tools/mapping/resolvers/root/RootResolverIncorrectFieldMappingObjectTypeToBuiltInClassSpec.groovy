@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverIncorrectFieldMappingObjectTypeToBuiltInClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec2"
+    static final String SPEC_NAME = "RootResolverIncorrectFieldMappingObjectTypeToBuiltInClassSpec"
 
     void "test mapping custom GraphQL type to a wrong class"() {
         given:

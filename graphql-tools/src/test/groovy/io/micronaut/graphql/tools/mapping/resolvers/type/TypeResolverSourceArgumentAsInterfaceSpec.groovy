@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeResolverSourceArgumentAsInterfaceSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.SourceArgumentAsInterfaceSpec"
+    static final String SPEC_NAME = "TypeResolverSourceArgumentAsInterfaceSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

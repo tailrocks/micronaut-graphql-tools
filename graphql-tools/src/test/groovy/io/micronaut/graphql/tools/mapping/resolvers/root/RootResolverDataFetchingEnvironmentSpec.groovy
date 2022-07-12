@@ -8,7 +8,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverDataFetchingEnvironmentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.DataFetchingEnvironmentSpec"
+    static final String SPEC_NAME = "RootResolverDataFetchingEnvironmentSpec"
 
     @Language("GraphQL")
     static String SCHEMA = """

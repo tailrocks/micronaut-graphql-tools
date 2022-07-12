@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverIncorrectFieldMappingUnionToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectFieldMappingUnionToCustomClassSpec"
+    static final String SPEC_NAME = "RootResolverIncorrectFieldMappingUnionToCustomClassSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

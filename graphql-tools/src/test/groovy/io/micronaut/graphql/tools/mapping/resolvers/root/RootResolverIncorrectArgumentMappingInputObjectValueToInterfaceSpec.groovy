@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverIncorrectArgumentMappingInputObjectValueToInterfaceSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.ClassNotIntrospectedExceptionSpec3"
+    static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingInputObjectValueToInterfaceSpec"
 
     void "test root resolver use interface as input argument"() {
         given:

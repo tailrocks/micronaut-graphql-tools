@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverMethodNotFoundSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.MethodNotFoundSpec"
+    static final String SPEC_NAME = "RootResolverMethodNotFoundSpec"
 
     void "test Query method not found"() {
         given:

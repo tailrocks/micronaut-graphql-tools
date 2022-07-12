@@ -8,7 +8,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeScalarsExtendedAsFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.type.ScalarsExtendedAsFieldsSpec"
+    static final String SPEC_NAME = "TypeScalarsExtendedAsFieldsSpec"
 
     void "test mapping extended graphql-java scalars in GraphQLType annotated entity"() {
         given:

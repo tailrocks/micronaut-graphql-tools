@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverTooManyArgumentsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectArgumentCountExceptionSpec1_1"
+    static final String SPEC_NAME = "RootResolverTooManyArgumentsSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

@@ -10,7 +10,7 @@ import java.util.concurrent.CompletionStage
 
 class RootResolverScalarsExtendedAsCompletionStageFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.ScalarsExtendedAsCompletionStageFieldsSpec"
+    static final String SPEC_NAME = "RootResolverScalarsExtendedAsCompletionStageFieldsSpec"
 
     void "test mapping extended graphql-java scalars in root resolver"() {
         given:

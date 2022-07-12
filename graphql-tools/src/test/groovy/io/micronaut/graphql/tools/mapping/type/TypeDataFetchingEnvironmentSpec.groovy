@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeDataFetchingEnvironmentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.type.DataFetchingEnvironmentSpec"
+    static final String SPEC_NAME = "TypeDataFetchingEnvironmentSpec"
 
     @Language("GraphQL")
     static String SCHEMA = """

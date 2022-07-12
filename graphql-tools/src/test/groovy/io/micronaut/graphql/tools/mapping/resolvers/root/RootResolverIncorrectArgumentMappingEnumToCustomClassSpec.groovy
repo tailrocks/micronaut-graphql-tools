@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverIncorrectArgumentMappingEnumToCustomClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec5"
+    static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingEnumToCustomClassSpec"
 
     void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
         given:

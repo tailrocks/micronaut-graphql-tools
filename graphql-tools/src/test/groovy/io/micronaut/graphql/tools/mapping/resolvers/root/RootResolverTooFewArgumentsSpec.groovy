@@ -9,7 +9,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverTooFewArgumentsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.TooFewArgumentsSpec"
+    static final String SPEC_NAME = "RootResolverTooFewArgumentsSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverMultipleImplementationsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.MultipleImplementationsFoundExceptionSpec"
+    static final String SPEC_NAME = "RootResolverMultipleImplementationsSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

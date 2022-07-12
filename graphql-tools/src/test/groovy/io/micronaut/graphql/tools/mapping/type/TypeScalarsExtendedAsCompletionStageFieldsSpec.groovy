@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionStage
 
 class TypeScalarsExtendedAsCompletionStageFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.type.ScalarsExtendedAsCompletionStageFieldsSpec"
+    static final String SPEC_NAME = "TypeScalarsExtendedAsCompletionStageFieldsSpec"
 
     void "test mapping extended graphql-java scalars in GraphQLType annotated entity"() {
         given:

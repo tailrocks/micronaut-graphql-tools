@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverMappingConflictSchemaMappingDictionarySpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.MappingConflictSchemaMappingDictionarySpec"
+    static final String SPEC_NAME = "RootResolverMappingConflictSchemaMappingDictionarySpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

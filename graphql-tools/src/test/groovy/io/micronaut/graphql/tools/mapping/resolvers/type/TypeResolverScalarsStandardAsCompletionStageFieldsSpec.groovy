@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage
 
 class TypeResolverScalarsStandardAsCompletionStageFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.ScalarsStandardAsCompletionStageFieldsSpec"
+    static final String SPEC_NAME = "TypeResolverScalarsStandardAsCompletionStageFieldsSpec"
 
     void "test mapping standard graphql scalars in type resolver"() {
         given:

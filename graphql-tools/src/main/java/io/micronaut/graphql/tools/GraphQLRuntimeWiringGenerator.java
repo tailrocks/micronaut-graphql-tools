@@ -353,6 +353,7 @@ class GraphQLRuntimeWiringGenerator {
         Type<?> fieldType = unwrapNonNullType(mappingContext.getFieldDefinition().getType());
         Class<?> returnType = unwrappedArgument.getType();
 
+        // TODO Maybe can be moved to some method???
         if (fieldType instanceof ListType) {
             if (!returnType.equals(List.class)) {
                 // TODO make the message more clear
@@ -683,8 +684,6 @@ class GraphQLRuntimeWiringGenerator {
 
     private void processInputValueDefinition(InputValueDefinition inputValueDefinition,
                                              BeanIntrospection<Object> beanIntrospection) {
-        // TODO Maybe can be moved to some method???
-
         Optional<BeanProperty<Object, Object>> property = beanIntrospection.getProperty(inputValueDefinition.getName());
 
         if (!property.isPresent()) {
@@ -692,6 +691,7 @@ class GraphQLRuntimeWiringGenerator {
             throw new RuntimeException("Property `" + inputValueDefinition.getName() + "` not found in: " + beanIntrospection.getBeanType());
         }
 
+        // TODO Maybe can be moved to some method???
         Type<?> fieldType = unwrapNonNullType(inputValueDefinition.getType());
         Class<?> returnType = property.get().getType();
 

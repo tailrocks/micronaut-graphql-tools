@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverNotIntrospectedClassAsArgumentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.NotIntrospectedClassAsInputSpec"
+    static final String SPEC_NAME = "RootResolverNotIntrospectedClassAsArgumentSpec"
 
     void "test root resolver use not introspected class as input argument"() {
         given:

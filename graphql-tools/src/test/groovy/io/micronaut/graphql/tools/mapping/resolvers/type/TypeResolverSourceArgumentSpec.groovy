@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeResolverSourceArgumentSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.type.SourceArgumentSpec"
+    static final String SPEC_NAME = "TypeResolverSourceArgumentSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

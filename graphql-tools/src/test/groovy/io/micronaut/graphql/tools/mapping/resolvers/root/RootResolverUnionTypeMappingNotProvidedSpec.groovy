@@ -14,7 +14,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverUnionTypeMappingNotProvidedSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.UnionTypeMappingNotProvidedSpec"
+    static final String SPEC_NAME = "RootResolverUnionTypeMappingNotProvidedSpec"
 
     @Language("GraphQL")
     static final String SCHEMA = """

@@ -11,7 +11,7 @@ import org.intellij.lang.annotations.Language
 
 class TypeMultipleMethodsFoundSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.type.XxxSpec"
+    static final String SPEC_NAME = "TypeMultipleMethodsFoundSpec"
 
     @Language("GraphQL")
     static String SCHEMA = """

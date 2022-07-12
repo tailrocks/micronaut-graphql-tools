@@ -7,7 +7,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverScalarsStandardAsFieldsSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.ScalarsStandardAsFieldsSpec"
+    static final String SPEC_NAME = "RootResolverScalarsStandardAsFieldsSpec"
 
     void "test mapping standard graphql scalars in root resolver"() {
         given:

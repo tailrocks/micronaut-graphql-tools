@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverIncorrectFieldMappingObjectTypeToEnumSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec6"
+    static final String SPEC_NAME = "RootResolverIncorrectFieldMappingObjectTypeToEnumSpec"
 
     void "test enum annotated with GraphQLType instead of custom class"() {
         given:

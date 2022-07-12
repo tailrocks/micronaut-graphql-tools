@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverIncorrectArgumentMappingInputObjectValueToEnumSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "mapping.resolvers.root.IncorrectClassMappingExceptionSpec7"
+    static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingInputObjectValueToEnumSpec"
 
     void "test input argument use enum instead of introspected custom class"() {
         given:
