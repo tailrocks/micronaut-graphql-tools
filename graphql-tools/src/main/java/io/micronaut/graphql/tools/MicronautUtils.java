@@ -49,11 +49,6 @@ final class MicronautUtils {
             return argument.getFirstTypeVariable().get();
         }
 
-        if (argument.isReactive()) {
-            // TODO type not specified
-            return argument.getFirstTypeVariable().get();
-        }
-
         return argument;
     }
 
