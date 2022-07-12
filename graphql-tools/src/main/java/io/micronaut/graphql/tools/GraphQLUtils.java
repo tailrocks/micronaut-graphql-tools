@@ -17,6 +17,7 @@ package io.micronaut.graphql.tools;
 
 import graphql.language.NonNullType;
 import graphql.language.Type;
+import graphql.language.TypeDefinition;
 import graphql.language.TypeName;
 import io.micronaut.core.annotation.Internal;
 
@@ -29,12 +30,8 @@ final class GraphQLUtils {
     private GraphQLUtils() {
     }
 
-    static TypeName getTypeName(Type<?> type) {
-        type = unwrapNonNullType(type);
-        if (type instanceof TypeName) {
-            return ((TypeName) type);
-        }
-        throw new UnsupportedOperationException("Unknown type: " + type);
+    static TypeName getTypeName(Type<?> graphQlType) {
+        return requireTypeName(unwrapNonNullType(graphQlType));
     }
 
     static Type<?> unwrapNonNullType(Type<?> type) {
@@ -42,6 +39,18 @@ final class GraphQLUtils {
             return unwrapNonNullType(((NonNullType) type).getType());
         }
         return type;
+    }
+
+    static TypeName requireTypeName(Type<?> graphQlType) {
+        if (!(graphQlType instanceof TypeName)) {
+            throw new UnsupportedOperationException("Unsupported type: " + graphQlType);
+        }
+
+        return (TypeName) graphQlType;
+    }
+
+    static UnsupportedOperationException unsupportedTypeDefinition(TypeDefinition<?> typeDefinition) {
+        return new UnsupportedOperationException("Unsupported type definition " + typeDefinition);
     }
 
 }

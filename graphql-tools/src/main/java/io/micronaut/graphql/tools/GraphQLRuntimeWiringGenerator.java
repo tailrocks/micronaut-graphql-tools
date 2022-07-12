@@ -78,6 +78,8 @@ import java.util.stream.Collectors;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 import static io.micronaut.graphql.tools.GraphQLUtils.getTypeName;
+import static io.micronaut.graphql.tools.GraphQLUtils.requireTypeName;
+import static io.micronaut.graphql.tools.GraphQLUtils.unsupportedTypeDefinition;
 import static io.micronaut.graphql.tools.GraphQLUtils.unwrapNonNullType;
 import static io.micronaut.graphql.tools.MicronautUtils.getExecutableMethodFullName;
 import static io.micronaut.graphql.tools.MicronautUtils.getMethodName;
@@ -301,7 +303,7 @@ class GraphQLRuntimeWiringGenerator {
             InputValueDefinition inputValueDefinition = inputs.get(i);
             Class<?> returnType = argumentClasses.get(i);
 
-            TypeName typeName = (TypeName) unwrapNonNullType(inputValueDefinition.getType());
+            TypeName typeName = requireTypeName(unwrapNonNullType(inputValueDefinition.getType()));
 
             if (SystemTypes.isGraphQlBuiltInType(typeName)) {
                 Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
@@ -374,11 +376,7 @@ class GraphQLRuntimeWiringGenerator {
             graphQlType = unwrapNonNullType(graphQlType);
         }
 
-        if (!(graphQlType instanceof TypeName)) {
-            throw new UnsupportedOperationException("Unsupported type: " + graphQlType);
-        }
-
-        TypeName typeName = (TypeName) graphQlType;
+        TypeName typeName = requireTypeName(graphQlType);
 
         if (isGraphQlBuiltInType(typeName)) {
             Set<Class<?>> supportedClasses = getSupportedClasses(getTypeName(graphQlType));
@@ -401,7 +399,7 @@ class GraphQLRuntimeWiringGenerator {
             } else if (typeDefinition instanceof ObjectTypeDefinition) {
                 processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, returnType, mappingContext);
             } else {
-                throw new UnsupportedOperationException("Unsupported type definition: " + typeDefinition);
+                throw unsupportedTypeDefinition(typeDefinition);
             }
         }
     }
@@ -514,7 +512,7 @@ class GraphQLRuntimeWiringGenerator {
 
                         objectTypes.put(clazz, typeName.getName());
                     } else {
-                        throw new UnsupportedOperationException("Unsupported type definition: " + typeDefinition);
+                        throw unsupportedTypeDefinition(typeDefinition);
                     }
                 }
 
@@ -707,17 +705,15 @@ class GraphQLRuntimeWiringGenerator {
 
             // TODO process sub types
             //throw new UnsupportedOperationException();
-        } else if (fieldType instanceof TypeName) {
-            // TODO
-            processInputType((TypeName) fieldType, returnType, null);
         } else {
-            // TODO
-            throw new RuntimeException("Unknown field type: " + fieldType);
+            processInputType(fieldType, returnType, null);
         }
     }
 
     @Nullable
-    private Class<?> processInputType(TypeName typeName, Class<?> clazz, MappingContext mappingContext) {
+    private Class<?> processInputType(Type<?> graphQlType, Class<?> clazz, MappingContext mappingContext) {
+        TypeName typeName = requireTypeName(graphQlType);
+
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
@@ -743,7 +739,7 @@ class GraphQLRuntimeWiringGenerator {
 
             return null;
         } else {
-            throw new UnsupportedOperationException("Unsupported type `" + typeName.getName() + "` with definition " + typeDefinition);
+            throw unsupportedTypeDefinition(typeDefinition);
         }
     }
 
@@ -762,7 +758,7 @@ class GraphQLRuntimeWiringGenerator {
             } else if (typeDefinition instanceof InputObjectTypeDefinition) {
                 graphQlType = "input";
             } else {
-                throw new UnsupportedOperationException("Unsupported type definition: " + typeDefinition);
+                throw unsupportedTypeDefinition(typeDefinition);
             }
 
             if (!targetClass.equals(processedClass)) {
