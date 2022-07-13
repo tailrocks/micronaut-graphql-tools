@@ -19,7 +19,6 @@ import io.micronaut.context.annotation.Infrastructure;
 import io.micronaut.core.annotation.AnnotationClassValue;
 import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.Internal;
-import io.micronaut.core.annotation.NonNull;
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 import io.micronaut.graphql.tools.exceptions.IncorrectAnnotationException;
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
@@ -83,7 +82,7 @@ public class GraphQLResolversRegistry {
         return !rootResolvers.isEmpty();
     }
 
-    List<BeanDefinitionAndMethod> getRootExecutableMethod(@NonNull String methodName) {
+    List<BeanDefinitionAndMethod> getRootExecutableMethod(String methodName, MappingContext mappingContext) {
         for (BeanDefinitionAndMethods item : rootResolvers) {
             List<BeanDefinitionAndMethod> result = item.getExecutableMethods().stream()
                     .filter(executableMethod -> executableMethod.getMethodName().equals(methodName))
@@ -100,11 +99,11 @@ public class GraphQLResolversRegistry {
                 .sorted(Comparator.comparing((Function<Class<?>, String>) Class::getName))
                 .collect(Collectors.toList());
 
-        throw MethodNotFoundException.forRoot(methodName, resolvers);
+        throw MethodNotFoundException.forRoot(methodName, mappingContext, resolvers);
     }
 
-    List<BeanDefinitionAndMethod> getTypeExecutableMethod(@NonNull Class<?> beanType,
-                                                          @NonNull String methodName) {
+    List<BeanDefinitionAndMethod> getTypeExecutableMethod(Class<?> beanType, String methodName,
+                                                          MappingContext mappingContext) {
         List<BeanDefinitionAndMethods> items = typeResolvers.get(beanType);
 
         if (items != null) {
@@ -130,7 +129,7 @@ public class GraphQLResolversRegistry {
                 .collect(Collectors.toList())
                 : Collections.emptyList();
 
-        throw MethodNotFoundException.forType(methodName, beanType, resolvers);
+        throw MethodNotFoundException.forType(methodName, mappingContext, beanType, resolvers);
     }
 
 }

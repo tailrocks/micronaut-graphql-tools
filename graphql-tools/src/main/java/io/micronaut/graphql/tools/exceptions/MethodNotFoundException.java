@@ -15,17 +15,20 @@
  */
 package io.micronaut.graphql.tools.exceptions;
 
+import io.micronaut.graphql.tools.MappingContext;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * @author Alexey Zhokhov
  */
-public class MethodNotFoundException extends RuntimeException {
+public class MethodNotFoundException extends AbstractMappingException {
 
     private final String methodName;
 
-    public static MethodNotFoundException forRoot(String methodName, List<Class<?>> resolvers) {
+    public static MethodNotFoundException forRoot(String methodName, MappingContext mappingContext,
+                                                  List<Class<?>> resolvers) {
         return new MethodNotFoundException(
                 String.format(
                         "The method `%s` not found in any root resolvers: %s.",
@@ -34,29 +37,44 @@ public class MethodNotFoundException extends RuntimeException {
                                 .map(Class::getName)
                                 .collect(Collectors.joining(", ")) + "]"
                 ),
+                mappingContext,
                 methodName
         );
     }
 
-    public static MethodNotFoundException forType(String methodName, Class<?> objectTypeClass,
-                                                  List<Class<?>> resolvers) {
+    public static MethodNotFoundException forType(String methodName, MappingContext mappingContext,
+                                                  Class<?> objectTypeClass, List<Class<?>> resolvers) {
         return new MethodNotFoundException(
                 String.format(
-                       resolvers.isEmpty()
-                               ? "The property or method `%s` not found in %s's type."
-                               : "The property or method `%s` not found in %s's type or it resolvers: %s.",
+                        resolvers.isEmpty()
+                                ? "The property or method `%s` not found in %s's type."
+                                : "The property or method `%s` not found in %s's type or it resolvers: %s.",
                         methodName,
                         objectTypeClass.getName(),
                         "[" + resolvers.stream()
                                 .map(Class::getName)
                                 .collect(Collectors.joining(", ")) + "]"
                 ),
+                mappingContext,
                 methodName
         );
     }
 
-    private MethodNotFoundException(String message, String methodName) {
-        super(message);
+    public static MethodNotFoundException forInput(String methodName, MappingContext mappingContext,
+                                                   Class<?> objectTypeClass) {
+        return new MethodNotFoundException(
+                String.format(
+                        "The property or method `%s` not found in %s's input.",
+                        methodName,
+                        objectTypeClass.getName()
+                ),
+                mappingContext,
+                methodName
+        );
+    }
+
+    private MethodNotFoundException(String message, MappingContext mappingContext, String methodName) {
+        super(message, mappingContext);
         this.methodName = methodName;
     }
 

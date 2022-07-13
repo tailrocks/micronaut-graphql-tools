@@ -53,6 +53,7 @@ import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException;
 import io.micronaut.graphql.tools.exceptions.InvalidSourceArgumentException;
 import io.micronaut.graphql.tools.exceptions.MappingConflictException;
+import io.micronaut.graphql.tools.exceptions.MethodNotFoundException;
 import io.micronaut.graphql.tools.exceptions.MissingEnumValuesException;
 import io.micronaut.graphql.tools.exceptions.MultipleMethodsFoundException;
 import io.micronaut.graphql.tools.exceptions.RootResolverNotFoundException;
@@ -160,8 +161,8 @@ class GraphQLRuntimeWiringGenerator {
 
     void processExecutableMethod(Executable<Object, ?> executable, ReturnType<?> returnType,
                                  @Nullable Class<?> sourceClass, @Nullable Object instance,
-                                 TypeRuntimeWiring.Builder typeRuntimeWiringBuilder, MappingContext mappingContext) {
-        mappingContext = MappingContext.forField(
+                                 TypeRuntimeWiring.Builder typeRuntimeWiringBuilder, TypeMappingContext mappingContext) {
+        mappingContext = TypeMappingContext.forField(
                 mappingContext,
                 executable.getDeclaringType(),
                 getExecutableMethodFullName(executable)
@@ -170,7 +171,7 @@ class GraphQLRuntimeWiringGenerator {
         List<ArgumentDefinition> argumentDefinitions = calculateArgumentDefinitions(executable, sourceClass, mappingContext);
 
         typeRuntimeWiringBuilder.dataFetcher(
-                mappingContext.getFieldDefinition().getName(),
+                mappingContext.getFieldDefinition().get().getName(),
                 new MicronautExecutableMethodDataFetcher(objectMapper, executable, argumentDefinitions, instance)
         );
 
@@ -178,8 +179,8 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void checkArgumentCount(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
-                                    MappingContext mappingContext) {
-        int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
+                                    TypeMappingContext mappingContext) {
+        int requiredArgs = mappingContext.getFieldDefinition().get().getInputValueDefinitions().size();
 
         if (sourceClass != null) {
             requiredArgs = requiredArgs + 1;
@@ -216,12 +217,12 @@ class GraphQLRuntimeWiringGenerator {
         }
     }
 
-    private void checkArgumentCount(BeanProperty<?, ?> beanProperty, MappingContext mappingContext) {
-        if (mappingContext.getFieldDefinition().getInputValueDefinitions().isEmpty()) {
+    private void checkArgumentCount(BeanProperty<?, ?> beanProperty, TypeMappingContext mappingContext) {
+        if (mappingContext.getFieldDefinition().get().getInputValueDefinitions().isEmpty()) {
             return;
         }
 
-        int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
+        int requiredArgs = mappingContext.getFieldDefinition().get().getInputValueDefinitions().size();
         if (requiredArgs > 0) {
             throw new IncorrectArgumentCountException(
                     mappingContext,
@@ -234,7 +235,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private String generateSuggestedMethod(String methodName, @Nullable Class<?> sourceClass,
-                                           MappingContext mappingContext) {
+                                           TypeMappingContext mappingContext) {
         ArrayList<String> suggestedMethodArgs = new ArrayList<>();
 
         if (sourceClass != null) {
@@ -244,7 +245,7 @@ class GraphQLRuntimeWiringGenerator {
         }
 
         suggestedMethodArgs.addAll(
-                mappingContext.getFieldDefinition().getInputValueDefinitions().stream()
+                mappingContext.getFieldDefinition().get().getInputValueDefinitions().stream()
                         .map(it -> getTypeName(it.getType()).getName() + " " + it.getName())
                         .collect(Collectors.toList())
         );
@@ -254,10 +255,10 @@ class GraphQLRuntimeWiringGenerator {
 
     private List<ArgumentDefinition> calculateArgumentDefinitions(Executable<?, ?> executable,
                                                                   @Nullable Class<?> sourceClass,
-                                                                  MappingContext mappingContext) {
+                                                                  TypeMappingContext mappingContext) {
         checkArgumentCount(executable, sourceClass, mappingContext);
 
-        List<InputValueDefinition> inputs = mappingContext.getFieldDefinition().getInputValueDefinitions();
+        List<InputValueDefinition> inputs = mappingContext.getFieldDefinition().get().getInputValueDefinitions();
         List<Argument<?>> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
 
         if (inputs.isEmpty() && arguments.isEmpty()) {
@@ -312,7 +313,7 @@ class GraphQLRuntimeWiringGenerator {
                     throw IncorrectClassMappingException.forArgument(
                             IncorrectClassMappingException.MappingType.DETECT_TYPE,
                             IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
-                            MappingContext.forArgument(mappingContext, i),
+                            TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName()),
                             returnType,
                             supportedClasses
                     );
@@ -324,7 +325,7 @@ class GraphQLRuntimeWiringGenerator {
                     throw IncorrectClassMappingException.forArgument(
                             IncorrectClassMappingException.MappingType.DETECT_TYPE,
                             IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
-                            MappingContext.forArgument(mappingContext, i),
+                            TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName()),
                             returnType,
                             null
                     );
@@ -333,7 +334,7 @@ class GraphQLRuntimeWiringGenerator {
                 Class<?> inputClass = processInputType(
                         typeName,
                         returnType,
-                        MappingContext.forArgument(mappingContext, i)
+                        TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName())
                 );
 
                 result.add(new ArgumentDefinition(inputs.get(i).getName(), inputClass));
@@ -347,10 +348,10 @@ class GraphQLRuntimeWiringGenerator {
         return result;
     }
 
-    private void processArgument(Argument<?> argument, MappingContext mappingContext) {
+    private void processArgument(Argument<?> argument, TypeMappingContext mappingContext) {
         Argument<?> unwrappedArgument = unwrapArgument(argument);
 
-        Type<?> fieldType = unwrapNonNullType(mappingContext.getFieldDefinition().getType());
+        Type<?> fieldType = unwrapNonNullType(mappingContext.getFieldDefinition().get().getType());
         Class<?> returnType = unwrappedArgument.getType();
 
         // TODO Maybe can be moved to some method???
@@ -372,7 +373,7 @@ class GraphQLRuntimeWiringGenerator {
         }
     }
 
-    private void processReturnType(Class<?> returnType, Type<?> graphQlType, MappingContext mappingContext) {
+    private void processReturnType(Class<?> returnType, Type<?> graphQlType, TypeMappingContext mappingContext) {
         if (graphQlType instanceof NonNullType) {
             graphQlType = unwrapNonNullType(graphQlType);
         }
@@ -411,10 +412,10 @@ class GraphQLRuntimeWiringGenerator {
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
-                MappingContext mappingContext = MappingContext.forField(objectTypeDefinition, fieldDefinition);
+                TypeMappingContext mappingContext = TypeMappingContext.forField(objectTypeDefinition, fieldDefinition.getName());
 
                 List<BeanDefinitionAndMethod> beanDefinitionAndMethods =
-                        graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName());
+                        graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName(), mappingContext);
 
                 if (beanDefinitionAndMethods.size() > 1) {
                     throw new MultipleMethodsFoundException(mappingContext, toMap(beanDefinitionAndMethods));
@@ -439,7 +440,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processEnumTypeDefinition(EnumTypeDefinition enumTypeDefinition, Class<?> targetClass, boolean input,
-                                           MappingContext mappingContext) {
+                                           TypeMappingContext mappingContext) {
         processIfNotProcessed(enumTypeDefinition, targetClass, mappingContext, () -> {
             if (!targetClass.isEnum()) {
                 if (input) {
@@ -483,7 +484,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processUnionTypeDefinition(UnionTypeDefinition unionTypeDefinition, Class<?> returnType,
-                                            MappingContext mappingContext) {
+                                            TypeMappingContext mappingContext) {
         processIfNotProcessed(unionTypeDefinition, returnType, mappingContext, () -> {
             if (!returnType.isInterface()) {
                 throw IncorrectClassMappingException.forField(
@@ -524,7 +525,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processObjectTypeDefinition(ObjectTypeDefinition objectTypeDefinition, Class<?> targetClass,
-                                             MappingContext mappingContext) {
+                                             TypeMappingContext mappingContext) {
         processIfNotProcessed(objectTypeDefinition, targetClass, mappingContext, () -> {
             Optional.ofNullable(schemaMappingDictionary.getTypes().get(objectTypeDefinition.getName()))
                     .ifPresent(registeredClass -> {
@@ -574,7 +575,7 @@ class GraphQLRuntimeWiringGenerator {
     private void processFieldDefinition(FieldDefinition fieldDefinition, ObjectTypeDefinition objectTypeDefinition,
                                         TypeRuntimeWiring.Builder typeRuntimeWiringBuilder,
                                         BeanIntrospection<Object> beanIntrospection) {
-        MappingContext mappingContext = MappingContext.forField(objectTypeDefinition, fieldDefinition);
+        TypeMappingContext mappingContext = TypeMappingContext.forField(objectTypeDefinition, fieldDefinition.getName());
 
         Optional<BeanProperty<Object, Object>> beanProperty =
                 beanIntrospection.getProperty(fieldDefinition.getName());
@@ -593,7 +594,7 @@ class GraphQLRuntimeWiringGenerator {
         if (beanProperty.isPresent()) {
             Argument<?> argument = beanProperty.get().asArgument();
 
-            mappingContext = MappingContext.forField(
+            mappingContext = TypeMappingContext.forField(
                     mappingContext,
                     beanIntrospection.getBeanType(),
                     getPropertyMethodName(beanProperty.get())
@@ -635,7 +636,7 @@ class GraphQLRuntimeWiringGenerator {
         }
 
         List<BeanDefinitionAndMethod> beanDefinitionAndMethods = graphQLResolversRegistry
-                .getTypeExecutableMethod(sourceClass, fieldDefinition.getName());
+                .getTypeExecutableMethod(sourceClass, fieldDefinition.getName(), mappingContext);
 
         if (beanDefinitionAndMethods.size() > 1) {
             throw new MultipleMethodsFoundException(mappingContext, toMap(beanDefinitionAndMethods));
@@ -656,8 +657,11 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectTypeDefinition,
-                                                  Class<?> targetClass, MappingContext mappingContext) {
+                                                  Class<?> targetClass, TypeMappingContext mappingContext) {
+
         processIfNotProcessed(inputObjectTypeDefinition, targetClass, mappingContext, () -> {
+            InputMappingContext inputMappingContext = new InputMappingContext(inputObjectTypeDefinition, null);
+
             BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED
                     .findIntrospection((Class<Object>) targetClass)
                     .orElseThrow(() -> new ClassNotIntrospectedException(mappingContext, targetClass, GraphQLInput.class));
@@ -677,18 +681,22 @@ class GraphQLRuntimeWiringGenerator {
             }
 
             for (InputValueDefinition inputValueDefinition : inputObjectTypeDefinition.getInputValueDefinitions()) {
-                processInputValueDefinition(inputValueDefinition, beanIntrospection);
+                processInputValueDefinition(inputValueDefinition, beanIntrospection,
+                        new InputMappingContext(inputMappingContext.getInputObjectTypeDefinition(),
+                                inputValueDefinition.getName(), beanIntrospection.getBeanType())
+                );
             }
         });
     }
 
     private void processInputValueDefinition(InputValueDefinition inputValueDefinition,
-                                             BeanIntrospection<Object> beanIntrospection) {
+                                             BeanIntrospection<Object> beanIntrospection,
+                                             InputMappingContext mappingContext) {
         Optional<BeanProperty<Object, Object>> property = beanIntrospection.getProperty(inputValueDefinition.getName());
 
         if (!property.isPresent()) {
-            // TODO custom exception
-            throw new RuntimeException("Property `" + inputValueDefinition.getName() + "` not found in: " + beanIntrospection.getBeanType());
+            throw MethodNotFoundException.forInput(inputValueDefinition.getName(), mappingContext,
+                    beanIntrospection.getBeanType());
         }
 
         // TODO Maybe can be moved to some method???
@@ -711,7 +719,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     @Nullable
-    private Class<?> processInputType(Type<?> graphQlType, Class<?> clazz, MappingContext mappingContext) {
+    private Class<?> processInputType(Type<?> graphQlType, Class<?> clazz, TypeMappingContext mappingContext) {
         TypeName typeName = requireTypeName(graphQlType);
 
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
@@ -744,7 +752,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processIfNotProcessed(TypeDefinition<?> typeDefinition, Class<?> targetClass,
-                                       MappingContext mappingContext, Runnable runnable) {
+                                       TypeMappingContext mappingContext, Runnable runnable) {
         if (processedTypes.containsKey(typeDefinition.getName())) {
             Class<?> processedClass = processedTypes.get(typeDefinition.getName());
 

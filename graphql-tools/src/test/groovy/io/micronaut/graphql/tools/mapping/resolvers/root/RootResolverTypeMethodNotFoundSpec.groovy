@@ -7,7 +7,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
 import org.intellij.lang.annotations.Language
 
-class RootResolverMethodNotFoundSpec extends AbstractTest {
+class RootResolverTypeMethodNotFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverMethodNotFoundSpec"
 
@@ -32,7 +32,11 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
-            e.cause.message == "The method `hello` not found in any root resolvers: [${Query1.name}, ${Query2.name}]."
+            e.cause.message == """The method `hello` not found in any root resolvers: [${Query1.name}, ${Query2.name}].
+  GraphQL type: Query
+  GraphQL field: hello"""
+            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlField == 'hello'
             e.cause.methodName == 'hello'
     }
 
@@ -57,7 +61,11 @@ type Mutation {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
-            e.cause.message == "The method `hello` not found in any root resolvers: [${Query1.name}, ${Query2.name}]."
+            e.cause.message == """The method `hello` not found in any root resolvers: [${Query1.name}, ${Query2.name}].
+  GraphQL type: Mutation
+  GraphQL field: hello"""
+            e.cause.mappingContext.graphQlType == 'Mutation'
+            e.cause.mappingContext.graphQlField == 'hello'
             e.cause.methodName == 'hello'
     }
 
