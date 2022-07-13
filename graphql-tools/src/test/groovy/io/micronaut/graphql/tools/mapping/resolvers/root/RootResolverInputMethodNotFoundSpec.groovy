@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverInputMethodNotFoundSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "RootResolverXXXXXXXXXSpec"
+    static final String SPEC_NAME = "RootResolverInputMethodNotFoundSpec"
 
     void "test input property not found"() {
         given:
