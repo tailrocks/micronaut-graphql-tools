@@ -365,8 +365,6 @@ class GraphQLRuntimeWiringGenerator {
             // TODO check
             Class<?> listReturnType = unwrappedArgument.getFirstTypeVariable().get().getType();
 
-            // TODO is mapping details is corrrect?
-
             processReturnType(listReturnType, listFieldType, mappingContext);
         } else {
             processReturnType(returnType, fieldType, mappingContext);
