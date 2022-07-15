@@ -720,9 +720,8 @@ class GraphQLRuntimeWiringGenerator {
             Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
             if (!supportedClasses.contains(returnType)) {
-                throw IncorrectClassMappingException.forArgument(
-                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                        IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
+                throw new IncorrectClassMappingException(
+                        "The argument is mapped to the incorrect class.",
                         mappingContext,
                         returnType,
                         supportedClasses
