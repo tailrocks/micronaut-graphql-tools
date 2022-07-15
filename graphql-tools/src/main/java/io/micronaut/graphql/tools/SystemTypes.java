@@ -71,12 +71,12 @@ public final class SystemTypes {
 
     public static Set<Class<?>> getSupportedClasses(@NonNull ListType listType) {
         ArgumentUtils.requireNonNull("listType", listType);
-        return new HashSet<>(asList(
+        return unmodifiableSet(new HashSet<>(asList(
                 Iterable.class,
                 Collection.class,
                 List.class,
                 Set.class
-        ));
+        )));
     }
 
     public static boolean isGraphQlBuiltInType(@NonNull TypeName typeName) {

@@ -222,15 +222,14 @@ class GraphQLRuntimeWiringGenerator {
         }
 
         int requiredArgs = mappingContext.getFieldDefinition().get().getInputValueDefinitions().size();
-        if (requiredArgs > 0) {
-            throw new IncorrectArgumentCountException(
-                    mappingContext,
-                    true,
-                    0,
-                    requiredArgs,
-                    generateSuggestedMethod(beanProperty.getName(), null, mappingContext)
-            );
-        }
+
+        throw new IncorrectArgumentCountException(
+                mappingContext,
+                true,
+                0,
+                requiredArgs,
+                generateSuggestedMethod(beanProperty.getName(), null, mappingContext)
+        );
     }
 
     private String generateSuggestedMethod(String methodName, @Nullable Class<?> sourceClass,

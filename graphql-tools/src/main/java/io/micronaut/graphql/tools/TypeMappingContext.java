@@ -85,6 +85,7 @@ public class TypeMappingContext implements MappingContext {
         return objectTypeDefinition;
     }
 
+    // TODO cover with tests
     public Optional<FieldDefinition> getFieldDefinition() {
         if (fieldName == null) {
             return Optional.empty();
@@ -94,6 +95,7 @@ public class TypeMappingContext implements MappingContext {
                 .findFirst();
     }
 
+    // TODO cover with tests
     public Optional<InputValueDefinition> getInputValueDefinition() {
         if (argumentName == null) {
             return Optional.empty();

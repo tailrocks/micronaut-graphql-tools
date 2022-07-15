@@ -33,7 +33,7 @@ public class SchemaMappingDictionary {
         return Collections.unmodifiableMap(types);
     }
 
-    // TODO conver with tests
+    // TODO cover with tests
     public SchemaMappingDictionary registerType(@NonNull String graphqlType, @NonNull Class<?> implementationClass) {
         ArgumentUtils.requireNonNull("graphqlType", graphqlType);
         ArgumentUtils.requireNonNull("implementationClass", implementationClass);
