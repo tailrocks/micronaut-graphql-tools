@@ -39,12 +39,12 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectImplementationException
             e.cause.message == """The annotated implementation class is not implementing the ${User.name} interface.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: user
   Mapped class: ${Query.name}
   Mapped method: user()
   Implementation class: ${UserImpl.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'user'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == "user()"

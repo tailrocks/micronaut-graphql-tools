@@ -12,20 +12,23 @@ import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 public class InputMappingContext implements MappingContext {
 
     private final InputObjectTypeDefinition inputObjectTypeDefinition;
-    private final String inputValue;
+    private final String inputValueName;
 
     private final Class<?> mappedClass;
+    private final String mappedProperty;
 
     public InputMappingContext(@NonNull InputObjectTypeDefinition inputObjectTypeDefinition,
-                               @NonNull String inputValue,
-                               @NonNull Class<?> mappedClass) {
+                               @NonNull String inputValueName,
+                               @NonNull Class<?> mappedClass,
+                               @Nullable String mappedProperty) {
         requireNonNull("inputObjectTypeDefinition", inputObjectTypeDefinition);
-        requireNonNull("inputValue", inputValue);
+        requireNonNull("inputValueName", inputValueName);
         requireNonNull("mappedClass", mappedClass);
 
         this.inputObjectTypeDefinition = inputObjectTypeDefinition;
-        this.inputValue = inputValue;
+        this.inputValueName = inputValueName;
         this.mappedClass = mappedClass;
+        this.mappedProperty = mappedProperty;
     }
 
     public InputMappingContext(@NonNull InputObjectTypeDefinition inputObjectTypeDefinition,
@@ -33,8 +36,9 @@ public class InputMappingContext implements MappingContext {
         requireNonNull("inputObjectTypeDefinition", inputObjectTypeDefinition);
 
         this.inputObjectTypeDefinition = inputObjectTypeDefinition;
-        this.inputValue = null;
+        this.inputValueName = null;
         this.mappedClass = mappedClass;
+        this.mappedProperty = null;
     }
 
     @Override
@@ -43,18 +47,27 @@ public class InputMappingContext implements MappingContext {
         return mappedClass;
     }
 
+    @Nullable
+    public String getMappedProperty() {
+        return mappedProperty;
+    }
+
     @Override
     public String getMessage(String superMessage) {
         StringBuilder builder = new StringBuilder(superMessage);
 
-        builder.append("\n  GraphQL input: ").append(getGraphQlInput());
+        builder.append("\n  GraphQL input object type: ").append(getGraphQlInputObjectType());
 
-        if (inputValue != null) {
-            builder.append("\n  GraphQL input value: ").append(inputValue);
+        if (inputValueName != null) {
+            builder.append("\n  GraphQL input value: ").append(inputValueName);
         }
 
         if (mappedClass != null) {
             builder.append("\n  Mapped class: ").append(mappedClass.getName());
+        }
+
+        if (mappedProperty != null) {
+            builder.append("\n  Mapped property: ").append(mappedProperty);
         }
 
         return builder.toString();
@@ -64,21 +77,21 @@ public class InputMappingContext implements MappingContext {
         return inputObjectTypeDefinition;
     }
 
-    public String getGraphQlInput() {
+    public String getGraphQlInputObjectType() {
         return inputObjectTypeDefinition.getName();
     }
 
     @Nullable
-    public String getGraphQLInputValue() {
-        return inputValue;
+    public String getGraphQlInputValue() {
+        return inputValueName;
     }
 
     public Optional<InputValueDefinition> getInputValueDefinition() {
-        if (inputValue == null) {
+        if (inputValueName == null) {
             return Optional.empty();
         }
         return inputObjectTypeDefinition.getInputValueDefinitions().stream()
-                .filter(it -> it.getName().equals(inputValue))
+                .filter(it -> it.getName().equals(inputValueName))
                 .findFirst();
     }
 

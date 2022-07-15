@@ -39,13 +39,13 @@ input PriceInput {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The argument is mapped to an enum, when required a custom class.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: price
   GraphQL argument: input
   Mapped class: ${Query.name}
   Mapped method: price(${PriceInput.name} input)
   Provided class: ${PriceInput.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'price'
             e.cause.mappingContext.graphQlArgument == 'input'
             e.cause.mappingContext.mappedClass == Query

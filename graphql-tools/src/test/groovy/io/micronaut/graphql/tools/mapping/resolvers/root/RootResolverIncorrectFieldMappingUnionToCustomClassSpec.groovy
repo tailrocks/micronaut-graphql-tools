@@ -46,12 +46,12 @@ type ValidationError {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to a custom class, when required an interface.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: testUnion
   Mapped class: ${Query.name}
   Mapped method: testUnion()
   Provided class: ${SecurityError.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'testUnion'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'testUnion()'

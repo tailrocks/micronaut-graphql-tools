@@ -39,12 +39,12 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MultipleMethodsFoundException
             e.cause.message == """Found multiple methods for one GraphQL field.
-  GraphQL type: User
+  GraphQL object type: User
   GraphQL field: username
   Methods: 
   1) ${User.name} getUsername()
   2) ${User.name} username()"""
-            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlObjectType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.mappingContext.mappedClass == null
             e.cause.mappingContext.mappedMethod == null

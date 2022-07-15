@@ -39,10 +39,10 @@ input HelloInput {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
             e.cause.message == """The property or method `lastName` not found in ${HelloInput.name}'s input.
-  GraphQL input: HelloInput
+  GraphQL input object type: HelloInput
   GraphQL input value: lastName
   Mapped class: ${HelloInput.name}"""
-            e.cause.mappingContext.graphQlInput == 'HelloInput'
+            e.cause.mappingContext.graphQlInputObjectType == 'HelloInput'
             e.cause.mappingContext.mappedClass == HelloInput
             e.cause.methodName == 'lastName'
     }

@@ -32,13 +32,13 @@ type Query {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to the incorrect class.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: hello
   Mapped class: ${Query.name}
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'hello'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'hello()'
@@ -67,13 +67,13 @@ type Query {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to the incorrect class.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: hello
   Mapped class: ${Query.name}
   Mapped method: hello()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'hello'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'hello()'

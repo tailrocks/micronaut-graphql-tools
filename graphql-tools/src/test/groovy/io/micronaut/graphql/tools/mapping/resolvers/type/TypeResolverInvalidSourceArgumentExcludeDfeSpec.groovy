@@ -40,11 +40,11 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof InvalidSourceArgumentException
             e.cause.message == """The source argument must be instance of ${User.name} class, provided: ${String.name}.
-  GraphQL type: User
+  GraphQL object type: User
   GraphQL field: username
   Mapped class: ${UserResolver.name}
   Mapped method: username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"""
-            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlObjectType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.mappingContext.mappedClass == UserResolver
             e.cause.mappingContext.mappedMethod == "username(${String.name} uid, ${DataFetchingEnvironment.name} dfe)"

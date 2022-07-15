@@ -38,12 +38,12 @@ input PriceInput {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof ClassNotIntrospectedException
             e.cause.message == """The class ${PriceInput.name} is not introspected. Ensure the class is annotated with ${GraphQLInput.name}.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: price
   GraphQL argument: input
   Mapped class: ${Query.name}
   Mapped method: price(${PriceInput.name} input)"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'price'
             e.cause.mappingContext.graphQlArgument == 'input'
             e.cause.mappingContext.mappedClass == Query

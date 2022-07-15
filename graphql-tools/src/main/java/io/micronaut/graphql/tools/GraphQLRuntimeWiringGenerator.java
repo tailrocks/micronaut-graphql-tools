@@ -23,7 +23,6 @@ import graphql.language.FieldDefinition;
 import graphql.language.InputObjectTypeDefinition;
 import graphql.language.InputValueDefinition;
 import graphql.language.ListType;
-import graphql.language.NonNullType;
 import graphql.language.ObjectTypeDefinition;
 import graphql.language.OperationTypeDefinition;
 import graphql.language.SchemaDefinition;
@@ -46,7 +45,6 @@ import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
 import io.micronaut.core.type.ReturnType;
-import io.micronaut.core.type.TypeInformation;
 import io.micronaut.graphql.tools.annotation.GraphQLInput;
 import io.micronaut.graphql.tools.exceptions.ClassNotIntrospectedException;
 import io.micronaut.graphql.tools.exceptions.IncorrectArgumentCountException;
@@ -176,7 +174,7 @@ class GraphQLRuntimeWiringGenerator {
                 new MicronautExecutableMethodDataFetcher(objectMapper, executable, argumentDefinitions, instance)
         );
 
-        processArgument(returnType.asArgument(), mappingContext);
+        processFieldReturnType(returnType.asArgument(), mappingContext.getFieldDefinition().get().getType(), mappingContext);
     }
 
     private void checkArgumentCount(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
@@ -302,20 +300,8 @@ class GraphQLRuntimeWiringGenerator {
             Argument<?> argument = arguments.get(i);
             Class<?> returnType = argument.getType();
 
-            TypeName typeName = requireTypeName(unwrapNonNullType(inputValueDefinition.getType()));
-
-            if (!SystemTypes.isGraphQlBuiltInType(typeName) && returnType.isInterface()) {
-                throw IncorrectClassMappingException.forArgument(
-                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                        IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
-                        TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName()),
-                        returnType,
-                        null
-                );
-            }
-
             processInputType(
-                    typeName,
+                    unwrapNonNullType(inputValueDefinition.getType()),
                     argument,
                     TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName())
             );
@@ -330,32 +316,29 @@ class GraphQLRuntimeWiringGenerator {
         return result;
     }
 
-    private void processArgument(Argument<?> argument, TypeMappingContext mappingContext) {
-        Argument<?> unwrappedArgument = unwrapArgument(argument);
+    private void processFieldReturnType(Argument<?> argument, Type<?> graphQlType, TypeMappingContext mappingContext) {
+        argument = unwrapArgument(argument);
+        graphQlType = unwrapNonNullType(graphQlType);
 
-        Type<?> fieldType = unwrapNonNullType(mappingContext.getFieldDefinition().get().getType());
-        Class<?> returnType = unwrappedArgument.getType();
+        Class<?> returnType = argument.getType();
 
-        // TODO Maybe can be moved to some method???
-        if (fieldType instanceof ListType) {
+        if (graphQlType instanceof ListType) {
             if (!(Iterable.class.isAssignableFrom(returnType) || Iterator.class.isAssignableFrom(returnType))) {
-                // TODO make the message more clear
-                throw new RuntimeException("Wrong return type");
+                throw IncorrectClassMappingException.forField(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.ITERABLE,
+                        mappingContext,
+                        returnType,
+                        getSupportedClasses((ListType) graphQlType)
+                );
             }
 
-            Type<?> listFieldType = ((ListType) fieldType).getType();
+            Type<?> listFieldType = ((ListType) graphQlType).getType();
             // TODO check
-            Class<?> listReturnType = unwrappedArgument.getFirstTypeVariable().get().getType();
+            Argument<?> listArgument = argument.getFirstTypeVariable().get();
 
-            processReturnType(listReturnType, listFieldType, mappingContext);
-        } else {
-            processReturnType(returnType, fieldType, mappingContext);
-        }
-    }
-
-    private void processReturnType(Class<?> returnType, Type<?> graphQlType, TypeMappingContext mappingContext) {
-        if (graphQlType instanceof NonNullType) {
-            graphQlType = unwrapNonNullType(graphQlType);
+            processFieldReturnType(listArgument, listFieldType, mappingContext);
+            return;
         }
 
         TypeName typeName = requireTypeName(graphQlType);
@@ -583,7 +566,7 @@ class GraphQLRuntimeWiringGenerator {
             // the bean property don't have arguments, that's why we only validates arguments count, not exact types
             checkArgumentCount(beanProperty.get(), mappingContext);
 
-            processArgument(argument, mappingContext);
+            processFieldReturnType(argument, fieldDefinition.getType(), mappingContext);
 
             return;
         }
@@ -639,7 +622,15 @@ class GraphQLRuntimeWiringGenerator {
     private void processInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectTypeDefinition,
                                                   Class<?> targetClass, MappingContext mappingContext) {
         processIfNotProcessed(inputObjectTypeDefinition, targetClass, mappingContext, () -> {
-            InputMappingContext inputMappingContext = new InputMappingContext(inputObjectTypeDefinition, null);
+            if (targetClass.isInterface()) {
+                throw IncorrectClassMappingException.forArgument(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
+                        mappingContext,
+                        targetClass,
+                        null
+                );
+            }
 
             BeanIntrospection<Object> beanIntrospection = BeanIntrospector.SHARED
                     .findIntrospection((Class<Object>) targetClass)
@@ -660,28 +651,35 @@ class GraphQLRuntimeWiringGenerator {
             }
 
             for (InputValueDefinition inputValueDefinition : inputObjectTypeDefinition.getInputValueDefinitions()) {
-                processInputValueDefinition(inputValueDefinition, beanIntrospection,
-                        new InputMappingContext(inputMappingContext.getInputObjectTypeDefinition(),
-                                inputValueDefinition.getName(), beanIntrospection.getBeanType())
+                Optional<BeanProperty<Object, Object>> property = beanIntrospection.getProperty(inputValueDefinition.getName());
+
+                if (!property.isPresent()) {
+                    throw MethodNotFoundException.forInput(
+                            inputValueDefinition.getName(),
+                            new InputMappingContext(
+                                    inputObjectTypeDefinition,
+                                    inputValueDefinition.getName(),
+                                    targetClass,
+                                    null
+                            ),
+                            beanIntrospection.getBeanType()
+                    );
+                }
+
+                processInputType(
+                        inputValueDefinition.getType(),
+                        property.get().asArgument(),
+                        new InputMappingContext(
+                                inputObjectTypeDefinition,
+                                inputValueDefinition.getName(),
+                                targetClass,
+                                property.get().getName()
+                        )
                 );
             }
         });
     }
 
-    private void processInputValueDefinition(InputValueDefinition inputValueDefinition,
-                                             BeanIntrospection<Object> beanIntrospection,
-                                             InputMappingContext mappingContext) {
-        Optional<BeanProperty<Object, Object>> property = beanIntrospection.getProperty(inputValueDefinition.getName());
-
-        if (!property.isPresent()) {
-            throw MethodNotFoundException.forInput(inputValueDefinition.getName(), mappingContext,
-                    beanIntrospection.getBeanType());
-        }
-
-        processInputType(inputValueDefinition.getType(), property.get().asArgument(), mappingContext);
-    }
-
-    @Nullable
     private void processInputType(Type<?> graphQlType, Argument<?> argument, MappingContext mappingContext) {
         graphQlType = unwrapNonNullType(graphQlType);
         argument = unwrapArgument(argument);
@@ -691,8 +689,13 @@ class GraphQLRuntimeWiringGenerator {
 
         if (fieldType instanceof ListType) {
             if (!(Iterable.class.isAssignableFrom(returnType))) {
-                // TODO make the message more clear
-                throw new RuntimeException("Wrong return type");
+                throw IncorrectClassMappingException.forArgument(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.ITERABLE,
+                        mappingContext,
+                        returnType,
+                        getSupportedClasses((ListType) fieldType)
+                );
             }
 
             Type<?> listFieldType = ((ListType) fieldType).getType();
@@ -708,7 +711,11 @@ class GraphQLRuntimeWiringGenerator {
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
-            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, returnType, mappingContext);
+            processInputObjectTypeDefinition(
+                    (InputObjectTypeDefinition) typeDefinition,
+                    returnType,
+                    mappingContext
+            );
         } else if (typeDefinition instanceof EnumTypeDefinition) {
             processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, returnType, true, mappingContext);
         } else if (isGraphQlBuiltInType(typeName)) {

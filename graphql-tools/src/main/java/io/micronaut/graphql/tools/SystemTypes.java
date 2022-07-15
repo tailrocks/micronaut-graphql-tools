@@ -15,6 +15,7 @@
  */
 package io.micronaut.graphql.tools;
 
+import graphql.language.ListType;
 import graphql.language.TypeName;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.NonNull;
@@ -22,14 +23,16 @@ import io.micronaut.core.util.ArgumentUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
 /**
@@ -46,13 +49,13 @@ public final class SystemTypes {
     // https://www.graphql-java.com/documentation/scalars
     static {
         SYSTEM_TYPES.put("String", unmodifiableSet(new HashSet<>(Collections.singletonList(String.class))));
-        SYSTEM_TYPES.put("Boolean", unmodifiableSet(new HashSet<>(Arrays.asList(boolean.class, Boolean.class))));
-        SYSTEM_TYPES.put("Int", unmodifiableSet(new HashSet<>(Arrays.asList(int.class, Integer.class))));
-        SYSTEM_TYPES.put("Float", unmodifiableSet(new HashSet<>(Arrays.asList(float.class, Float.class))));
+        SYSTEM_TYPES.put("Boolean", unmodifiableSet(new HashSet<>(asList(boolean.class, Boolean.class))));
+        SYSTEM_TYPES.put("Int", unmodifiableSet(new HashSet<>(asList(int.class, Integer.class))));
+        SYSTEM_TYPES.put("Float", unmodifiableSet(new HashSet<>(asList(float.class, Float.class))));
         SYSTEM_TYPES.put("ID", unmodifiableSet(new HashSet<>(Collections.singletonList(String.class))));
 
-        SYSTEM_TYPES.put("Long", unmodifiableSet(new HashSet<>(Arrays.asList(long.class, Long.class))));
-        SYSTEM_TYPES.put("Short", unmodifiableSet(new HashSet<>(Arrays.asList(short.class, Short.class))));
+        SYSTEM_TYPES.put("Long", unmodifiableSet(new HashSet<>(asList(long.class, Long.class))));
+        SYSTEM_TYPES.put("Short", unmodifiableSet(new HashSet<>(asList(short.class, Short.class))));
         SYSTEM_TYPES.put("BigDecimal", unmodifiableSet(new HashSet<>(Collections.singletonList(BigDecimal.class))));
         SYSTEM_TYPES.put("BigInteger", unmodifiableSet(new HashSet<>(Collections.singletonList(BigInteger.class))));
     }
@@ -64,6 +67,16 @@ public final class SystemTypes {
     public static Set<Class<?>> getSupportedClasses(@NonNull TypeName typeName) {
         ArgumentUtils.requireNonNull("typeName", typeName);
         return SYSTEM_TYPES.get(typeName.getName());
+    }
+
+    public static Set<Class<?>> getSupportedClasses(@NonNull ListType listType) {
+        ArgumentUtils.requireNonNull("listType", listType);
+        return new HashSet<>(asList(
+                Iterable.class,
+                Collection.class,
+                List.class,
+                Set.class
+        ));
     }
 
     public static boolean isGraphQlBuiltInType(@NonNull TypeName typeName) {

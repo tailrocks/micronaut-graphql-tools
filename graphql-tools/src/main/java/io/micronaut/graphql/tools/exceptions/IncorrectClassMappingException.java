@@ -32,7 +32,8 @@ public class IncorrectClassMappingException extends AbstractMappingException {
         BUILT_IN_JAVA_CLASS,
         CUSTOM_CLASS,
         ENUM,
-        INTERFACE
+        INTERFACE,
+        ITERABLE
     }
 
     private final Class<?> providedClass;
@@ -120,6 +121,8 @@ public class IncorrectClassMappingException extends AbstractMappingException {
                 return "an enum";
             case INTERFACE:
                 return "an interface";
+            case ITERABLE:
+                return "an instance of Iterable interface";
             case DETECT_TYPE:
                 return toString(providedClass);
             default:

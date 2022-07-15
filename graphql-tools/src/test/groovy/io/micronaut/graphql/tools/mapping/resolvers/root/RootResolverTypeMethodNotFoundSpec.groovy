@@ -33,9 +33,9 @@ type Query {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
             e.cause.message == """The method `hello` not found in any root resolvers: [${Query1.name}, ${Query2.name}].
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: hello"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'hello'
             e.cause.methodName == 'hello'
     }
@@ -62,9 +62,9 @@ type Mutation {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MethodNotFoundException
             e.cause.message == """The method `hello` not found in any root resolvers: [${Query1.name}, ${Query2.name}].
-  GraphQL type: Mutation
+  GraphQL object type: Mutation
   GraphQL field: hello"""
-            e.cause.mappingContext.graphQlType == 'Mutation'
+            e.cause.mappingContext.graphQlObjectType == 'Mutation'
             e.cause.mappingContext.graphQlField == 'hello'
             e.cause.methodName == 'hello'
     }

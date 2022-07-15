@@ -38,13 +38,13 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to the incorrect class.
-  GraphQL type: User
+  GraphQL object type: User
   GraphQL field: username
   Mapped class: ${User.name}
   Mapped method: getUsername()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlObjectType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.mappingContext.mappedClass == User
             e.cause.mappingContext.mappedMethod == 'getUsername()'
@@ -78,13 +78,13 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to the incorrect class.
-  GraphQL type: User
+  GraphQL object type: User
   GraphQL field: username
   Mapped class: ${User.name}
   Mapped method: getUsername()
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
-            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlObjectType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.mappingContext.mappedClass == User
             e.cause.mappingContext.mappedMethod == 'getUsername()'

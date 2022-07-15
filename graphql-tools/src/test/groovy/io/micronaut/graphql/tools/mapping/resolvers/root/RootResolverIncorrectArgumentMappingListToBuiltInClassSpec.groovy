@@ -7,11 +7,11 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class RootResolverIncorrectArgumentMappingEnumToCustomClassSpec extends AbstractTest {
+class RootResolverIncorrectArgumentMappingListToBuiltInClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingEnumToCustomClassSpec"
+    static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingListToBuiltInClassSpec"
 
-    void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
+    void "test TODO"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -20,13 +20,7 @@ schema {
 }
 
 type Query {
-  displayName(value: Month): String
-}
-
-enum Month {
-  JANUARY
-  FEBRUARY
-  MARCH
+  testString(input: [String]): String
 }
 """
 
@@ -38,24 +32,27 @@ enum Month {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The argument is mapped to a built-in class, when required an enum.
+            e.cause.message == """The argument is mapped to a built-in class, when required an instance of Iterable interface.
   GraphQL object type: Query
-  GraphQL field: displayName
-  GraphQL argument: value
+  GraphQL field: testString
+  GraphQL argument: input
   Mapped class: ${Query.name}
-  Mapped method: displayName(java.lang.String value)
-  Provided class: java.lang.String"""
+  Mapped method: testString(${String.name} input)
+  Provided class: ${String.name}
+  Supported classes: java.lang.Iterable, java.util.Collection, java.util.List, java.util.Set"""
             e.cause.mappingContext.graphQlObjectType == 'Query'
-            e.cause.mappingContext.graphQlField == 'displayName'
-            e.cause.mappingContext.graphQlArgument == 'value'
+            e.cause.mappingContext.graphQlField == 'testString'
+            e.cause.mappingContext.graphQlArgument == 'input'
             e.cause.mappingContext.mappedClass == Query
-            e.cause.mappingContext.mappedMethod == 'displayName(java.lang.String value)'
+            e.cause.mappingContext.mappedMethod == "testString(${String.name} input)"
+            e.cause.providedClass == String
+            e.cause.supportedClasses == [Iterable, Collection, List, Set] as HashSet
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        String displayName(String value) {
+        String testString(String input) {
             return null
         }
     }

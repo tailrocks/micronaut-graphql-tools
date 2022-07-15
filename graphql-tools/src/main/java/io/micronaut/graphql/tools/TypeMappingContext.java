@@ -32,7 +32,7 @@ public class TypeMappingContext implements MappingContext {
 
     private final ObjectTypeDefinition objectTypeDefinition;
     private final String fieldName;
-    private final String inputValueName;
+    private final String argumentName;
 
     private final Class<?> mappedClass;
     private final String mappedMethod;
@@ -56,27 +56,27 @@ public class TypeMappingContext implements MappingContext {
     }
 
     static TypeMappingContext forArgument(@NonNull TypeMappingContext mappingContext,
-                                          String inputValueName) {
+                                          String argumentName) {
         requireNonNull("mappingContext", mappingContext);
         requireNonNull("mappingContext.objectTypeDefinition", mappingContext.objectTypeDefinition);
         requireNonNull("mappingContext.fieldName", mappingContext.fieldName);
-        requireNonNull("inputValueName", inputValueName);
+        requireNonNull("argumentName", argumentName);
 
         return new TypeMappingContext(
                 mappingContext.objectTypeDefinition,
                 mappingContext.fieldName,
-                inputValueName,
+                argumentName,
                 mappingContext.getMappedClass(),
                 mappingContext.getMappedMethod()
         );
     }
 
     private TypeMappingContext(ObjectTypeDefinition objectTypeDefinition, String fieldName,
-                               @Nullable String inputValueName, @Nullable Class<?> mappedClass,
+                               @Nullable String argumentName, @Nullable Class<?> mappedClass,
                                @Nullable String mappedMethod) {
         this.objectTypeDefinition = objectTypeDefinition;
         this.fieldName = fieldName;
-        this.inputValueName = inputValueName;
+        this.argumentName = argumentName;
         this.mappedClass = mappedClass;
         this.mappedMethod = mappedMethod;
     }
@@ -95,16 +95,16 @@ public class TypeMappingContext implements MappingContext {
     }
 
     public Optional<InputValueDefinition> getInputValueDefinition() {
-        if (inputValueName == null) {
+        if (argumentName == null) {
             return Optional.empty();
         }
 
         return getFieldDefinition().get().getInputValueDefinitions().stream()
-                .filter(it -> it.getName().equals(inputValueName))
+                .filter(it -> it.getName().equals(argumentName))
                 .findFirst();
     }
 
-    public String getGraphQlType() {
+    public String getGraphQlObjectType() {
         return objectTypeDefinition.getName();
     }
 
@@ -115,7 +115,7 @@ public class TypeMappingContext implements MappingContext {
 
     @Nullable
     public String getGraphQlArgument() {
-        return inputValueName;
+        return argumentName;
     }
 
     @Override
@@ -133,11 +133,11 @@ public class TypeMappingContext implements MappingContext {
     public String getMessage(String superMessage) {
         StringBuilder builder = new StringBuilder(superMessage);
 
-        builder.append("\n  GraphQL type: ").append(getGraphQlType());
+        builder.append("\n  GraphQL object type: ").append(getGraphQlObjectType());
         builder.append("\n  GraphQL field: ").append(getGraphQlField());
 
-        if (inputValueName != null) {
-            builder.append("\n  GraphQL argument: ").append(inputValueName);
+        if (argumentName != null) {
+            builder.append("\n  GraphQL argument: ").append(argumentName);
         }
 
         if (mappedClass != null) {

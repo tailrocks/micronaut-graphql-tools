@@ -38,10 +38,10 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to an enum, when required a custom class.
-  GraphQL type: User
+  GraphQL object type: User
   GraphQL field: username
   Provided class: ${User.name}"""
-            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlObjectType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.providedClass == User
     }

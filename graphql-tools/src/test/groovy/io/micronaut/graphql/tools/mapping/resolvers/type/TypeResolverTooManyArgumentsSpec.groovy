@@ -39,11 +39,11 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectArgumentCountException
             e.cause.message == """The method has too many arguments, provided: 2, required 1 arg(s): username(${User.name} user)
-  GraphQL type: User
+  GraphQL object type: User
   GraphQL field: username
   Mapped class: ${UserResolver.name}
   Mapped method: username(${User.name} user, ${String.name} uid)"""
-            e.cause.mappingContext.graphQlType == 'User'
+            e.cause.mappingContext.graphQlObjectType == 'User'
             e.cause.mappingContext.graphQlField == 'username'
             e.cause.mappingContext.mappedClass == UserResolver
             e.cause.mappingContext.mappedMethod == "username(${User.name} user, ${String.name} uid)"

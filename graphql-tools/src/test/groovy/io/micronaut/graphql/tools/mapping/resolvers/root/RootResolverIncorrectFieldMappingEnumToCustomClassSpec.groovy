@@ -40,12 +40,12 @@ enum Month {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to a custom class, when required an enum.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: month
   Mapped class: ${Query.name}
   Mapped method: month()
   Provided class: ${MyMonth.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'month'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'month()'

@@ -39,12 +39,12 @@ enum Month {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MissingEnumValuesException
             e.cause.message == """Some enum values are missing.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: month
   Mapped class: ${Query.name}
   Mapped method: month()
   Missing values: MARCH"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'month'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'month()'

@@ -48,11 +48,11 @@ type ValidationError {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof UnionTypeMappingNotProvidedException
             e.cause.message == """Can not detect representation class for type ValidationError, member of PayloadError union. Ensure the representation class is registered via ${SchemaMappingDictionary.name}.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: unionTest
   Mapped class: ${Query.name}
   Mapped method: unionTest()"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'unionTest'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'unionTest()'

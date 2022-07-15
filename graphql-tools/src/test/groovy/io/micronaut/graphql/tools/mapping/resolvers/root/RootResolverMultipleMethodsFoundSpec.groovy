@@ -34,12 +34,12 @@ type Query {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MultipleMethodsFoundException
             e.cause.message == """Found multiple methods for one GraphQL field.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: hello
   Methods: 
   1) ${Query.name} hello()
   2) ${Query.name} hello(${DataFetchingEnvironment.name} env)"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'hello'
             e.cause.mappingContext.mappedClass == null
             e.cause.mappingContext.mappedMethod == null

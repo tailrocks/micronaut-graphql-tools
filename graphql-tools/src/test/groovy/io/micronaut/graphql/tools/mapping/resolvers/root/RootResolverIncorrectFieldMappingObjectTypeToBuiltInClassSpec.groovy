@@ -37,12 +37,12 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to a built-in class, when required a custom class.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: currentUser
   Mapped class: ${Query.name}
   Mapped method: currentUser()
   Provided class: ${Integer.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'currentUser'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'currentUser()'
@@ -75,12 +75,12 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
             e.cause.message == """The field is mapped to a built-in class, when required a custom class.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: currentUser
   Mapped class: ${Query.name}
   Mapped method: currentUser()
   Provided class: ${Integer.name}"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'currentUser'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'currentUser()'

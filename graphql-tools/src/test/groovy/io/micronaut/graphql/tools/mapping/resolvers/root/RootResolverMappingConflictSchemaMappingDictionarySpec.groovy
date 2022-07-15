@@ -40,11 +40,11 @@ type User {
             def e = thrown(BeanInstantiationException)
             e.cause instanceof MappingConflictException
             e.cause.message == """Unable to map GraphQL type `User` to ${User.name}, as it is already mapped to ${AnotherUser.name}.
-  GraphQL type: Query
+  GraphQL object type: Query
   GraphQL field: user
   Mapped class: ${Query.name}
   Mapped method: user()"""
-            e.cause.mappingContext.graphQlType == 'Query'
+            e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'user'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == 'user()'
