@@ -11,7 +11,7 @@ class RootResolverIncorrectFieldMappingXXXXXXSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverIncorrectFieldMappingXXXXXXSpec"
 
-    void "test enum annotated with GraphQLType instead of custom class"() {
+    void "test TODO"() {
         given:
             @Language("GraphQL")
             String schema = """
