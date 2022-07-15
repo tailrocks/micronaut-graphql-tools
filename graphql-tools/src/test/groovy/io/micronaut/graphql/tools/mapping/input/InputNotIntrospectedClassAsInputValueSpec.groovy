@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.mapping.resolvers.root
+package io.micronaut.graphql.tools.mapping.input
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
