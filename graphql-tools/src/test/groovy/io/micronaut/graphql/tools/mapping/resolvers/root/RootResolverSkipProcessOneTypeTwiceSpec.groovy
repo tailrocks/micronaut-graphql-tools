@@ -31,21 +31,32 @@ type User {
             startContext(schema, SPEC_NAME)
 
         when:
-            getGraphQLBean()
+            def result = executeQuery("""
+{
+    testUser1 {
+        username
+    }
+    testUser2 {
+        username
+    }
+}
+""")
 
         then:
-            noExceptionThrown()
+            result.errors.isEmpty()
+            result.data.testUser1.username == 'test1'
+            result.data.testUser2.username == 'test2'
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
         User testUser1() {
-            return null
+            return new User(username: 'test1')
         }
 
         User testUser2() {
-            return null
+            return new User(username: 'test2')
         }
     }
 
