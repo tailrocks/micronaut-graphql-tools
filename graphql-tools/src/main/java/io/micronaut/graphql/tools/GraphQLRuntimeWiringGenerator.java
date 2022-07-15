@@ -334,7 +334,6 @@ class GraphQLRuntimeWiringGenerator {
             }
 
             Type<?> listFieldType = ((ListType) graphQlType).getType();
-            // TODO check
             Argument<?> listArgument = argument.getFirstTypeVariable().get();
 
             processFieldReturnType(listArgument, listFieldType, mappingContext);
@@ -699,7 +698,6 @@ class GraphQLRuntimeWiringGenerator {
             }
 
             Type<?> listFieldType = ((ListType) fieldType).getType();
-            // TODO check
             Argument<?> listArgument = argument.getFirstTypeVariable().get();
 
             processInputType(listFieldType, listArgument, mappingContext);
