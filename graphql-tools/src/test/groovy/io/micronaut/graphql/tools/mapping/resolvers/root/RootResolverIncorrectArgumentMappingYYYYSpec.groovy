@@ -12,7 +12,7 @@ class RootResolverIncorrectArgumentMappingYYYYSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingYYYYSpec"
 
-    void "test input argument use enum instead of introspected custom class"() {
+    void "test TODO"() {
         given:
             @Language("GraphQL")
             String schema = """

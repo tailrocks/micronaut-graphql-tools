@@ -266,21 +266,17 @@ class GraphQLRuntimeWiringGenerator {
             return Collections.emptyList();
         }
 
-        List<Class<?>> argumentClasses = arguments.stream()
-                .map(TypeInformation::getType)
-                .collect(Collectors.toList());
-
         boolean containsSourceArgument = false;
 
         if (sourceClass != null) {
-            if (argumentClasses.get(0).equals(sourceClass)) {
-                argumentClasses.remove(0);
+            if (arguments.get(0).getType().equals(sourceClass)) {
+                arguments.remove(0);
 
                 containsSourceArgument = true;
             } else {
                 throw new InvalidSourceArgumentException(
                         mappingContext,
-                        argumentClasses.get(0),
+                        arguments.get(0).getType(),
                         sourceClass
                 );
             }
@@ -288,9 +284,9 @@ class GraphQLRuntimeWiringGenerator {
 
         boolean containsEnvironmentArgument = false;
 
-        if (!argumentClasses.isEmpty()
-                && argumentClasses.get(argumentClasses.size() - 1).equals(DataFetchingEnvironment.class)) {
-            argumentClasses.remove(argumentClasses.size() - 1);
+        if (!arguments.isEmpty()
+                && arguments.get(arguments.size() - 1).getType().equals(DataFetchingEnvironment.class)) {
+            arguments.remove(arguments.size() - 1);
 
             containsEnvironmentArgument = true;
         }
@@ -303,25 +299,24 @@ class GraphQLRuntimeWiringGenerator {
 
         for (int i = 0; i < inputs.size(); i++) {
             InputValueDefinition inputValueDefinition = inputs.get(i);
-            Class<?> returnType = argumentClasses.get(i);
+            Argument<?> argument = arguments.get(i);
+            Class<?> returnType = argument.getType();
 
             TypeName typeName = requireTypeName(unwrapNonNullType(inputValueDefinition.getType()));
 
-            if (!SystemTypes.isGraphQlBuiltInType(typeName)) {
-                if (returnType.isInterface()) {
-                    throw IncorrectClassMappingException.forArgument(
-                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                            IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
-                            TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName()),
-                            returnType,
-                            null
-                    );
-                }
+            if (!SystemTypes.isGraphQlBuiltInType(typeName) && returnType.isInterface()) {
+                throw IncorrectClassMappingException.forArgument(
+                        IncorrectClassMappingException.MappingType.DETECT_TYPE,
+                        IncorrectClassMappingException.MappingType.CUSTOM_CLASS,
+                        TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName()),
+                        returnType,
+                        null
+                );
             }
 
             processInputType(
                     typeName,
-                    returnType,
+                    argument,
                     TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName())
             );
 
@@ -425,7 +420,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processEnumTypeDefinition(EnumTypeDefinition enumTypeDefinition, Class<?> targetClass, boolean input,
-                                           TypeMappingContext mappingContext) {
+                                           MappingContext mappingContext) {
         processIfNotProcessed(enumTypeDefinition, targetClass, mappingContext, () -> {
             if (!targetClass.isEnum()) {
                 if (input) {
@@ -642,7 +637,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectTypeDefinition,
-                                                  Class<?> targetClass, TypeMappingContext mappingContext) {
+                                                  Class<?> targetClass, MappingContext mappingContext) {
         processIfNotProcessed(inputObjectTypeDefinition, targetClass, mappingContext, () -> {
             InputMappingContext inputMappingContext = new InputMappingContext(inputObjectTypeDefinition, null);
 
@@ -683,10 +678,16 @@ class GraphQLRuntimeWiringGenerator {
                     beanIntrospection.getBeanType());
         }
 
-        Argument<?> unwrappedArgument = unwrapArgument(property.get().asArgument());
+        processInputType(inputValueDefinition.getType(), property.get().asArgument(), mappingContext);
+    }
 
-        Type<?> fieldType = unwrapNonNullType(inputValueDefinition.getType());
-        Class<?> returnType = unwrappedArgument.getType();
+    @Nullable
+    private void processInputType(Type<?> graphQlType, Argument<?> argument, MappingContext mappingContext) {
+        graphQlType = unwrapNonNullType(graphQlType);
+        argument = unwrapArgument(argument);
+
+        Type<?> fieldType = unwrapNonNullType(graphQlType);
+        Class<?> returnType = argument.getType();
 
         if (fieldType instanceof ListType) {
             if (!(Iterable.class.isAssignableFrom(returnType))) {
@@ -696,20 +697,10 @@ class GraphQLRuntimeWiringGenerator {
 
             Type<?> listFieldType = ((ListType) fieldType).getType();
             // TODO check
-            Class<?> listReturnType = unwrappedArgument.getFirstTypeVariable().get().getType();
+            Argument<?> listArgument = argument.getFirstTypeVariable().get();
 
-            // TODO mapping context
-            processInputType(listFieldType, listReturnType, null);
-        } else {
-            // TODO mapping context
-            processInputType(fieldType, returnType, null);
-        }
-    }
-
-    @Nullable
-    private void processInputType(Type<?> graphQlType, Class<?> clazz, TypeMappingContext mappingContext) {
-        if (graphQlType instanceof NonNullType) {
-            graphQlType = unwrapNonNullType(graphQlType);
+            processInputType(listFieldType, listArgument, mappingContext);
+            return;
         }
 
         TypeName typeName = requireTypeName(graphQlType);
@@ -717,18 +708,18 @@ class GraphQLRuntimeWiringGenerator {
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
-            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, clazz, mappingContext);
+            processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, returnType, mappingContext);
         } else if (typeDefinition instanceof EnumTypeDefinition) {
-            processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, clazz, true, mappingContext);
+            processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, returnType, true, mappingContext);
         } else if (isGraphQlBuiltInType(typeName)) {
             Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
-            if (!supportedClasses.contains(clazz)) {
+            if (!supportedClasses.contains(returnType)) {
                 throw IncorrectClassMappingException.forArgument(
                         IncorrectClassMappingException.MappingType.DETECT_TYPE,
                         IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
                         mappingContext,
-                        clazz,
+                        returnType,
                         supportedClasses
                 );
             }
@@ -738,7 +729,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void processIfNotProcessed(TypeDefinition<?> typeDefinition, Class<?> targetClass,
-                                       TypeMappingContext mappingContext, Runnable runnable) {
+                                       MappingContext mappingContext, Runnable runnable) {
         if (processedTypes.containsKey(typeDefinition.getName())) {
             Class<?> processedClass = processedTypes.get(typeDefinition.getName());
 
