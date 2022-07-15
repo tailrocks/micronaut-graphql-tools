@@ -71,6 +71,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -356,7 +357,7 @@ class GraphQLRuntimeWiringGenerator {
 
         // TODO Maybe can be moved to some method???
         if (fieldType instanceof ListType) {
-            if (!returnType.equals(List.class)) {
+            if (!(Iterable.class.isAssignableFrom(returnType) || Iterator.class.isAssignableFrom(returnType))) {
                 // TODO make the message more clear
                 throw new RuntimeException("Wrong return type");
             }
@@ -697,27 +698,35 @@ class GraphQLRuntimeWiringGenerator {
                     beanIntrospection.getBeanType());
         }
 
-        // TODO Maybe can be moved to some method???
+        Argument<?> unwrappedArgument = unwrapArgument(property.get().asArgument());
+
         Type<?> fieldType = unwrapNonNullType(inputValueDefinition.getType());
-        Class<?> returnType = property.get().getType();
+        Class<?> returnType = unwrappedArgument.getType();
 
         if (fieldType instanceof ListType) {
-            if (!returnType.equals(List.class)) {
-                // TODO
+            if (!(Iterable.class.isAssignableFrom(returnType))) {
+                // TODO make the message more clear
                 throw new RuntimeException("Wrong return type");
             }
 
-            // TODO validate primitive type
+            Type<?> listFieldType = ((ListType) fieldType).getType();
+            // TODO check
+            Class<?> listReturnType = unwrappedArgument.getFirstTypeVariable().get().getType();
 
-            // TODO process sub types
-            //throw new UnsupportedOperationException();
+            // TODO mapping context
+            processInputType(listFieldType, listReturnType, null);
         } else {
+            // TODO mapping context
             processInputType(fieldType, returnType, null);
         }
     }
 
     @Nullable
     private Class<?> processInputType(Type<?> graphQlType, Class<?> clazz, TypeMappingContext mappingContext) {
+        if (graphQlType instanceof NonNullType) {
+            graphQlType = unwrapNonNullType(graphQlType);
+        }
+
         TypeName typeName = requireTypeName(graphQlType);
 
         TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
