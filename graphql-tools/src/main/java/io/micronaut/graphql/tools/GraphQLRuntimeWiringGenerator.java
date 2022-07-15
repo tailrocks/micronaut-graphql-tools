@@ -307,21 +307,7 @@ class GraphQLRuntimeWiringGenerator {
 
             TypeName typeName = requireTypeName(unwrapNonNullType(inputValueDefinition.getType()));
 
-            if (SystemTypes.isGraphQlBuiltInType(typeName)) {
-                Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
-
-                if (!supportedClasses.contains(returnType)) {
-                    throw IncorrectClassMappingException.forArgument(
-                            IncorrectClassMappingException.MappingType.DETECT_TYPE,
-                            IncorrectClassMappingException.MappingType.BUILT_IN_JAVA_CLASS,
-                            TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName()),
-                            returnType,
-                            supportedClasses
-                    );
-                }
-
-                result.add(new ArgumentDefinition(inputs.get(i).getName(), returnType));
-            } else {
+            if (!SystemTypes.isGraphQlBuiltInType(typeName)) {
                 if (returnType.isInterface()) {
                     throw IncorrectClassMappingException.forArgument(
                             IncorrectClassMappingException.MappingType.DETECT_TYPE,
@@ -331,15 +317,15 @@ class GraphQLRuntimeWiringGenerator {
                             null
                     );
                 }
-
-                Class<?> inputClass = processInputType(
-                        typeName,
-                        returnType,
-                        TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName())
-                );
-
-                result.add(new ArgumentDefinition(inputs.get(i).getName(), inputClass));
             }
+
+            processInputType(
+                    typeName,
+                    returnType,
+                    TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName())
+            );
+
+            result.add(new ArgumentDefinition(inputs.get(i).getName(), returnType));
         }
 
         if (containsEnvironmentArgument) {
@@ -657,7 +643,6 @@ class GraphQLRuntimeWiringGenerator {
 
     private void processInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectTypeDefinition,
                                                   Class<?> targetClass, TypeMappingContext mappingContext) {
-
         processIfNotProcessed(inputObjectTypeDefinition, targetClass, mappingContext, () -> {
             InputMappingContext inputMappingContext = new InputMappingContext(inputObjectTypeDefinition, null);
 
@@ -722,7 +707,7 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     @Nullable
-    private Class<?> processInputType(Type<?> graphQlType, Class<?> clazz, TypeMappingContext mappingContext) {
+    private void processInputType(Type<?> graphQlType, Class<?> clazz, TypeMappingContext mappingContext) {
         if (graphQlType instanceof NonNullType) {
             graphQlType = unwrapNonNullType(graphQlType);
         }
@@ -733,12 +718,8 @@ class GraphQLRuntimeWiringGenerator {
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
             processInputObjectTypeDefinition((InputObjectTypeDefinition) typeDefinition, clazz, mappingContext);
-
-            return clazz;
         } else if (typeDefinition instanceof EnumTypeDefinition) {
             processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, clazz, true, mappingContext);
-
-            return null;
         } else if (isGraphQlBuiltInType(typeName)) {
             Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
@@ -751,8 +732,6 @@ class GraphQLRuntimeWiringGenerator {
                         supportedClasses
                 );
             }
-
-            return null;
         } else {
             throw unsupportedTypeDefinition(typeDefinition);
         }
