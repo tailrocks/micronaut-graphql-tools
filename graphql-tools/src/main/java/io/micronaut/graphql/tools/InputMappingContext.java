@@ -31,16 +31,6 @@ public class InputMappingContext implements MappingContext {
         this.mappedProperty = mappedProperty;
     }
 
-    public InputMappingContext(@NonNull InputObjectTypeDefinition inputObjectTypeDefinition,
-                               @Nullable Class<?> mappedClass) {
-        requireNonNull("inputObjectTypeDefinition", inputObjectTypeDefinition);
-
-        this.inputObjectTypeDefinition = inputObjectTypeDefinition;
-        this.inputValueName = null;
-        this.mappedClass = mappedClass;
-        this.mappedProperty = null;
-    }
-
     @Override
     @Nullable
     public Class<?> getMappedClass() {
