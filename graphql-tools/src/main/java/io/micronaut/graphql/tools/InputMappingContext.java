@@ -73,7 +73,6 @@ public class InputMappingContext implements MappingContext {
         return builder.toString();
     }
 
-    // TODO cover with tests
     public InputObjectTypeDefinition getInputObjectTypeDefinition() {
         return inputObjectTypeDefinition;
     }
@@ -87,7 +86,6 @@ public class InputMappingContext implements MappingContext {
         return inputValueName;
     }
 
-    // TODO cover with tests
     public Optional<InputValueDefinition> getInputValueDefinition() {
         if (inputValueName == null) {
             return Optional.empty();

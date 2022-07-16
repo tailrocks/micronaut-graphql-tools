@@ -33,7 +33,6 @@ public class SchemaMappingDictionary {
         return Collections.unmodifiableMap(types);
     }
 
-    // TODO cover with tests
     public SchemaMappingDictionary registerType(@NonNull String graphqlType, @NonNull Class<?> implementationClass) {
         ArgumentUtils.requireNonNull("graphqlType", graphqlType);
         ArgumentUtils.requireNonNull("implementationClass", implementationClass);
@@ -51,7 +50,8 @@ public class SchemaMappingDictionary {
             throw new IllegalArgumentException("Duplicated GraphQL type: " + graphqlType);
         }
         if (types.containsValue(implementationClass)) {
-            throw new IllegalArgumentException("One GraphQL type can have only one implementation class, found duplicate: " + implementationClass);
+            throw new IllegalArgumentException("One GraphQL type can have only one implementation class, found " +
+                    "duplicate: " + implementationClass.getName());
         }
         types.put(graphqlType, implementationClass);
 

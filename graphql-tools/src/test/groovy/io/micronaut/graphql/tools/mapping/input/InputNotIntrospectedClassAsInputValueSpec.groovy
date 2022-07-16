@@ -48,6 +48,8 @@ input ConversionInput {
   Mapped property: conversion"""
             e.cause.mappingContext.graphQlInputObjectType == 'PriceInput'
             e.cause.mappingContext.graphQlInputValue == 'conversion'
+            e.cause.mappingContext.inputObjectTypeDefinition.name == 'PriceInput'
+            e.cause.mappingContext.inputValueDefinition.get().name == 'conversion'
             e.cause.mappingContext.mappedClass == PriceInput
             e.cause.mappingContext.mappedProperty == 'conversion'
     }
