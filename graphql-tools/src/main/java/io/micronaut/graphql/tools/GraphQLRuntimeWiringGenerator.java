@@ -160,21 +160,24 @@ class GraphQLRuntimeWiringGenerator {
 
     void processExecutableMethod(Executable<Object, ?> executable, ReturnType<?> returnType,
                                  @Nullable Class<?> sourceClass, @Nullable Object instance,
-                                 TypeRuntimeWiring.Builder typeRuntimeWiringBuilder, TypeMappingContext mappingContext) {
+                                 TypeRuntimeWiring.Builder typeRuntimeWiringBuilder,
+                                 TypeMappingContext mappingContext) {
         mappingContext = TypeMappingContext.forField(
                 mappingContext,
                 executable.getDeclaringType(),
                 getExecutableMethodFullName(executable)
         );
 
-        List<ArgumentDefinition> argumentDefinitions = calculateArgumentDefinitions(executable, sourceClass, mappingContext);
+        List<ArgumentDefinition> argumentDefinitions = calculateArgumentDefinitions(executable, sourceClass,
+                mappingContext);
 
         typeRuntimeWiringBuilder.dataFetcher(
                 mappingContext.getFieldDefinition().get().getName(),
                 new MicronautExecutableMethodDataFetcher(objectMapper, executable, argumentDefinitions, instance)
         );
 
-        processFieldReturnType(returnType.asArgument(), mappingContext.getFieldDefinition().get().getType(), mappingContext);
+        processFieldReturnType(returnType.asArgument(), mappingContext.getFieldDefinition().get().getType(),
+                mappingContext);
     }
 
     private void checkArgumentCount(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
@@ -248,7 +251,11 @@ class GraphQLRuntimeWiringGenerator {
                         .collect(Collectors.toList())
         );
 
-        return suggestedMethodArgs.isEmpty() ? null : methodName + "(" + String.join(", ", suggestedMethodArgs) + ")";
+        if (suggestedMethodArgs.isEmpty()) {
+            return null;
+        }
+
+        return methodName + "(" + String.join(", ", suggestedMethodArgs) + ")";
     }
 
     private List<ArgumentDefinition> calculateArgumentDefinitions(Executable<?, ?> executable,
@@ -272,9 +279,7 @@ class GraphQLRuntimeWiringGenerator {
                 containsSourceArgument = true;
             } else {
                 throw new InvalidSourceArgumentException(
-                        mappingContext,
-                        arguments.get(0).getType(),
-                        sourceClass
+                        mappingContext, arguments.get(0).getType(), sourceClass
                 );
             }
         }
@@ -319,15 +324,15 @@ class GraphQLRuntimeWiringGenerator {
         argument = unwrapArgument(argument);
         graphQlType = unwrapNonNullType(graphQlType);
 
-        Class<?> returnType = argument.getType();
+        Class<?> returnClass = argument.getType();
 
         if (graphQlType instanceof ListType) {
-            if (!(Iterable.class.isAssignableFrom(returnType) || Iterator.class.isAssignableFrom(returnType))) {
+            if (!(Iterable.class.isAssignableFrom(returnClass) || Iterator.class.isAssignableFrom(returnClass))) {
                 throw IncorrectClassMappingException.forField(
                         IncorrectClassMappingException.MappingType.DETECT_TYPE,
                         IncorrectClassMappingException.MappingType.ITERABLE,
                         mappingContext,
-                        returnType,
+                        returnClass,
                         getSupportedClasses((ListType) graphQlType)
                 );
             }
@@ -344,23 +349,18 @@ class GraphQLRuntimeWiringGenerator {
         if (isGraphQlBuiltInType(typeName)) {
             Set<Class<?>> supportedClasses = getSupportedClasses(getTypeName(graphQlType));
 
-            if (!supportedClasses.contains(returnType)) {
-                throw new IncorrectClassMappingException(
-                        "The field is mapped to the incorrect class.",
-                        mappingContext,
-                        returnType,
-                        supportedClasses
-                );
+            if (!supportedClasses.contains(returnClass)) {
+                throw IncorrectClassMappingException.forField(mappingContext, returnClass, supportedClasses);
             }
         } else {
             TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
 
             if (typeDefinition instanceof EnumTypeDefinition) {
-                processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, returnType, false, mappingContext);
+                processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, returnClass, false, mappingContext);
             } else if (typeDefinition instanceof UnionTypeDefinition) {
-                processUnionTypeDefinition((UnionTypeDefinition) typeDefinition, returnType, mappingContext);
+                processUnionTypeDefinition((UnionTypeDefinition) typeDefinition, returnClass, mappingContext);
             } else if (typeDefinition instanceof ObjectTypeDefinition) {
-                processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, returnType, mappingContext);
+                processObjectTypeDefinition((ObjectTypeDefinition) typeDefinition, returnClass, mappingContext);
             } else {
                 throw unsupportedTypeDefinition(typeDefinition);
             }
@@ -373,7 +373,8 @@ class GraphQLRuntimeWiringGenerator {
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
-                TypeMappingContext mappingContext = TypeMappingContext.forField(objectTypeDefinition, fieldDefinition.getName());
+                TypeMappingContext mappingContext =
+                        TypeMappingContext.forField(objectTypeDefinition, fieldDefinition.getName());
 
                 List<BeanDefinitionAndMethod> beanDefinitionAndMethods =
                         graphQLResolversRegistry.getRootExecutableMethod(fieldDefinition.getName(), mappingContext);
@@ -429,7 +430,8 @@ class GraphQLRuntimeWiringGenerator {
                     .sorted()
                     .collect(Collectors.toList());
 
-            List<String> existingValues = Arrays.stream(targetClass.getEnumConstants()).map(it -> ((Enum<?>) it).name())
+            List<String> existingValues = Arrays.stream(targetClass.getEnumConstants())
+                    .map(it -> ((Enum<?>) it).name())
                     .distinct()
                     .sorted()
                     .collect(Collectors.toList());
@@ -444,15 +446,15 @@ class GraphQLRuntimeWiringGenerator {
         });
     }
 
-    private void processUnionTypeDefinition(UnionTypeDefinition unionTypeDefinition, Class<?> returnType,
+    private void processUnionTypeDefinition(UnionTypeDefinition unionTypeDefinition, Class<?> targetClass,
                                             TypeMappingContext mappingContext) {
-        processIfNotProcessed(unionTypeDefinition, returnType, mappingContext, () -> {
-            if (!returnType.isInterface()) {
+        processIfNotProcessed(unionTypeDefinition, targetClass, mappingContext, () -> {
+            if (!targetClass.isInterface()) {
                 throw IncorrectClassMappingException.forField(
                         IncorrectClassMappingException.MappingType.DETECT_TYPE,
                         IncorrectClassMappingException.MappingType.INTERFACE,
                         mappingContext,
-                        returnType,
+                        targetClass,
                         null
                 );
             }
@@ -511,20 +513,15 @@ class GraphQLRuntimeWiringGenerator {
                 );
             }
 
-            BeanIntrospection<Object> beanIntrospection = graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(
-                    mappingContext,
-                    targetClass
-            );
+            BeanIntrospection<Object> beanIntrospection =
+                    graphQLBeanIntrospectionRegistry.getGraphQlTypeBeanIntrospection(mappingContext, targetClass);
 
             rootRuntimeWiringBuilder.type(objectTypeDefinition.getName(), typeRuntimeWiringBuilder -> {
                 typeRuntimeWiringBuilder.defaultDataFetcher(new MicronautIntrospectionDataFetcher(beanIntrospection));
 
                 for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
                     processFieldDefinition(
-                            fieldDefinition,
-                            objectTypeDefinition,
-                            typeRuntimeWiringBuilder,
-                            beanIntrospection
+                            fieldDefinition, objectTypeDefinition, typeRuntimeWiringBuilder, beanIntrospection
                     );
                 }
 
@@ -649,7 +646,8 @@ class GraphQLRuntimeWiringGenerator {
             }
 
             for (InputValueDefinition inputValueDefinition : inputObjectTypeDefinition.getInputValueDefinitions()) {
-                Optional<BeanProperty<Object, Object>> property = beanIntrospection.getProperty(inputValueDefinition.getName());
+                Optional<BeanProperty<Object, Object>> property =
+                        beanIntrospection.getProperty(inputValueDefinition.getName());
 
                 if (!property.isPresent()) {
                     throw MethodNotFoundException.forInput(
@@ -719,12 +717,7 @@ class GraphQLRuntimeWiringGenerator {
             Set<Class<?>> supportedClasses = getSupportedClasses(typeName);
 
             if (!supportedClasses.contains(returnType)) {
-                throw new IncorrectClassMappingException(
-                        "The argument is mapped to the incorrect class.",
-                        mappingContext,
-                        returnType,
-                        supportedClasses
-                );
+                throw IncorrectClassMappingException.forArgument(mappingContext, returnType, supportedClasses);
             }
         } else {
             throw unsupportedTypeDefinition(typeDefinition);
@@ -751,11 +744,7 @@ class GraphQLRuntimeWiringGenerator {
 
             if (!targetClass.equals(processedClass)) {
                 throw new MappingConflictException(
-                        mappingContext,
-                        graphQlType,
-                        typeDefinition.getName(),
-                        targetClass,
-                        processedClass
+                        mappingContext, graphQlType, typeDefinition.getName(), targetClass, processedClass
                 );
             }
 

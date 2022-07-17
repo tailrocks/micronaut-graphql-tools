@@ -40,6 +40,19 @@ public class IncorrectClassMappingException extends AbstractMappingException {
     private final Set<Class<?>> supportedClasses;
 
     public static IncorrectClassMappingException forField(
+            MappingContext mappingContext,
+            Class<?> providedClass,
+            @Nullable Set<Class<?>> supportedClasses
+    ) {
+        return new IncorrectClassMappingException(
+                "The field is mapped to the incorrect class.",
+                mappingContext,
+                providedClass,
+                supportedClasses
+        );
+    }
+
+    public static IncorrectClassMappingException forField(
             MappingType providedType,
             MappingType requiredType,
             MappingContext mappingContext,
@@ -52,6 +65,19 @@ public class IncorrectClassMappingException extends AbstractMappingException {
                         toString(providedType, providedClass),
                         toString(requiredType, null)
                 ),
+                mappingContext,
+                providedClass,
+                supportedClasses
+        );
+    }
+
+    public static IncorrectClassMappingException forArgument(
+            MappingContext mappingContext,
+            Class<?> providedClass,
+            @Nullable Set<Class<?>> supportedClasses
+    ) {
+        return new IncorrectClassMappingException(
+                "The argument is mapped to the incorrect class.",
                 mappingContext,
                 providedClass,
                 supportedClasses
@@ -77,8 +103,8 @@ public class IncorrectClassMappingException extends AbstractMappingException {
         );
     }
 
-    public IncorrectClassMappingException(String message, MappingContext mappingContext, Class<?> providedClass,
-                                          @Nullable Set<Class<?>> supportedClasses) {
+    IncorrectClassMappingException(String message, MappingContext mappingContext, Class<?> providedClass,
+                                   @Nullable Set<Class<?>> supportedClasses) {
         super(message, mappingContext);
 
         this.providedClass = providedClass;
