@@ -17,6 +17,7 @@ package io.micronaut.graphql.tools;
 
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.core.util.ArgumentUtils;
 
 import java.util.Optional;
 
@@ -26,25 +27,44 @@ import java.util.Optional;
 @Internal
 public class ArgumentDefinition {
 
-    public static final String SOURCE_ARGUMENT = "* SOURCE *";
-    public static final String DATA_FETCHING_ENVIRONMENT_ARGUMENT = "* DFE *";
+    private static final String SOURCE_ARGUMENT = "* SRC *";
+    private static final String DATA_FETCHING_ENVIRONMENT_ARGUMENT = "* DFE *";
 
     private final String name;
+    private final Class<?> inputValueClass;
 
-    @Nullable
-    private final Class<?> inputClass;
+    static ArgumentDefinition ofSourceArgument() {
+        return new ArgumentDefinition(SOURCE_ARGUMENT, null);
+    }
 
-    public ArgumentDefinition(String name, @Nullable Class<?> inputClass) {
+    static ArgumentDefinition ofDataFetchingEnvironmentArgument() {
+        return new ArgumentDefinition(DATA_FETCHING_ENVIRONMENT_ARGUMENT, null);
+    }
+
+    static ArgumentDefinition ofInputValueArgument(String name, Class<?> inputValueClass) {
+        return new ArgumentDefinition(name, inputValueClass);
+    }
+
+    private ArgumentDefinition(String name, @Nullable Class<?> inputValueClass) {
+        ArgumentUtils.requireNonNull("name", name);
         this.name = name;
-        this.inputClass = inputClass;
+        this.inputValueClass = inputValueClass;
+    }
+
+    public boolean isSourceArgument() {
+        return name.equals(SOURCE_ARGUMENT);
+    }
+
+    public boolean isDataFetchingEnvironmentArgument() {
+        return name.equals(DATA_FETCHING_ENVIRONMENT_ARGUMENT);
     }
 
     public String getName() {
         return name;
     }
 
-    public Optional<Class<?>> getInputClass() {
-        return Optional.ofNullable(inputClass);
+    public Optional<Class<?>> getInputValueClass() {
+        return Optional.ofNullable(inputValueClass);
     }
 
 }

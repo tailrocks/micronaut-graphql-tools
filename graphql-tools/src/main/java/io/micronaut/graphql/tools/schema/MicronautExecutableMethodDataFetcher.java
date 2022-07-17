@@ -57,22 +57,26 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
         List<Object> arguments = new ArrayList<>();
 
         for (ArgumentDefinition argumentDefinition : argumentDefinitions) {
-            if (argumentDefinition.getInputClass().isPresent()) {
+            if (argumentDefinition.isSourceArgument()) {
+                arguments.add(environment.getSource());
+            } else if (argumentDefinition.isDataFetchingEnvironmentArgument()) {
+                arguments.add(environment);
+            } else {
                 Object argumentValue = environment.getArgument(argumentDefinition.getName());
 
                 if (argumentValue != null) {
-                    Object convertedValue = objectMapper.convertValue(argumentValue, argumentDefinition.getInputClass().get());
+                    Class<?> inputValueClass = argumentDefinition.getInputValueClass().get();
 
-                    arguments.add(convertedValue);
+                    if (argumentValue.getClass().isAssignableFrom(inputValueClass)) {
+                        arguments.add(argumentValue);
+                    } else {
+                        Object convertedValue = objectMapper.convertValue(argumentValue, inputValueClass);
+
+                        arguments.add(convertedValue);
+                    }
                 } else {
                     arguments.add(null);
                 }
-            } else if (argumentDefinition.getName().equals(ArgumentDefinition.SOURCE_ARGUMENT)) {
-                arguments.add(environment.getSource());
-            } else if (argumentDefinition.getName().equals(ArgumentDefinition.DATA_FETCHING_ENVIRONMENT_ARGUMENT)) {
-                arguments.add(environment);
-            } else {
-                arguments.add(environment.getArgument(argumentDefinition.getName()));
             }
         }
 

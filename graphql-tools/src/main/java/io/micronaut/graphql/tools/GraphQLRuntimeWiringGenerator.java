@@ -297,13 +297,12 @@ class GraphQLRuntimeWiringGenerator {
         ArrayList<ArgumentDefinition> result = new ArrayList<>();
 
         if (containsSourceArgument) {
-            result.add(new ArgumentDefinition(ArgumentDefinition.SOURCE_ARGUMENT, null));
+            result.add(ArgumentDefinition.ofSourceArgument());
         }
 
         for (int i = 0; i < inputs.size(); i++) {
             InputValueDefinition inputValueDefinition = inputs.get(i);
             Argument<?> argument = arguments.get(i);
-            Class<?> returnType = argument.getType();
 
             processInputType(
                     unwrapNonNullType(inputValueDefinition.getType()),
@@ -311,11 +310,11 @@ class GraphQLRuntimeWiringGenerator {
                     TypeMappingContext.forArgument(mappingContext, inputValueDefinition.getName())
             );
 
-            result.add(new ArgumentDefinition(inputs.get(i).getName(), returnType));
+            result.add(ArgumentDefinition.ofInputValueArgument(inputs.get(i).getName(), argument.getType()));
         }
 
         if (containsEnvironmentArgument) {
-            result.add(new ArgumentDefinition(ArgumentDefinition.DATA_FETCHING_ENVIRONMENT_ARGUMENT, null));
+            result.add(ArgumentDefinition.ofDataFetchingEnvironmentArgument());
         }
 
         return result;
