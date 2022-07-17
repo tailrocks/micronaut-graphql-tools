@@ -173,17 +173,17 @@ class GraphQLRuntimeWiringGenerator {
                 mappingContext);
 
         typeRuntimeWiringBuilder.dataFetcher(
-                mappingContext.getFieldDefinition().get().getName(),
+                mappingContext.getFieldDefinition().getName(),
                 new MicronautExecutableMethodDataFetcher(objectMapper, executable, argumentDefinitions, instance)
         );
 
-        processFieldReturnType(returnType.asArgument(), mappingContext.getFieldDefinition().get().getType(),
+        processFieldReturnType(returnType.asArgument(), mappingContext.getFieldDefinition().getType(),
                 mappingContext);
     }
 
     private void checkArgumentCount(Executable<?, ?> executable, @Nullable Class<?> sourceClass,
                                     TypeMappingContext mappingContext) {
-        int requiredArgs = mappingContext.getFieldDefinition().get().getInputValueDefinitions().size();
+        int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
 
         if (sourceClass != null) {
             requiredArgs = requiredArgs + 1;
@@ -221,11 +221,11 @@ class GraphQLRuntimeWiringGenerator {
     }
 
     private void checkArgumentCount(BeanProperty<?, ?> beanProperty, TypeMappingContext mappingContext) {
-        if (mappingContext.getFieldDefinition().get().getInputValueDefinitions().isEmpty()) {
+        if (mappingContext.getFieldDefinition().getInputValueDefinitions().isEmpty()) {
             return;
         }
 
-        int requiredArgs = mappingContext.getFieldDefinition().get().getInputValueDefinitions().size();
+        int requiredArgs = mappingContext.getFieldDefinition().getInputValueDefinitions().size();
 
         throw new IncorrectArgumentCountException(
                 mappingContext,
@@ -247,7 +247,7 @@ class GraphQLRuntimeWiringGenerator {
         }
 
         suggestedMethodArgs.addAll(
-                mappingContext.getFieldDefinition().get().getInputValueDefinitions().stream()
+                mappingContext.getFieldDefinition().getInputValueDefinitions().stream()
                         .map(it -> getTypeName(it.getType()).getName() + " " + it.getName())
                         .collect(Collectors.toList())
         );
@@ -264,7 +264,7 @@ class GraphQLRuntimeWiringGenerator {
                                                                   TypeMappingContext mappingContext) {
         checkArgumentCount(executable, sourceClass, mappingContext);
 
-        List<InputValueDefinition> inputs = mappingContext.getFieldDefinition().get().getInputValueDefinitions();
+        List<InputValueDefinition> inputs = mappingContext.getFieldDefinition().getInputValueDefinitions();
         List<Argument<?>> arguments = Arrays.stream(executable.getArguments()).collect(Collectors.toList());
 
         if (inputs.isEmpty() && arguments.isEmpty()) {

@@ -37,8 +37,7 @@ public class TypeMappingContext implements MappingContext {
     private final Class<?> mappedClass;
     private final String mappedMethod;
 
-    static TypeMappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition,
-                                       @NonNull String fieldName) {
+    static TypeMappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition, @NonNull String fieldName) {
         requireNonNull("objectTypeDefinition", objectTypeDefinition);
         requireNonNull("fieldName", fieldName);
 
@@ -46,8 +45,8 @@ public class TypeMappingContext implements MappingContext {
                 null);
     }
 
-    static TypeMappingContext forField(@NonNull TypeMappingContext mappingContext,
-                                       @NonNull Class<?> mappedClass, @Nullable String mappedMethod) {
+    static TypeMappingContext forField(@NonNull TypeMappingContext mappingContext, @NonNull Class<?> mappedClass,
+                                       @Nullable String mappedMethod) {
         requireNonNull("mappingContext", mappingContext);
         requireNonNull("mappedClass", mappedClass);
 
@@ -55,8 +54,7 @@ public class TypeMappingContext implements MappingContext {
                 null, mappedClass, mappedMethod);
     }
 
-    static TypeMappingContext forArgument(@NonNull TypeMappingContext mappingContext,
-                                          String argumentName) {
+    static TypeMappingContext forArgument(@NonNull TypeMappingContext mappingContext, @NonNull String argumentName) {
         requireNonNull("mappingContext", mappingContext);
         requireNonNull("mappingContext.objectTypeDefinition", mappingContext.objectTypeDefinition);
         requireNonNull("mappingContext.fieldName", mappingContext.fieldName);
@@ -85,13 +83,11 @@ public class TypeMappingContext implements MappingContext {
         return objectTypeDefinition;
     }
 
-    public Optional<FieldDefinition> getFieldDefinition() {
-        if (fieldName == null) {
-            return Optional.empty();
-        }
+    public FieldDefinition getFieldDefinition() {
         return objectTypeDefinition.getFieldDefinitions().stream()
                 .filter(it -> it.getName().equals(fieldName))
-                .findFirst();
+                .findFirst()
+                .get();
     }
 
     public Optional<InputValueDefinition> getInputValueDefinition() {
@@ -99,7 +95,7 @@ public class TypeMappingContext implements MappingContext {
             return Optional.empty();
         }
 
-        return getFieldDefinition().get().getInputValueDefinitions().stream()
+        return getFieldDefinition().getInputValueDefinitions().stream()
                 .filter(it -> it.getName().equals(argumentName))
                 .findFirst();
     }

@@ -5,8 +5,6 @@ import graphql.language.InputValueDefinition;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 
-import java.util.Optional;
-
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 
 public class InputMappingContext implements MappingContext {
@@ -32,7 +30,6 @@ public class InputMappingContext implements MappingContext {
     }
 
     @Override
-    @Nullable
     public Class<?> getMappedClass() {
         return mappedClass;
     }
@@ -67,22 +64,19 @@ public class InputMappingContext implements MappingContext {
         return inputObjectTypeDefinition;
     }
 
+    public InputValueDefinition getInputValueDefinition() {
+        return inputObjectTypeDefinition.getInputValueDefinitions().stream()
+                .filter(it -> it.getName().equals(inputValueName))
+                .findFirst()
+                .get();
+    }
+
     public String getGraphQlInputObjectType() {
         return inputObjectTypeDefinition.getName();
     }
 
-    @Nullable
     public String getGraphQlInputValue() {
         return inputValueName;
-    }
-
-    public Optional<InputValueDefinition> getInputValueDefinition() {
-        if (inputValueName == null) {
-            return Optional.empty();
-        }
-        return inputObjectTypeDefinition.getInputValueDefinitions().stream()
-                .filter(it -> it.getName().equals(inputValueName))
-                .findFirst();
     }
 
 }
