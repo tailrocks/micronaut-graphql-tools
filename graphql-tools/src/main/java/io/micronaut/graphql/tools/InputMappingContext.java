@@ -22,7 +22,10 @@ import io.micronaut.core.annotation.Nullable;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 
-public class InputMappingContext implements MappingContext {
+/**
+ * @author Alexey Zhokhov
+ */
+public final class InputMappingContext implements MappingContext {
 
     private final InputObjectTypeDefinition inputObjectTypeDefinition;
     private final String inputValueName;

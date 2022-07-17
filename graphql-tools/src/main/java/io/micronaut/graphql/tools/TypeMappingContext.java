@@ -28,7 +28,7 @@ import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
 /**
  * @author Alexey Zhokhov
  */
-public class TypeMappingContext implements MappingContext {
+public final class TypeMappingContext implements MappingContext {
 
     private final ObjectTypeDefinition objectTypeDefinition;
     private final String fieldName;
@@ -36,6 +36,16 @@ public class TypeMappingContext implements MappingContext {
 
     private final Class<?> mappedClass;
     private final String mappedMethod;
+
+    private TypeMappingContext(ObjectTypeDefinition objectTypeDefinition, String fieldName,
+                               @Nullable String argumentName, @Nullable Class<?> mappedClass,
+                               @Nullable String mappedMethod) {
+        this.objectTypeDefinition = objectTypeDefinition;
+        this.fieldName = fieldName;
+        this.argumentName = argumentName;
+        this.mappedClass = mappedClass;
+        this.mappedMethod = mappedMethod;
+    }
 
     static TypeMappingContext forField(@NonNull ObjectTypeDefinition objectTypeDefinition, @NonNull String fieldName) {
         requireNonNull("objectTypeDefinition", objectTypeDefinition);
@@ -67,16 +77,6 @@ public class TypeMappingContext implements MappingContext {
                 mappingContext.getMappedClass(),
                 mappingContext.getMappedMethod()
         );
-    }
-
-    private TypeMappingContext(ObjectTypeDefinition objectTypeDefinition, String fieldName,
-                               @Nullable String argumentName, @Nullable Class<?> mappedClass,
-                               @Nullable String mappedMethod) {
-        this.objectTypeDefinition = objectTypeDefinition;
-        this.fieldName = fieldName;
-        this.argumentName = argumentName;
-        this.mappedClass = mappedClass;
-        this.mappedMethod = mappedMethod;
     }
 
     public ObjectTypeDefinition getObjectTypeDefinition() {

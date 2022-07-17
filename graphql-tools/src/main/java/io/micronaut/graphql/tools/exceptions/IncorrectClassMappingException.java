@@ -152,6 +152,9 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
         return builder.toString();
     }
 
+    /**
+     * TODO
+     */
     public enum MappingType {
         DETECT_TYPE,
         BUILT_IN_JAVA_CLASS,

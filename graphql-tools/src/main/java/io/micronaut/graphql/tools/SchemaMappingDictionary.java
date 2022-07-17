@@ -29,10 +29,22 @@ public class SchemaMappingDictionary {
 
     private final Map<String, Class<?>> types = new LinkedHashMap<>();
 
+    /**
+     * TODO.
+     *
+     * @return TODO
+     */
     public Map<String, Class<?>> getTypes() {
         return Collections.unmodifiableMap(types);
     }
 
+    /**
+     * TODO.
+     *
+     * @param graphqlType
+     * @param implementationClass
+     * @return TODO
+     */
     public SchemaMappingDictionary registerType(@NonNull String graphqlType, @NonNull Class<?> implementationClass) {
         ArgumentUtils.requireNonNull("graphqlType", graphqlType);
         ArgumentUtils.requireNonNull("implementationClass", implementationClass);

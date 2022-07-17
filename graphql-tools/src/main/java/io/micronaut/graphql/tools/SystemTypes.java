@@ -41,9 +41,6 @@ import static java.util.Collections.unmodifiableSet;
 @Internal
 public final class SystemTypes {
 
-    private SystemTypes() {
-    }
-
     private static final Map<String, Set<Class<?>>> SYSTEM_TYPES = new HashMap<>();
 
     // https://www.graphql-java.com/documentation/scalars
@@ -63,6 +60,9 @@ public final class SystemTypes {
     private static final Set<Class<?>> SYSTEM_TYPE_CLASSES = SYSTEM_TYPES.values().stream()
             .flatMap(Set::stream)
             .collect(Collectors.toSet());
+
+    private SystemTypes() {
+    }
 
     public static Set<Class<?>> getSupportedClasses(@NonNull TypeName typeName) {
         ArgumentUtils.requireNonNull("typeName", typeName);

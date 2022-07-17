@@ -17,6 +17,9 @@ package io.micronaut.graphql.tools;
 
 import io.micronaut.core.annotation.Nullable;
 
+/**
+ * @author Alexey Zhokhov
+ */
 public interface MappingContext {
 
     @Nullable

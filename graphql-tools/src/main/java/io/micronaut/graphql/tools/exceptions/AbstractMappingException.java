@@ -32,6 +32,11 @@ public abstract class AbstractMappingException extends RuntimeException {
         this.mappingContext = mappingContext;
     }
 
+    /**
+     * TODO.
+     *
+     * @return TODO
+     */
     public MappingContext getMappingContext() {
         return mappingContext;
     }
