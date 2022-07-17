@@ -363,7 +363,7 @@ final class GraphQLRuntimeWiringGenerator {
 
     private void processOperationTypeDefinition(OperationTypeDefinition operationTypeDefinition) {
         ObjectTypeDefinition objectTypeDefinition = typeDefinitionRegistry
-                .getType(operationTypeDefinition.getName(), ObjectTypeDefinition.class).get();
+                .getType(operationTypeDefinition.getTypeName(), ObjectTypeDefinition.class).get();
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
