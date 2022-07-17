@@ -22,7 +22,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
  */
 public final class IncorrectAnnotationException extends RuntimeException {
 
-    public IncorrectAnnotationException(Class annotatedClass) {
+    public IncorrectAnnotationException(Class<?> annotatedClass) {
         super(
                 String.format(
                         "Empty value member for @%s annotation in %s class.",

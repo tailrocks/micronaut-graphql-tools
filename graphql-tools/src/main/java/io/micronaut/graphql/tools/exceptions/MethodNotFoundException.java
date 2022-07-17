@@ -27,6 +27,11 @@ public final class MethodNotFoundException extends AbstractMappingException {
 
     private final String methodName;
 
+    private MethodNotFoundException(String message, MappingContext mappingContext, String methodName) {
+        super(message, mappingContext);
+        this.methodName = methodName;
+    }
+
     public static MethodNotFoundException forRoot(String methodName, MappingContext mappingContext,
                                                   List<Class<?>> resolvers) {
         return new MethodNotFoundException(
@@ -71,11 +76,6 @@ public final class MethodNotFoundException extends AbstractMappingException {
                 mappingContext,
                 methodName
         );
-    }
-
-    private MethodNotFoundException(String message, MappingContext mappingContext, String methodName) {
-        super(message, mappingContext);
-        this.methodName = methodName;
     }
 
     public String getMethodName() {

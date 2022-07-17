@@ -27,23 +27,19 @@ import java.util.stream.Collectors;
  */
 public final class IncorrectClassMappingException extends AbstractMappingException {
 
-    public enum MappingType {
-        DETECT_TYPE,
-        BUILT_IN_JAVA_CLASS,
-        CUSTOM_CLASS,
-        ENUM,
-        INTERFACE,
-        ITERABLE
-    }
-
     private final Class<?> providedClass;
     private final Set<Class<?>> supportedClasses;
 
-    public static IncorrectClassMappingException forField(
-            MappingContext mappingContext,
-            Class<?> providedClass,
-            @Nullable Set<Class<?>> supportedClasses
-    ) {
+    IncorrectClassMappingException(String message, MappingContext mappingContext, Class<?> providedClass,
+                                   @Nullable Set<Class<?>> supportedClasses) {
+        super(message, mappingContext);
+
+        this.providedClass = providedClass;
+        this.supportedClasses = supportedClasses;
+    }
+
+    public static IncorrectClassMappingException forField(MappingContext mappingContext, Class<?> providedClass,
+                                                          @Nullable Set<Class<?>> supportedClasses) {
         return new IncorrectClassMappingException(
                 "The field is mapped to the incorrect class.",
                 mappingContext,
@@ -52,13 +48,9 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
         );
     }
 
-    public static IncorrectClassMappingException forField(
-            MappingType providedType,
-            MappingType requiredType,
-            MappingContext mappingContext,
-            Class<?> providedClass,
-            @Nullable Set<Class<?>> supportedClasses
-    ) {
+    public static IncorrectClassMappingException forField(MappingType providedType, MappingType requiredType,
+                                                          MappingContext mappingContext, Class<?> providedClass,
+                                                          @Nullable Set<Class<?>> supportedClasses) {
         return new IncorrectClassMappingException(
                 String.format(
                         "The field is mapped to %s, when required %s.",
@@ -71,11 +63,8 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
         );
     }
 
-    public static IncorrectClassMappingException forArgument(
-            MappingContext mappingContext,
-            Class<?> providedClass,
-            @Nullable Set<Class<?>> supportedClasses
-    ) {
+    public static IncorrectClassMappingException forArgument(MappingContext mappingContext, Class<?> providedClass,
+                                                             @Nullable Set<Class<?>> supportedClasses) {
         return new IncorrectClassMappingException(
                 "The argument is mapped to the incorrect class.",
                 mappingContext,
@@ -84,13 +73,9 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
         );
     }
 
-    public static IncorrectClassMappingException forArgument(
-            MappingType providedType,
-            MappingType requiredType,
-            MappingContext mappingContext,
-            Class<?> providedClass,
-            @Nullable Set<Class<?>> supportedClasses
-    ) {
+    public static IncorrectClassMappingException forArgument(MappingType providedType, MappingType requiredType,
+                                                             MappingContext mappingContext, Class<?> providedClass,
+                                                             @Nullable Set<Class<?>> supportedClasses) {
         return new IncorrectClassMappingException(
                 String.format(
                         "The argument is mapped to %s, when required %s.",
@@ -101,40 +86,6 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
                 providedClass,
                 supportedClasses
         );
-    }
-
-    IncorrectClassMappingException(String message, MappingContext mappingContext, Class<?> providedClass,
-                                   @Nullable Set<Class<?>> supportedClasses) {
-        super(message, mappingContext);
-
-        this.providedClass = providedClass;
-        this.supportedClasses = supportedClasses;
-    }
-
-    public Class<?> getProvidedClass() {
-        return providedClass;
-    }
-
-    @Nullable
-    public Set<Class<?>> getSupportedClasses() {
-        return supportedClasses;
-    }
-
-    @Override
-    public String getMessage() {
-        StringBuilder builder = new StringBuilder(super.getMessage());
-
-        builder.append("\n  Provided class: ").append(providedClass.getName());
-        if (supportedClasses != null) {
-            builder.append("\n  Supported classes: ").append(
-                    supportedClasses.stream()
-                            .map(Class::getName)
-                            .sorted()
-                            .collect(Collectors.joining(", "))
-            );
-        }
-
-        return builder.toString();
     }
 
     private static String toString(MappingType mappingType, Class<?> providedClass) {
@@ -173,6 +124,41 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
             return "a built-in class";
         }
         return "a custom class";
+    }
+
+    public Class<?> getProvidedClass() {
+        return providedClass;
+    }
+
+    @Nullable
+    public Set<Class<?>> getSupportedClasses() {
+        return supportedClasses;
+    }
+
+    @Override
+    public String getMessage() {
+        StringBuilder builder = new StringBuilder(super.getMessage());
+
+        builder.append("\n  Provided class: ").append(providedClass.getName());
+        if (supportedClasses != null) {
+            builder.append("\n  Supported classes: ").append(
+                    supportedClasses.stream()
+                            .map(Class::getName)
+                            .sorted()
+                            .collect(Collectors.joining(", "))
+            );
+        }
+
+        return builder.toString();
+    }
+
+    public enum MappingType {
+        DETECT_TYPE,
+        BUILT_IN_JAVA_CLASS,
+        CUSTOM_CLASS,
+        ENUM,
+        INTERFACE,
+        ITERABLE
     }
 
 }
