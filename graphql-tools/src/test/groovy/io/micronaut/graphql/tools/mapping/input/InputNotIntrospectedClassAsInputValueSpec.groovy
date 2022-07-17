@@ -12,7 +12,7 @@ class InputNotIntrospectedClassAsInputValueSpec extends AbstractTest {
 
     static final String SPEC_NAME = "InputNotIntrospectedClassAsInputValueSpec"
 
-    void "test TODO"() {
+    void "test input object type refers to the class without GraphQLInput annotation"() {
         given:
             @Language("GraphQL")
             String schema = """
