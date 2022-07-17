@@ -54,7 +54,7 @@ type ValidationError {
         then:
             result.errors.isEmpty()
             result.dataPresent
-            result.data.unionTest.securityCode == 'AUTH'
+            result.data.testUnion.securityCode == 'AUTH'
 
         when:
             result = executeQuery("""
@@ -73,7 +73,7 @@ type ValidationError {
         then:
             result.errors.isEmpty()
             result.dataPresent
-            result.data.unionTest.validationCode == 123
+            result.data.testUnion.validationCode == 123
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
