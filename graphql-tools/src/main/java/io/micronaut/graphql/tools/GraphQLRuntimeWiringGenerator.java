@@ -153,12 +153,6 @@ final class GraphQLRuntimeWiringGenerator {
         return rootRuntimeWiringBuilder.build();
     }
 
-    private TypeDefinition<?> getTypeDefinition(TypeName typeName) {
-        return typeDefinitionRegistry.getType(typeName.getName()).orElseThrow(() -> {
-            throw new IllegalStateException("TypeDefinition not found by name: " + typeName.getName());
-        });
-    }
-
     void processExecutableMethod(Executable<Object, ?> executable, ReturnType<?> returnType,
                                  @Nullable Class<?> sourceClass, @Nullable Object instance,
                                  TypeRuntimeWiring.Builder typeRuntimeWiringBuilder,
@@ -353,7 +347,7 @@ final class GraphQLRuntimeWiringGenerator {
                 throw IncorrectClassMappingException.forField(mappingContext, returnClass, supportedClasses);
             }
         } else {
-            TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
+            TypeDefinition<?> typeDefinition = typeDefinitionRegistry.getType(typeName.getName()).get();
 
             if (typeDefinition instanceof EnumTypeDefinition) {
                 processEnumTypeDefinition((EnumTypeDefinition) typeDefinition, returnClass, false, mappingContext);
@@ -368,8 +362,8 @@ final class GraphQLRuntimeWiringGenerator {
     }
 
     private void processOperationTypeDefinition(OperationTypeDefinition operationTypeDefinition) {
-        ObjectTypeDefinition objectTypeDefinition = (ObjectTypeDefinition)
-                getTypeDefinition(operationTypeDefinition.getTypeName());
+        ObjectTypeDefinition objectTypeDefinition = typeDefinitionRegistry
+                .getType(operationTypeDefinition.getName(), ObjectTypeDefinition.class).get();
 
         rootRuntimeWiringBuilder.type(operationTypeDefinition.getTypeName().getName(), typeRuntimeWiringBuilder -> {
             for (FieldDefinition fieldDefinition : objectTypeDefinition.getFieldDefinitions()) {
@@ -464,7 +458,7 @@ final class GraphQLRuntimeWiringGenerator {
 
                 for (Type<?> type : unionTypeDefinition.getMemberTypes()) {
                     TypeName typeName = getTypeName(type);
-                    TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
+                    TypeDefinition<?> typeDefinition = typeDefinitionRegistry.getType(typeName).get();
 
                     if (typeDefinition instanceof ObjectTypeDefinition) {
                         Class<?> clazz = Optional
@@ -703,7 +697,7 @@ final class GraphQLRuntimeWiringGenerator {
 
         TypeName typeName = requireTypeName(graphQlType);
 
-        TypeDefinition<?> typeDefinition = getTypeDefinition(typeName);
+        TypeDefinition<?> typeDefinition = typeDefinitionRegistry.getType(typeName).get();
 
         if (typeDefinition instanceof InputObjectTypeDefinition) {
             processInputObjectTypeDefinition(
