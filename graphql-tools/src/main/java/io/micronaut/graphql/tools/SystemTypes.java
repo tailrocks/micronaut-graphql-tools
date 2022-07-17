@@ -60,7 +60,7 @@ public final class SystemTypes {
         SYSTEM_TYPES.put("BigInteger", unmodifiableSet(new HashSet<>(Collections.singletonList(BigInteger.class))));
     }
 
-    private static final Set<Class<?>> SYSTEM_TYPES_CACHE = SYSTEM_TYPES.values().stream()
+    private static final Set<Class<?>> SYSTEM_TYPE_CLASSES = SYSTEM_TYPES.values().stream()
             .flatMap(Set::stream)
             .collect(Collectors.toSet());
 
@@ -86,7 +86,7 @@ public final class SystemTypes {
 
     public static boolean isJavaBuiltInClass(@NonNull Class<?> clazz) {
         ArgumentUtils.requireNonNull("clazz", clazz);
-        return SYSTEM_TYPES_CACHE.contains(clazz);
+        return SYSTEM_TYPE_CLASSES.contains(clazz);
     }
 
 }

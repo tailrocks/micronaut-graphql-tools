@@ -28,7 +28,7 @@ public class DefaultWiringFactory implements WiringFactory {
 
     @Override
     public DataFetcher getDefaultDataFetcher(FieldWiringEnvironment environment) {
-        throw new RuntimeException("Unprocessed type: " + environment.getParentType().getName());
+        throw new UnsupportedOperationException("Unprocessed type: " + environment.getParentType().getName());
     }
 
 }
