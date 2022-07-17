@@ -36,8 +36,6 @@ public class MicronautExecutableMethodDataFetcher implements DataFetcher<Object>
     private final ObjectMapper objectMapper;
     private final Executable<Object, ?> executable;
     private final List<ArgumentDefinition> argumentDefinitions;
-
-    @Nullable
     private final Object instance;
 
     public MicronautExecutableMethodDataFetcher(
