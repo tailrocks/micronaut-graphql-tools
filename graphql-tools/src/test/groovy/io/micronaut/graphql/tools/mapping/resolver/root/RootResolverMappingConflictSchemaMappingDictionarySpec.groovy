@@ -29,7 +29,7 @@ type User {
 }
 """
 
-    void "test todo"() {
+    void "todo"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

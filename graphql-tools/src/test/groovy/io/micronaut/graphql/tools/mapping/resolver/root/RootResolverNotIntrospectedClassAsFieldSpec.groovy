@@ -12,7 +12,7 @@ class RootResolverNotIntrospectedClassAsFieldSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverNotIntrospectedClassAsFieldSpec"
 
-    void "test root resolver returns not introspected class"() {
+    void "root resolver returns not introspected class"() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -33,7 +33,7 @@ type ValidationError {
 }
 """
 
-    void "test todo"() {
+    void "todo"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -57,7 +57,7 @@ type ValidationError {
             result.data.unionTest.securityCode == 'AUTH'
     }
 
-    void "test todo2"() {
+    void "todo2"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

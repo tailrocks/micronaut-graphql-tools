@@ -10,7 +10,7 @@ class RootResolverSkipProcessOneTypeTwiceSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverScalarsStandardAsFieldsSpec"
 
-    void "test TODO"() {
+    void "TODO"() {
         given:
             @Language("GraphQL")
             String schema = """

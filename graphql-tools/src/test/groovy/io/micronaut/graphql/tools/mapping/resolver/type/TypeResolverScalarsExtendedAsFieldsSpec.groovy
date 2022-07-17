@@ -11,7 +11,7 @@ class TypeResolverScalarsExtendedAsFieldsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeResolverScalarsExtendedAsFieldsSpec"
 
-    void "test mapping extended graphql-java scalars in type resolver"() {
+    void "mapping extended graphql-java scalars in type resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -64,7 +64,7 @@ type Test {
             result.data.test.testBigInteger == BigInteger.ONE
     }
 
-    void "test mapping extended graphql-java scalars in type resolver [required field]"() {
+    void "mapping extended graphql-java scalars in type resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

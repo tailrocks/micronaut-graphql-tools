@@ -11,7 +11,7 @@ class RootResolverMappingConflictEnumSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverMappingConflictEnumSpec"
 
-    void "test enum mapped to a different classes"() {
+    void "attempt map enum to a different "() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -28,7 +28,7 @@ type User {
 }
 """
 
-    void "test TODO"() {
+    void "TODO"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

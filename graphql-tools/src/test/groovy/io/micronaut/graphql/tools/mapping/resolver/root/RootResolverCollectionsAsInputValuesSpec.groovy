@@ -10,7 +10,7 @@ class RootResolverCollectionsAsInputValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverCollectionsAsInputValuesSpec"
 
-    void "test different Iterable implementations supported as field arguments"() {
+    void "different Iterable implementations supported as field arguments"() {
         given:
             @Language("GraphQL")
             String schema = """

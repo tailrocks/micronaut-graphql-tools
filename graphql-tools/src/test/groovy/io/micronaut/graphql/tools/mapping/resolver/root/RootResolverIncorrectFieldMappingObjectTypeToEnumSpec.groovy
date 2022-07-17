@@ -12,7 +12,7 @@ class RootResolverIncorrectFieldMappingObjectTypeToEnumSpec extends AbstractTest
 
     static final String SPEC_NAME = "RootResolverIncorrectFieldMappingObjectTypeToEnumSpec"
 
-    void "test enum annotated with GraphQLType instead of custom class"() {
+    void "the field which returns object type points to a method which returns an enum"() {
         given:
             @Language("GraphQL")
             String schema = """

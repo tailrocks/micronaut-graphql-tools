@@ -23,7 +23,7 @@ type Query {
 }
 """
 
-    void "test method in the root resolver has one argument (exclude DataFetchingEnvironment) when GraphQL schema has zero"() {
+    void "method in the root resolver has one argument (exclude DataFetchingEnvironment) when GraphQL schema has zero"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

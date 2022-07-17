@@ -13,7 +13,7 @@ class TypeScalarsExtendedAsCompletionStageFieldsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeScalarsExtendedAsCompletionStageFieldsSpec"
 
-    void "test mapping extended graphql-java scalars in GraphQLType annotated entity"() {
+    void "mapping extended graphql-java scalars in GraphQLType annotated entity"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -60,7 +60,7 @@ type Test {
             result.data.test.testBigInteger == BigInteger.ONE
     }
 
-    void "test mapping extended graphql-java scalars in GraphQLType annotated entity [required field]"() {
+    void "mapping extended graphql-java scalars in GraphQLType annotated entity [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

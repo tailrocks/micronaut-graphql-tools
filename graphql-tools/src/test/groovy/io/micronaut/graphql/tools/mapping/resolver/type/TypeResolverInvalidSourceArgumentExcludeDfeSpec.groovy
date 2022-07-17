@@ -29,7 +29,7 @@ type User {
 }
 """
 
-    void "test first argument in GraphQlType method is source instance (exclude DataFetchingEnvironment)"() {
+    void "first argument in GraphQlType method is source instance (exclude DataFetchingEnvironment)"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

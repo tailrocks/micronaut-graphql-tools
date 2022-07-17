@@ -4,7 +4,7 @@ import spock.lang.Specification
 
 class SchemaMappingDictionarySpec extends Specification {
 
-    void "test attempt to register the interface"() {
+    void "attempt to register the interface"() {
         when:
             new SchemaMappingDictionary().registerType("User", User)
 
@@ -13,7 +13,7 @@ class SchemaMappingDictionarySpec extends Specification {
             e.message == "${User} must be a top level class."
     }
 
-    void "test attempt to register the duplicate"() {
+    void "attempt to register the duplicate"() {
         when:
             new SchemaMappingDictionary()
                     .registerType("PaymentMethod", PaymentMethod)
@@ -24,7 +24,7 @@ class SchemaMappingDictionarySpec extends Specification {
             e.message == "Duplicated GraphQL type: PaymentMethod"
     }
 
-    void "test attempt to register the same type with different implementation classes"() {
+    void "attempt to register the same type with different implementation classes"() {
         when:
             new SchemaMappingDictionary()
                     .registerType("PaymentMethod", PaymentMethod)

@@ -9,7 +9,7 @@ class RootResolverScalarsStandardAsArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverScalarsStandardAsArgumentsSpec"
 
-    void "test mapping standard graphql scalars as inputs in root resolver"() {
+    void "mapping standard graphql scalars as inputs in root resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -54,7 +54,7 @@ type Query {
             result.data.hello == 'World'
     }
 
-    void "test mapping standard graphql scalars as inputs in root resolver [required field]"() {
+    void "mapping standard graphql scalars as inputs in root resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

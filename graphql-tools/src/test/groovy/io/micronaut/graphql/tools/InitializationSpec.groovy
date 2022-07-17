@@ -5,7 +5,7 @@ import io.micronaut.context.exceptions.DependencyInjectionException
 
 class InitializationSpec extends AbstractTest {
 
-    void "test initialization"() {
+    void "initialization"() {
         given:
             startContext(null, null)
 

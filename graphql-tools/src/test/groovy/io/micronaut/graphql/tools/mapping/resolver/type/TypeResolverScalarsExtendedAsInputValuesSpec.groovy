@@ -12,7 +12,7 @@ class TypeResolverScalarsExtendedAsInputValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeResolverScalarsExtendedAsInputValuesSpec"
 
-    void "test mapping extended graphql-java scalars as inputs in type resolver"() {
+    void "mapping extended graphql-java scalars as inputs in type resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -66,7 +66,7 @@ input HelloInput {
             result.data.test.hello == 'World'
     }
 
-    void "test mapping extended graphql-java scalars as inputs in type resolver [required field]"() {
+    void "mapping extended graphql-java scalars as inputs in type resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

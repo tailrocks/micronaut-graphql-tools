@@ -10,7 +10,7 @@ class TypeScalarsStandardAsFieldsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeScalarsStandardAsFieldsSpec"
 
-    void "test mapping standard graphql scalars in GraphQLType annotated entity"() {
+    void "mapping standard graphql scalars in GraphQLType annotated entity"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -64,7 +64,7 @@ type Test {
             result.data.test.testID == 'id'
     }
 
-    void "test mapping standard graphql scalars in GraphQLType annotated entity [required fields]"() {
+    void "mapping standard graphql scalars in GraphQLType annotated entity [required fields]"() {
         given:
             @Language("GraphQL")
             String schema = """

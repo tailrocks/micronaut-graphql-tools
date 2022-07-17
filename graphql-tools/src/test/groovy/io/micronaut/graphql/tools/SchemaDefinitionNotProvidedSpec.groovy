@@ -6,7 +6,7 @@ import org.intellij.lang.annotations.Language
 
 class SchemaDefinitionNotProvidedSpec extends AbstractTest {
 
-    void "test schema definition"() {
+    void "schema definition"() {
         given:
             @Language("GraphQL")
             String schema = """

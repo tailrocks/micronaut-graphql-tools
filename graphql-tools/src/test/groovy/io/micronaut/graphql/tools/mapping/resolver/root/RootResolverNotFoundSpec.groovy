@@ -8,7 +8,7 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverNotFoundSpec extends AbstractTest {
 
-    void "test no any root resolvers found"() {
+    void "no any root resolvers found"() {
         given:
             @Language("GraphQL")
             String schema = """

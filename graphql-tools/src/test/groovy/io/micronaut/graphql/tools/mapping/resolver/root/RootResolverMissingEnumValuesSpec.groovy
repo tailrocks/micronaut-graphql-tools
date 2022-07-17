@@ -11,7 +11,7 @@ class RootResolverMissingEnumValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverMissingEnumValuesSpec"
 
-    void "test mapping to an enum with missed values"() {
+    void "mapping to an enum with missed values"() {
         given:
             @Language("GraphQL")
             String schema = """

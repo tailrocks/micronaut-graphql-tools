@@ -28,7 +28,7 @@ type User {
 }
 """
 
-    void "test root resolver returns interface which is not implemented in introspected class"() {
+    void "the method returns an interface which is not implemented in the introspected class"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

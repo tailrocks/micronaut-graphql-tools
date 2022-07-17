@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.mapping.resolver.root
+package io.micronaut.graphql.tools.mapping.input
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -8,11 +8,11 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.IncorrectClassMappingException
 import org.intellij.lang.annotations.Language
 
-class RootResolverIncorrectInputValueMappingListToBuiltInClassSpec extends AbstractTest {
+class InputIncorrectInputValueMappingListToBuiltInClassSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingYYYYSpec"
+    static final String SPEC_NAME = "InputIncorrectInputValueMappingListToBuiltInClassSpec"
 
-    void "test TODO"() {
+    void "the List input value points to a String property"() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -12,7 +12,7 @@ class RootResolverScalarsStandardAsCompletionStageFieldsSpec extends AbstractTes
 
     static final String SPEC_NAME = "RootResolverScalarsStandardAsCompletionStageFieldsSpec"
 
-    void "test mapping standard graphql scalars in root resolver"() {
+    void "mapping standard graphql scalars in root resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -51,7 +51,7 @@ type Query {
             result.data.testID == 'id'
     }
 
-    void "test mapping standard graphql scalars in root resolver [required fields]"() {
+    void "mapping standard graphql scalars in root resolver [required fields]"() {
         given:
             @Language("GraphQL")
             String schema = """

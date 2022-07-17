@@ -35,7 +35,7 @@ type ValidationError {
 }
 """
 
-    void "test union field returns custom class"() {
+    void "the field which returns union points to a method which returns a custom class"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

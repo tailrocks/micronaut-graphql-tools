@@ -11,7 +11,7 @@ class RootResolverIncorrectFieldMappingListToBuiltInClassSpec extends AbstractTe
 
     static final String SPEC_NAME = "RootResolverIncorrectFieldMappingListToBuiltInClassSpec"
 
-    void "test TODO"() {
+    void "the field which returns List points to a method which returns a String"() {
         given:
             @Language("GraphQL")
             String schema = """

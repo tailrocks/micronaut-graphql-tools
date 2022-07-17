@@ -12,7 +12,7 @@ class RootResolverIncorrectFieldMappingEnumToCustomClassSpec extends AbstractTes
 
     static final String SPEC_NAME = "RootResolverIncorrectFieldMappingEnumToCustomClassSpec"
 
-    void "test GraphQL schema enum mapped to a Java class"() {
+    void "the field which returns enum points to a method which returns a custom class"() {
         given:
             @Language("GraphQL")
             String schema = """

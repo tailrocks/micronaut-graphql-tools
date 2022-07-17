@@ -89,7 +89,7 @@ input HelloInput {
 
 
     @Unroll
-    void "test TODO"() {
+    void "TODO"() {
         given:
             startContext(schema, SPEC_NAME)
 

@@ -1,4 +1,4 @@
-package io.micronaut.graphql.tools.mapping.resolver.root
+package io.micronaut.graphql.tools.mapping.input
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.exceptions.BeanInstantiationException
@@ -8,11 +8,11 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
 import org.intellij.lang.annotations.Language
 
-class RootResolverInputMethodNotFoundSpec extends AbstractTest {
+class InputMethodNotFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverInputMethodNotFoundSpec"
 
-    void "test input property not found"() {
+    void "input property not found"() {
         given:
             @Language("GraphQL")
             String schema = """

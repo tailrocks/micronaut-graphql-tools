@@ -11,7 +11,7 @@ class RootResolverIncorrectFieldMappingObjectTypeToBuiltInClassSpec extends Abst
 
     static final String SPEC_NAME = "RootResolverIncorrectFieldMappingObjectTypeToBuiltInClassSpec"
 
-    void "test mapping custom GraphQL type to a wrong class"() {
+    void "the field which returns object type points to a method which returns an Integer"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -49,7 +49,7 @@ type User {
             e.cause.providedClass == Integer
     }
 
-    void "test mapping custom GraphQL type to a wrong class [required field]"() {
+    void "mapping custom GraphQL type to a wrong class [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -12,7 +12,7 @@ class TypeIncorrectFieldMappingBuiltInScalarToBuiltInClassSpec extends AbstractT
 
     static final String SPEC_NAME = "TypeIncorrectFieldMappingBuiltInScalarToBuiltInClassSpec"
 
-    void "test GraphQL field inside sub-type mapped to the incorrect class"() {
+    void "GraphQL field inside sub-type mapped to the incorrect class"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -52,7 +52,7 @@ type User {
             e.cause.supportedClasses == [String] as HashSet
     }
 
-    void "test GraphQL field inside sub-type mapped to the incorrect class [required field]"() {
+    void "GraphQL field inside sub-type mapped to the incorrect class [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

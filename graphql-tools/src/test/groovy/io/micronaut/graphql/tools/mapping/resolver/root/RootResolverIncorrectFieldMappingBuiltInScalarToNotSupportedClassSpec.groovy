@@ -35,7 +35,7 @@ type Query {
 """
 
     @Unroll
-    void "test the String field point to a method which returns an Integer"() {
+    void "the String field points to a method which returns an Integer"() {
         given:
             startContext(schema, SPEC_NAME)
 

@@ -11,7 +11,7 @@ class TypeScalarsStandardAsArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeScalarsStandardAsArgumentsSpec"
 
-    void "test mapping standard graphql scalars as inputs in GraphQLType annotated entity"() {
+    void "mapping standard graphql scalars as inputs in GraphQLType annotated entity"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -62,7 +62,7 @@ type Test {
             result.data.test.hello == 'World'
     }
 
-    void "test mapping standard graphql scalars as inputs in GraphQLType annotated entity [required field]"() {
+    void "mapping standard graphql scalars as inputs in GraphQLType annotated entity [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

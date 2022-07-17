@@ -11,7 +11,7 @@ class RootResolverIncorrectArgumentMappingBuiltInScalarToNotSupportedClassSpec e
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingBuiltInScalarToNotSupportedClassSpec"
 
-    void "test the String field's argument point to an Integer parameter"() {
+    void "the String field's argument points to an Integer parameter"() {
         given:
             @Language("GraphQL")
             String schema = """

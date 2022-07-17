@@ -10,7 +10,7 @@ class RootResolverNullArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverNullArgumentsSpec"
 
-    void "test TODO"() {
+    void "TODO"() {
         given:
             @Language("GraphQL")
             String schema = """

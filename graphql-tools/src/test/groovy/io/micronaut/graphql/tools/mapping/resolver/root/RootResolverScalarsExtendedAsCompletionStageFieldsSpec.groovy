@@ -12,7 +12,7 @@ class RootResolverScalarsExtendedAsCompletionStageFieldsSpec extends AbstractTes
 
     static final String SPEC_NAME = "RootResolverScalarsExtendedAsCompletionStageFieldsSpec"
 
-    void "test mapping extended graphql-java scalars in root resolver"() {
+    void "mapping extended graphql-java scalars in root resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -53,7 +53,7 @@ type Query {
             result.data.testBigInteger == BigInteger.ONE
     }
 
-    void "test mapping extended graphql-java scalars in root resolver [required field]"() {
+    void "mapping extended graphql-java scalars in root resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class GraphQLSchemaProviderSpec extends Specification {
 
-    void "test no GraphQLSchema present"() {
+    void "no GraphQLSchema present"() {
         given:
             def provider = new GraphQLSchemaProvider()
 
@@ -17,7 +17,7 @@ class GraphQLSchemaProviderSpec extends Specification {
             e.message == 'No graphQLSchema present'
     }
 
-    void "test GraphQLSchema present"() {
+    void "GraphQLSchema present"() {
         given:
             def provider = new GraphQLSchemaProvider()
             provider.init(Mock(GraphQLSchema))

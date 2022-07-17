@@ -11,7 +11,7 @@ class TypeResolverScalarsStandardAsArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeResolverScalarsStandardAsArgumentsSpec"
 
-    void "test mapping standard graphql scalars as inputs in type resolver"() {
+    void "mapping standard graphql scalars as inputs in type resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -62,7 +62,7 @@ type Test {
             result.data.test.hello == 'World'
     }
 
-    void "test mapping standard graphql scalars as inputs in type resolver [required field]"() {
+    void "mapping standard graphql scalars as inputs in type resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -34,7 +34,7 @@ type PaymentMethod {
 }
 """
 
-    void "test DataFetchingEnvironment passed to GraphQLTypeResolver's method"() {
+    void "DataFetchingEnvironment passed to GraphQLTypeResolver's method"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

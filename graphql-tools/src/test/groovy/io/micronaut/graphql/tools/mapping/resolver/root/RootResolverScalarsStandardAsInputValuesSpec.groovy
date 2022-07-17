@@ -10,7 +10,7 @@ class RootResolverScalarsStandardAsInputValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverScalarsStandardAsInputValuesSpec"
 
-    void "test mapping standard graphql scalars as inputs in root resolver"() {
+    void "mapping standard graphql scalars as inputs in root resolver"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -57,7 +57,7 @@ input HelloInput {
             result.data.hello == 'World'
     }
 
-    void "test mapping standard graphql scalars as inputs in root resolver [required field]"() {
+    void "mapping standard graphql scalars as inputs in root resolver [required field]"() {
         given:
             @Language("GraphQL")
             String schema = """

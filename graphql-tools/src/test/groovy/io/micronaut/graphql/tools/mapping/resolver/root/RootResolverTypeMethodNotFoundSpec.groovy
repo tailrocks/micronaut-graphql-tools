@@ -11,7 +11,7 @@ class RootResolverTypeMethodNotFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverMethodNotFoundSpec"
 
-    void "test Query method not found"() {
+    void "Query method not found"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -40,7 +40,7 @@ type Query {
             e.cause.methodName == 'hello'
     }
 
-    void "test Mutation method not found"() {
+    void "Mutation method not found"() {
         given:
             @Language("GraphQL")
             String schema = """

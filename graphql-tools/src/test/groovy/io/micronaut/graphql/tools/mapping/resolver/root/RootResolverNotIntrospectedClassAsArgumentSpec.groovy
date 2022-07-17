@@ -12,7 +12,7 @@ class RootResolverNotIntrospectedClassAsArgumentSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverNotIntrospectedClassAsArgumentSpec"
 
-    void "test root resolver use not introspected class as input argument"() {
+    void "root resolver use not introspected class as input argument"() {
         given:
             @Language("GraphQL")
             String schema = """
