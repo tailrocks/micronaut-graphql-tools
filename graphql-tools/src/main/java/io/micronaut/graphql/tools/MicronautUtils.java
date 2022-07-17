@@ -36,9 +36,6 @@ import java.util.stream.Collectors;
 @Internal
 final class MicronautUtils {
 
-    private MicronautUtils() {
-    }
-
     static String getPropertyMethodName(BeanProperty<?, ?> beanProperty) {
         return "get" + beanProperty.getName().substring(0, 1).toUpperCase()
                 + beanProperty.getName().substring(1) + "()";

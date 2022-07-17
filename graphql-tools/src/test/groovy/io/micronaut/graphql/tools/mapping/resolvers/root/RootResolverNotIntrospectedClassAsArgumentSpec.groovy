@@ -46,6 +46,9 @@ input PriceInput {
             e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'price'
             e.cause.mappingContext.graphQlArgument == 'input'
+            e.cause.mappingContext.objectTypeDefinition.name == 'Query'
+            e.cause.mappingContext.fieldDefinition.name == 'price'
+            e.cause.mappingContext.inputValueDefinition.get().name == 'input'
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == "price(${PriceInput.name} input)"
     }
