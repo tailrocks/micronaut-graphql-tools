@@ -8,9 +8,9 @@ import org.intellij.lang.annotations.Language
 
 class RootResolverSkipProcessOneTypeTwiceSpec extends AbstractTest {
 
-    static final String SPEC_NAME = "RootResolverScalarsStandardAsFieldsSpec"
+    static final String SPEC_NAME = "RootResolverSkipProcessOneTypeTwiceSpec"
 
-    void "TODO"() {
+    void "skip process one type twice"() {
         given:
             @Language("GraphQL")
             String schema = """

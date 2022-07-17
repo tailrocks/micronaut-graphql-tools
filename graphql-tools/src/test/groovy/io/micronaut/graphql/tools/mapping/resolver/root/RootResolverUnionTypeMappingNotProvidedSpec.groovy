@@ -37,7 +37,7 @@ type ValidationError {
 }
 """
 
-    void "unable to detect representation class for type member of union"() {
+    void "unable to detect representation class"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

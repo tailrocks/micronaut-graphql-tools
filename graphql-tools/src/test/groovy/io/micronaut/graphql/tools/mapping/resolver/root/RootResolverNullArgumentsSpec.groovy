@@ -10,10 +10,8 @@ class RootResolverNullArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverNullArgumentsSpec"
 
-    void "TODO"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA = """
 schema {
   query: Query
 }
@@ -28,21 +26,27 @@ input HelloInput {
 }
 """
 
-            startContext(schema, SPEC_NAME)
+    void "null arguments successfully passed"() {
+        given:
+            startContext(SCHEMA, SPEC_NAME)
 
         when:
-            def result = executeQuery("""{
-hello
-}""")
+            def result = executeQuery("""
+{
+    hello
+}
+""")
 
         then:
             result.errors.isEmpty()
             result.data.hello == null
 
         when:
-            result = executeQuery("""{
-hello(input: null, inputList: null, inputString: null, inputStringList: null)
-}""")
+            result = executeQuery("""
+{
+    hello(input: null, inputList: null, inputString: null, inputStringList: null)
+}
+""")
 
         then:
             result.errors.isEmpty()

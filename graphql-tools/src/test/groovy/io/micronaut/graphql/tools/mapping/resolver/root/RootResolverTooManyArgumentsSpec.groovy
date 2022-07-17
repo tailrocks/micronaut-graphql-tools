@@ -22,7 +22,7 @@ type Query {
 }
 """
 
-    void "method in the root resolver has one argument when GraphQL schema has zero"() {
+    void "the method has more arguments"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

@@ -23,7 +23,7 @@ type Query {
 }
 """
 
-    void "method in the root resolver has zero arguments (exclude DataFetchingEnvironment) when GraphQL schema has one"() {
+    void "the method has less arguments (exclude DataFetchingEnvironment)"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
@@ -36,11 +36,11 @@ type Query {
             e.cause.message == """The method has too few arguments, provided: 0, required 1 arg(s): username(ID uid)
   GraphQL object type: Query
   GraphQL field: username
-  Mapped class: ${Query2.name}
+  Mapped class: ${Query.name}
   Mapped method: username(${DataFetchingEnvironment.name} dfe)"""
             e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'username'
-            e.cause.mappingContext.mappedClass == Query2
+            e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == "username(${DataFetchingEnvironment.name} dfe)"
             e.cause.providedCount == 0
             e.cause.requiredCount == 1
@@ -48,7 +48,7 @@ type Query {
 
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
-    static class Query2 {
+    static class Query {
         String username(DataFetchingEnvironment dfe) {
             return null
         }

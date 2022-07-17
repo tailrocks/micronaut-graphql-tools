@@ -71,7 +71,7 @@ type Query {
 """
 
     @Unroll
-    void "TODO"() {
+    void "use standard graphql scalars as List method return types"() {
         given:
             startContext(schema, SPEC_NAME)
 

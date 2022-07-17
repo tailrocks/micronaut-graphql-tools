@@ -5,15 +5,14 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLInput
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import org.intellij.lang.annotations.Language
+import spock.lang.Unroll
 
 class RootResolverScalarsExtendedAsInputValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverScalarsExtendedAsInputValuesSpec"
 
-    void "mapping extended graphql-java scalars as inputs in root resolver"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA1 = """
 scalar Long
 scalar Short
 scalar BigDecimal
@@ -37,31 +36,8 @@ input HelloInput {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    hello(input: {
-        testLong1: 123,
-        testLong2: -123,
-        testShort1: 1,
-        testShort2: -1,
-        testBigDecimal: 10.00,
-        testBigInteger: 10
-    })
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.data.hello == 'World'
-    }
-
-    void "mapping extended graphql-java scalars as inputs in root resolver [required field]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA2 = """
 scalar Long
 scalar Short
 scalar BigDecimal
@@ -85,6 +61,9 @@ input HelloInput {
 }
 """
 
+    @Unroll
+    void "use extended graphql-java scalars as input's properties"() {
+        given:
             startContext(schema, SPEC_NAME)
 
         when:
@@ -104,6 +83,9 @@ input HelloInput {
         then:
             result.errors.isEmpty()
             result.data.hello == 'World'
+
+        where:
+            schema << [SCHEMA1, SCHEMA2]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

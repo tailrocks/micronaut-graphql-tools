@@ -10,10 +10,8 @@ class RootResolverScalarsStandardAsInputValuesSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverScalarsStandardAsInputValuesSpec"
 
-    void "mapping standard graphql scalars as inputs in root resolver"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA1 = """
 schema {
   query: Query
 }
@@ -34,33 +32,8 @@ input HelloInput {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    hello(input: {
-        testString: "test",
-        testBoolean1: true,
-        testBoolean2: false,
-        testInt1: 123,
-        testInt2: -123,
-        testFloat1: 1.23,
-        testFloat2: -1.23,
-        testID: "id"
-    })
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.data.hello == 'World'
-    }
-
-    void "mapping standard graphql scalars as inputs in root resolver [required field]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA2 = """
 schema {
   query: Query
 }
@@ -81,6 +54,8 @@ input HelloInput {
 }
 """
 
+    void "use standard graphql scalars as input's properties"() {
+        given:
             startContext(schema, SPEC_NAME)
 
         when:
@@ -102,6 +77,9 @@ input HelloInput {
         then:
             result.errors.isEmpty()
             result.data.hello == 'World'
+
+        where:
+            schema << [SCHEMA1, SCHEMA2]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

@@ -29,7 +29,7 @@ type User {
 }
 """
 
-    void "todo"() {
+    void "attempt map a single type to a different implementations by using SchemaMappingDictionary"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

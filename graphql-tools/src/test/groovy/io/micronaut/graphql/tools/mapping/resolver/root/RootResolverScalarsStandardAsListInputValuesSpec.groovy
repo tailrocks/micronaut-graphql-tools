@@ -89,7 +89,7 @@ input HelloInput {
 
 
     @Unroll
-    void "TODO"() {
+    void "use standard graphql scalars as input's List properties"() {
         given:
             startContext(schema, SPEC_NAME)
 

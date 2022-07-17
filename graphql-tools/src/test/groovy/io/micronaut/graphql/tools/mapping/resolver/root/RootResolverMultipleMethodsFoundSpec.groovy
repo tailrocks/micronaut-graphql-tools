@@ -23,7 +23,7 @@ type Query {
 }
 """
 
-    void "TODO"() {
+    void "multiple methods detected for single field"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

@@ -4,15 +4,14 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import org.intellij.lang.annotations.Language
+import spock.lang.Unroll
 
 class RootResolverScalarsStandardAsArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverScalarsStandardAsArgumentsSpec"
 
-    void "mapping standard graphql scalars as inputs in root resolver"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA1 = """
 schema {
   query: Query
 }
@@ -31,33 +30,8 @@ type Query {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    hello(
-        testString: "test",
-        testBoolean1: true,
-        testBoolean2: false,
-        testInt1: 123,
-        testInt2: -123,
-        testFloat1: 1.23,
-        testFloat2: -1.23,
-        testID: "id"
-    )
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.data.hello == 'World'
-    }
-
-    void "mapping standard graphql scalars as inputs in root resolver [required field]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA2 = """
 schema {
   query: Query
 }
@@ -76,6 +50,9 @@ type Query {
 }
 """
 
+    @Unroll
+    void "use standard graphql scalars as method's parameters"() {
+        given:
             startContext(schema, SPEC_NAME)
 
         when:
@@ -97,6 +74,9 @@ type Query {
         then:
             result.errors.isEmpty()
             result.data.hello == 'World'
+
+        where:
+            schema << [SCHEMA1, SCHEMA2]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

@@ -9,7 +9,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import io.micronaut.graphql.tools.exceptions.MultipleImplementationsFoundException
 import org.intellij.lang.annotations.Language
 
-class RootResolverMultipleImplementationsSpec extends AbstractTest {
+class RootResolverMultipleImplementationsFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverMultipleImplementationsSpec"
 
@@ -28,7 +28,7 @@ type User {
 }
 """
 
-    void "root resolver returns interface which has multiple introspected implementation classes"() {
+    void "method returns interfaces which has multiple GraphQLType implementations"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
