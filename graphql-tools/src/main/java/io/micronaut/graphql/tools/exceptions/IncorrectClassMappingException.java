@@ -153,7 +153,7 @@ public final class IncorrectClassMappingException extends AbstractMappingExcepti
     }
 
     /**
-     * TODO
+     * TODO.
      */
     public enum MappingType {
         DETECT_TYPE,
