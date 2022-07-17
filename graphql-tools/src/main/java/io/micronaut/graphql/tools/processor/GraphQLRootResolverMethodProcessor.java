@@ -30,7 +30,7 @@ import jakarta.inject.Singleton;
 @Internal
 @Singleton
 @Infrastructure
-public class GraphQLRootResolverMethodProcessor implements ExecutableMethodProcessor<GraphQLRootResolver> {
+public final class GraphQLRootResolverMethodProcessor implements ExecutableMethodProcessor<GraphQLRootResolver> {
 
     private final GraphQLResolversRegistry graphQLResolversRegistry;
 
