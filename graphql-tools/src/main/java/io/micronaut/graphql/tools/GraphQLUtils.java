@@ -15,10 +15,14 @@
  */
 package io.micronaut.graphql.tools;
 
+import graphql.language.EnumTypeDefinition;
+import graphql.language.InputObjectTypeDefinition;
 import graphql.language.NonNullType;
+import graphql.language.ObjectTypeDefinition;
 import graphql.language.Type;
 import graphql.language.TypeDefinition;
 import graphql.language.TypeName;
+import graphql.language.UnionTypeDefinition;
 import io.micronaut.core.annotation.Internal;
 
 /**
@@ -28,6 +32,20 @@ import io.micronaut.core.annotation.Internal;
 final class GraphQLUtils {
 
     private GraphQLUtils() {
+    }
+
+    static String getType(TypeDefinition<?> typeDefinition) {
+        if (typeDefinition instanceof EnumTypeDefinition) {
+            return "enum";
+        } else if (typeDefinition instanceof UnionTypeDefinition) {
+            return "union";
+        } else if (typeDefinition instanceof ObjectTypeDefinition) {
+            return "type";
+        } else if (typeDefinition instanceof InputObjectTypeDefinition) {
+            return "input";
+        } else {
+            throw unsupportedTypeDefinition(typeDefinition);
+        }
     }
 
     static TypeName getTypeName(Type<?> graphQlType) {

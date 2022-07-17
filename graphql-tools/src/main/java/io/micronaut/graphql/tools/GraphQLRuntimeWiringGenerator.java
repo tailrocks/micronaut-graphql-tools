@@ -77,6 +77,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
+import static io.micronaut.graphql.tools.GraphQLUtils.getType;
 import static io.micronaut.graphql.tools.GraphQLUtils.getTypeName;
 import static io.micronaut.graphql.tools.GraphQLUtils.requireTypeName;
 import static io.micronaut.graphql.tools.GraphQLUtils.unsupportedTypeDefinition;
@@ -495,7 +496,7 @@ class GraphQLRuntimeWiringGenerator {
                         if (!registeredClass.equals(targetClass)) {
                             throw new MappingConflictException(
                                     mappingContext,
-                                    "type",
+                                    getType(objectTypeDefinition),
                                     objectTypeDefinition.getName(),
                                     targetClass,
                                     registeredClass
@@ -729,22 +730,9 @@ class GraphQLRuntimeWiringGenerator {
         if (processedTypes.containsKey(typeDefinition.getName())) {
             Class<?> processedClass = processedTypes.get(typeDefinition.getName());
 
-            String graphQlType;
-            if (typeDefinition instanceof EnumTypeDefinition) {
-                graphQlType = "enum";
-            } else if (typeDefinition instanceof UnionTypeDefinition) {
-                graphQlType = "union";
-            } else if (typeDefinition instanceof ObjectTypeDefinition) {
-                graphQlType = "type";
-            } else if (typeDefinition instanceof InputObjectTypeDefinition) {
-                graphQlType = "input";
-            } else {
-                throw unsupportedTypeDefinition(typeDefinition);
-            }
-
             if (!targetClass.equals(processedClass)) {
                 throw new MappingConflictException(
-                        mappingContext, graphQlType, typeDefinition.getName(), targetClass, processedClass
+                        mappingContext, getType(typeDefinition), typeDefinition.getName(), targetClass, processedClass
                 );
             }
 
