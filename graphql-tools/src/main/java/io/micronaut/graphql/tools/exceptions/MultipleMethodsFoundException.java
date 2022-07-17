@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @author Alexey Zhokhov
  */
-public class MultipleMethodsFoundException extends AbstractMappingException {
+public final class MultipleMethodsFoundException extends AbstractMappingException {
 
     private final Map<Class<?>, List<String>> methods;
 

@@ -35,7 +35,7 @@ import java.util.Map;
  * @author Alexey Zhokhov
  */
 @Internal
-class GraphQLBeanIntrospectionRegistry {
+final class GraphQLBeanIntrospectionRegistry {
 
     private final Map<Class<?>, BeanIntrospection<Object>> typeIntrospections = new HashMap<>();
 

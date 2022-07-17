@@ -20,7 +20,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver;
 /**
  * @author Alexey Zhokhov
  */
-public class IncorrectAnnotationException extends RuntimeException {
+public final class IncorrectAnnotationException extends RuntimeException {
 
     public IncorrectAnnotationException(Class annotatedClass) {
         super(

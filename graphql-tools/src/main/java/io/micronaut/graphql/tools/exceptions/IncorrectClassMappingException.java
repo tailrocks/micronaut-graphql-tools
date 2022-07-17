@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * @author Alexey Zhokhov
  */
-public class IncorrectClassMappingException extends AbstractMappingException {
+public final class IncorrectClassMappingException extends AbstractMappingException {
 
     public enum MappingType {
         DETECT_TYPE,

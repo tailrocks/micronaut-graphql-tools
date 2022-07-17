@@ -20,7 +20,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver;
 /**
  * @author Alexey Zhokhov
  */
-public class RootResolverNotFoundException extends RuntimeException {
+public final class RootResolverNotFoundException extends RuntimeException {
 
     public RootResolverNotFoundException() {
         super(

@@ -29,7 +29,7 @@ import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
  * @author Alexey Zhokhov
  */
 @Internal
-class BeanDefinitionAndMethods {
+final class BeanDefinitionAndMethods {
 
     private final BeanDefinition<?> beanDefinition;
     private final Set<ExecutableMethod<Object, ?>> executableMethods = new HashSet<>();

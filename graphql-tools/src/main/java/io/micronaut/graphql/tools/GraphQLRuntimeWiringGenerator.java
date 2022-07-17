@@ -95,7 +95,7 @@ import static io.micronaut.graphql.tools.SystemTypes.isJavaBuiltInClass;
  * @author Alexey Zhokhov
  */
 @Internal
-class GraphQLRuntimeWiringGenerator {
+final class GraphQLRuntimeWiringGenerator {
 
     private final ApplicationContext applicationContext;
     private final GraphQLBeanIntrospectionRegistry graphQLBeanIntrospectionRegistry;

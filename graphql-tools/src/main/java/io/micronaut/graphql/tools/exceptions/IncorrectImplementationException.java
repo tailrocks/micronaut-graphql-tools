@@ -20,7 +20,7 @@ import io.micronaut.graphql.tools.MappingContext;
 /**
  * @author Alexey Zhokhov
  */
-public class IncorrectImplementationException extends AbstractMappingException {
+public final class IncorrectImplementationException extends AbstractMappingException {
 
     private final Class<?> implementationClass;
 

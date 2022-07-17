@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author Alexey Zhokhov
  */
-public class MissingEnumValuesException extends AbstractMappingException {
+public final class MissingEnumValuesException extends AbstractMappingException {
 
     private final List<String> missingValues;
 

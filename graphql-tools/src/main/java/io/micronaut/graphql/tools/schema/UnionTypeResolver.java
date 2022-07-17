@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Alexey Zhokhov
  */
 @Internal
-public class UnionTypeResolver implements TypeResolver {
+public final class UnionTypeResolver implements TypeResolver {
 
     private final Provider<GraphQLSchema> graphQLSchemaProvider;
 

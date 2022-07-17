@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Internal
 @Singleton
 @Infrastructure
-public class GraphQLResolversRegistry {
+public final class GraphQLResolversRegistry {
 
     private final List<BeanDefinitionAndMethods> rootResolvers = new ArrayList<>();
     private final Map<Class<?>, List<BeanDefinitionAndMethods>> typeResolvers = new HashMap<>();

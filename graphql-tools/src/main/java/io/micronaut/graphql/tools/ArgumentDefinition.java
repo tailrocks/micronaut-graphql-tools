@@ -25,13 +25,19 @@ import java.util.Optional;
  * @author Alexey Zhokhov
  */
 @Internal
-public class ArgumentDefinition {
+public final class ArgumentDefinition {
 
     private static final String SOURCE_ARGUMENT = "* SRC *";
     private static final String DATA_FETCHING_ENVIRONMENT_ARGUMENT = "* DFE *";
 
     private final String name;
     private final Class<?> inputValueClass;
+
+    private ArgumentDefinition(String name, @Nullable Class<?> inputValueClass) {
+        ArgumentUtils.requireNonNull("name", name);
+        this.name = name;
+        this.inputValueClass = inputValueClass;
+    }
 
     static ArgumentDefinition ofSourceArgument() {
         return new ArgumentDefinition(SOURCE_ARGUMENT, null);
@@ -43,12 +49,6 @@ public class ArgumentDefinition {
 
     static ArgumentDefinition ofInputValueArgument(String name, Class<?> inputValueClass) {
         return new ArgumentDefinition(name, inputValueClass);
-    }
-
-    private ArgumentDefinition(String name, @Nullable Class<?> inputValueClass) {
-        ArgumentUtils.requireNonNull("name", name);
-        this.name = name;
-        this.inputValueClass = inputValueClass;
     }
 
     public boolean isSourceArgument() {

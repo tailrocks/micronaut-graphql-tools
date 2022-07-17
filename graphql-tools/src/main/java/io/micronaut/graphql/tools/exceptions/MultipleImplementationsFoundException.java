@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @author Alexey Zhokhov
  */
-public class MultipleImplementationsFoundException extends AbstractMappingException {
+public final class MultipleImplementationsFoundException extends AbstractMappingException {
 
     private final List<Class<?>> implementationClasses;
 

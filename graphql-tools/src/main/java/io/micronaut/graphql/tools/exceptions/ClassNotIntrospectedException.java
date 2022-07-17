@@ -20,7 +20,7 @@ import io.micronaut.graphql.tools.MappingContext;
 /**
  * @author Alexey Zhokhov
  */
-public class ClassNotIntrospectedException extends AbstractMappingException {
+public final class ClassNotIntrospectedException extends AbstractMappingException {
 
     public ClassNotIntrospectedException(MappingContext mappingContext, Class<?> returningType,
                                          Class<?> annotationClass) {

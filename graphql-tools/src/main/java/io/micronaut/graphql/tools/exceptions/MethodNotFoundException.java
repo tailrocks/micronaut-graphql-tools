@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author Alexey Zhokhov
  */
-public class MethodNotFoundException extends AbstractMappingException {
+public final class MethodNotFoundException extends AbstractMappingException {
 
     private final String methodName;
 

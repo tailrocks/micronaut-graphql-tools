@@ -26,7 +26,7 @@ import static io.micronaut.core.util.ArgumentUtils.requireNonNull;
  * @author Alexey Zhokhov
  */
 @Internal
-class BeanDefinitionAndMethod {
+final class BeanDefinitionAndMethod {
 
     private final BeanDefinition<?> beanDefinition;
     private final ExecutableMethod<Object, ?> executableMethod;

@@ -31,7 +31,7 @@ import jakarta.inject.Singleton;
  */
 @Internal
 @Factory
-public class GraphQLFactory {
+public final class GraphQLFactory {
 
     @Bean
     @Singleton

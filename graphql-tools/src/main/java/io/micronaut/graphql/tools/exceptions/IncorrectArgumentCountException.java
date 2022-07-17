@@ -21,7 +21,7 @@ import io.micronaut.graphql.tools.MappingContext;
 /**
  * @author Alexey Zhokhov
  */
-public class IncorrectArgumentCountException extends AbstractMappingException {
+public final class IncorrectArgumentCountException extends AbstractMappingException {
 
     private final int providedCount;
     private final int requiredCount;

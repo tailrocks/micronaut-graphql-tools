@@ -24,7 +24,7 @@ import io.micronaut.core.annotation.Internal;
  * @author Alexey Zhokhov
  */
 @Internal
-public class DefaultWiringFactory implements WiringFactory {
+public final class DefaultWiringFactory implements WiringFactory {
 
     @Override
     public DataFetcher getDefaultDataFetcher(FieldWiringEnvironment environment) {

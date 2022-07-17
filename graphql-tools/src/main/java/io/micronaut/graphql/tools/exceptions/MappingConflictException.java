@@ -20,7 +20,7 @@ import io.micronaut.graphql.tools.MappingContext;
 /**
  * @author Alexey Zhokhov
  */
-public class MappingConflictException extends AbstractMappingException {
+public final class MappingConflictException extends AbstractMappingException {
 
     public MappingConflictException(MappingContext mappingContext, String graphQlType,
                                     String conflictedGraphQlTypeName, Class<?> providedClass,

@@ -18,7 +18,7 @@ package io.micronaut.graphql.tools.exceptions;
 /**
  * @author Alexey Zhokhov
  */
-public class SchemaDefinitionNotProvidedException extends RuntimeException {
+public final class SchemaDefinitionNotProvidedException extends RuntimeException {
 
     public SchemaDefinitionNotProvidedException() {
         super("Schema definition is not set. Make sure your GraphQL schema contains such definition:\n" +

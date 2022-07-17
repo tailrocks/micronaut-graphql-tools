@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
  * @author Alexey Zhokhov
  */
 @Internal
-class GraphQLSchemaProvider implements Provider<GraphQLSchema> {
+final class GraphQLSchemaProvider implements Provider<GraphQLSchema> {
 
     private GraphQLSchema graphQLSchema;
 

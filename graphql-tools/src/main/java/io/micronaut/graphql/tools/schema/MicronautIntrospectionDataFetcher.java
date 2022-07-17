@@ -25,7 +25,7 @@ import io.micronaut.core.beans.BeanProperty;
  * @author Alexey Zhokhov
  */
 @Internal
-public class MicronautIntrospectionDataFetcher implements DataFetcher<Object> {
+public final class MicronautIntrospectionDataFetcher implements DataFetcher<Object> {
 
     private final BeanIntrospection<Object> beanIntrospection;
 
