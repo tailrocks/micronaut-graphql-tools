@@ -46,7 +46,7 @@ type User {
             e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'user'
             e.cause.mappingContext.objectTypeDefinition.name == 'Query'
-            e.cause.mappingContext.fieldDefinition.get().name == 'user'
+            e.cause.mappingContext.fieldDefinition.name == 'user'
             e.cause.mappingContext.inputValueDefinition.isEmpty()
             e.cause.mappingContext.mappedClass == Query
             e.cause.mappingContext.mappedMethod == "user()"
