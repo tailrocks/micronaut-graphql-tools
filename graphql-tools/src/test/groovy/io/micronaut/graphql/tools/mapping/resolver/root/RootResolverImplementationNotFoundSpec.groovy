@@ -28,7 +28,7 @@ type User {
 }
 """
 
-    void "test root resolver returns interface which implementation class is not marked correctly with annotation"() {
+    void "test method returns interface which implementation class is not marked correctly with an annotation"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

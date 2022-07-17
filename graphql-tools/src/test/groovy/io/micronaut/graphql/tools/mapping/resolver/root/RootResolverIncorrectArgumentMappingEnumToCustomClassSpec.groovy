@@ -11,7 +11,7 @@ class RootResolverIncorrectArgumentMappingEnumToCustomClassSpec extends Abstract
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingEnumToCustomClassSpec"
 
-    void "test GraphQL schema enum as a input parameter mapped to a Java class"() {
+    void "test the enum as a field's argument point to a String parameter"() {
         given:
             @Language("GraphQL")
             String schema = """

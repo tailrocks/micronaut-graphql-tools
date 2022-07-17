@@ -12,7 +12,7 @@ class RootResolverIncorrectArgumentMappingInputObjectValueToEnumSpec extends Abs
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingInputObjectValueToEnumSpec"
 
-    void "test input argument use enum instead of introspected custom class"() {
+    void "test the input object type as a field's argument point to a enum"() {
         given:
             @Language("GraphQL")
             String schema = """

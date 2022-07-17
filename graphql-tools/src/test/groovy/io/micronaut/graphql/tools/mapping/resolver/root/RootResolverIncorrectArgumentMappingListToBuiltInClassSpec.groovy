@@ -11,7 +11,7 @@ class RootResolverIncorrectArgumentMappingListToBuiltInClassSpec extends Abstrac
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingListToBuiltInClassSpec"
 
-    void "test TODO"() {
+    void "test the List as a field's argument point to a String parameter"() {
         given:
             @Language("GraphQL")
             String schema = """

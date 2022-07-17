@@ -12,7 +12,7 @@ class RootResolverIncorrectArgumentMappingInputObjectValueToInterfaceSpec extend
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingInputObjectValueToInterfaceSpec"
 
-    void "test root resolver use interface as input argument"() {
+    void "test the input object type as a field's argument point to an interface"() {
         given:
             @Language("GraphQL")
             String schema = """

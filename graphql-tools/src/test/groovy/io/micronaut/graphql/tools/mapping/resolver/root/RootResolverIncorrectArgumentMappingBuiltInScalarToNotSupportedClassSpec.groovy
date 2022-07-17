@@ -11,7 +11,7 @@ class RootResolverIncorrectArgumentMappingBuiltInScalarToNotSupportedClassSpec e
 
     static final String SPEC_NAME = "RootResolverIncorrectArgumentMappingBuiltInScalarToNotSupportedClassSpec"
 
-    void "test mapping built-in GraphQL type to a wrong class"() {
+    void "test the String field's argument point to an Integer parameter"() {
         given:
             @Language("GraphQL")
             String schema = """
@@ -20,7 +20,7 @@ schema {
 }
 
 type Query {
-  hello: String
+  hello(input: String): String
 }
 """
             startContext(schema, SPEC_NAME)
@@ -31,52 +31,19 @@ type Query {
         then:
             def e = thrown(BeanInstantiationException)
             e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to the incorrect class.
+            e.cause.message == """The argument is mapped to the incorrect class.
   GraphQL object type: Query
   GraphQL field: hello
+  GraphQL argument: input
   Mapped class: ${Query.name}
-  Mapped method: hello()
+  Mapped method: hello(${Integer.name} input)
   Provided class: ${Integer.name}
   Supported classes: ${String.name}"""
             e.cause.mappingContext.graphQlObjectType == 'Query'
             e.cause.mappingContext.graphQlField == 'hello'
+            e.cause.mappingContext.graphQlArgument == 'input'
             e.cause.mappingContext.mappedClass == Query
-            e.cause.mappingContext.mappedMethod == 'hello()'
-            e.cause.providedClass == Integer
-            e.cause.supportedClasses == [String] as HashSet
-    }
-
-    void "test mapping built-in GraphQL type to a wrong class [required field]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
-schema {
-  query: Query
-}
-
-type Query {
-  hello: String!
-}
-"""
-            startContext(schema, SPEC_NAME)
-
-        when:
-            getGraphQLBean()
-
-        then:
-            def e = thrown(BeanInstantiationException)
-            e.cause instanceof IncorrectClassMappingException
-            e.cause.message == """The field is mapped to the incorrect class.
-  GraphQL object type: Query
-  GraphQL field: hello
-  Mapped class: ${Query.name}
-  Mapped method: hello()
-  Provided class: ${Integer.name}
-  Supported classes: ${String.name}"""
-            e.cause.mappingContext.graphQlObjectType == 'Query'
-            e.cause.mappingContext.graphQlField == 'hello'
-            e.cause.mappingContext.mappedClass == Query
-            e.cause.mappingContext.mappedMethod == 'hello()'
+            e.cause.mappingContext.mappedMethod == "hello(${Integer.name} input)"
             e.cause.providedClass == Integer
             e.cause.supportedClasses == [String] as HashSet
     }
@@ -84,8 +51,8 @@ type Query {
     @Requires(property = 'spec.name', value = SPEC_NAME)
     @GraphQLRootResolver
     static class Query {
-        Integer hello() {
-            return 0
+        String hello(Integer input) {
+            return null
         }
     }
 
