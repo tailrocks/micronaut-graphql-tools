@@ -1,5 +1,5 @@
 [versions]
-managed-graphql-java = "16.2"
+managed-graphql-java = "18.2"
 
 jetbrains-annotations = "23.0.0"
 
