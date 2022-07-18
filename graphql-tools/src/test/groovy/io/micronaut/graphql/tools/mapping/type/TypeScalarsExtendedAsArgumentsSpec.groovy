@@ -40,7 +40,7 @@ type Test {
 """
 
     @Language("GraphQL")
-    static final String schema = """
+    static final String SCHEMA2 = """
 scalar Long
 scalar Short
 scalar BigDecimal
