@@ -5,15 +5,14 @@ import io.micronaut.graphql.tools.AbstractTest
 import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import org.intellij.lang.annotations.Language
+import spock.lang.Unroll
 
 class TypeScalarsExtendedAsFieldsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeScalarsExtendedAsFieldsSpec"
 
-    void "mapping extended graphql-java scalars in GraphQLType annotated entity"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA1 = """
 scalar Long
 scalar Short
 scalar BigDecimal
@@ -37,36 +36,8 @@ type Test {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    test {
-        testLong1
-        testLong2
-        testShort1
-        testShort2
-        testBigDecimal
-        testBigInteger
-    }
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.data.test.testLong1 == Long.MAX_VALUE
-            result.data.test.testLong2 == Long.MIN_VALUE
-            result.data.test.testShort1 == Short.MAX_VALUE
-            result.data.test.testShort2 == Short.MIN_VALUE
-            result.data.test.testBigDecimal == BigDecimal.ZERO
-            result.data.test.testBigInteger == BigInteger.ONE
-    }
-
-    void "mapping extended graphql-java scalars in GraphQLType annotated entity [required field]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA2 = """
 scalar Long
 scalar Short
 scalar BigDecimal
@@ -90,6 +61,9 @@ type Test {
 }
 """
 
+    @Unroll
+    void "use extended graphql-java scalars as method return types"() {
+        given:
             startContext(schema, SPEC_NAME)
 
         when:
@@ -114,6 +88,9 @@ type Test {
             result.data.test.testShort2 == Short.MIN_VALUE
             result.data.test.testBigDecimal == BigDecimal.ZERO
             result.data.test.testBigInteger == BigInteger.ONE
+
+        where:
+            schema << [SCHEMA1, SCHEMA2]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

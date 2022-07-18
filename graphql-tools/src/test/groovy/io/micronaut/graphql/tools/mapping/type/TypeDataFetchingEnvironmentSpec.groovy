@@ -27,7 +27,7 @@ type User {
 }
 """
 
-    void "DataFetchingEnvironment passed to GraphQLType's method"() {
+    void "DataFetchingEnvironment passed to a GraphQLType's method"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

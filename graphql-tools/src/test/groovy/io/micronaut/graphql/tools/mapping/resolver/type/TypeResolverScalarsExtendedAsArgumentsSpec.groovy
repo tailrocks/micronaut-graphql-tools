@@ -6,15 +6,14 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import org.intellij.lang.annotations.Language
+import spock.lang.Unroll
 
 class TypeResolverScalarsExtendedAsArgumentsSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeResolverScalarsExtendedAsArgumentsSpec"
 
-    void "mapping extended graphql-java scalars as inputs in type resolver"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA1 = """
 scalar Long
 scalar Short
 scalar BigDecimal
@@ -40,33 +39,8 @@ type Test {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    test {
-        hello(
-            testLong1: 123,
-            testLong2: -123,
-            testShort1: 1,
-            testShort2: -1,
-            testBigDecimal: 10.00,
-            testBigInteger: 10
-        )
-    }
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.data.test.hello == 'World'
-    }
-
-    void "mapping extended graphql-java scalars as inputs in type resolver [required field]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA2 = """
 scalar Long
 scalar Short
 scalar BigDecimal
@@ -92,6 +66,9 @@ type Test {
 }
 """
 
+    @Unroll
+    void "use extended graphql-java scalars as method's parameters"() {
+        given:
             startContext(schema, SPEC_NAME)
 
         when:
@@ -113,6 +90,9 @@ type Test {
         then:
             result.errors.isEmpty()
             result.data.test.hello == 'World'
+
+        where:
+            schema << [SCHEMA1, SCHEMA2]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

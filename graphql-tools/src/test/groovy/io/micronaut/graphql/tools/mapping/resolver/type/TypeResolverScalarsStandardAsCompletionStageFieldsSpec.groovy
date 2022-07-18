@@ -6,6 +6,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.annotation.GraphQLType
 import io.micronaut.graphql.tools.annotation.GraphQLTypeResolver
 import org.intellij.lang.annotations.Language
+import spock.lang.Unroll
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -14,10 +15,8 @@ class TypeResolverScalarsStandardAsCompletionStageFieldsSpec extends AbstractTes
 
     static final String SPEC_NAME = "TypeResolverScalarsStandardAsCompletionStageFieldsSpec"
 
-    void "mapping standard graphql scalars in type resolver"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA1 = """
 schema {
   query: Query
 }
@@ -35,34 +34,8 @@ type Test {
 }
 """
 
-            startContext(schema, SPEC_NAME)
-
-        when:
-            def result = executeQuery("""
-{
-    test {
-        testString
-        testBoolean
-        testInt
-        testFloat
-        testID
-    }
-}
-""")
-
-        then:
-            result.errors.isEmpty()
-            result.data.test.testString == 'test'
-            result.data.test.testBoolean == false
-            result.data.test.testInt == Integer.MIN_VALUE
-            result.data.test.testFloat == Float.MIN_VALUE as Double
-            result.data.test.testID == 'id'
-    }
-
-    void "mapping standard graphql scalars in type resolver [required fields]"() {
-        given:
-            @Language("GraphQL")
-            String schema = """
+    @Language("GraphQL")
+    static final String SCHEMA2 = """
 schema {
   query: Query
 }
@@ -80,6 +53,9 @@ type Test {
 }
 """
 
+    @Unroll
+    void "use standard graphql scalars as method return types wrapped with CompletionStage"() {
+        given:
             startContext(schema, SPEC_NAME)
 
         when:
@@ -102,6 +78,9 @@ type Test {
             result.data.test.testInt == Integer.MIN_VALUE
             result.data.test.testFloat == Float.MIN_VALUE as Double
             result.data.test.testID == 'id'
+
+        where:
+            schema << [SCHEMA1, SCHEMA2]
     }
 
     @Requires(property = 'spec.name', value = SPEC_NAME)

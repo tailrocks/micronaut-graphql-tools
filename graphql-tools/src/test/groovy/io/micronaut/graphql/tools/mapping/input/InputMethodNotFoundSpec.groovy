@@ -12,7 +12,7 @@ class InputMethodNotFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverInputMethodNotFoundSpec"
 
-    void "input property not found"() {
+    void "input's property not found"() {
         given:
             @Language("GraphQL")
             String schema = """

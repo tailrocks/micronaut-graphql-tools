@@ -21,7 +21,7 @@ type Query {
 }
 """
 
-    void "DataFetchingEnvironment passed to a root resolver's method"() {
+    void "DataFetchingEnvironment passed to a GraphQLRootResolver's method"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

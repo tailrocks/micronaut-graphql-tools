@@ -27,7 +27,7 @@ type User {
 }
 """
 
-    void "source object passed to GraphQLTypeResolver's method"() {
+    void "the source object passed to the GraphQLTypeResolver's method"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

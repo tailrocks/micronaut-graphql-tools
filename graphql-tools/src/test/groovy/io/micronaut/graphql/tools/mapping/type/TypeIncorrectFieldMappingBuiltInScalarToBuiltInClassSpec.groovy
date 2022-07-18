@@ -12,7 +12,7 @@ class TypeIncorrectFieldMappingBuiltInScalarToBuiltInClassSpec extends AbstractT
 
     static final String SPEC_NAME = "TypeIncorrectFieldMappingBuiltInScalarToBuiltInClassSpec"
 
-    void "GraphQL field inside sub-type mapped to the incorrect class"() {
+    void "the String field points to a method which returns an Integer"() {
         given:
             @Language("GraphQL")
             String schema = """

@@ -27,7 +27,7 @@ type User {
 }
 """
 
-    void "method in the model has zero arguments when GraphQL schema has one"() {
+    void "the method has less arguments"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

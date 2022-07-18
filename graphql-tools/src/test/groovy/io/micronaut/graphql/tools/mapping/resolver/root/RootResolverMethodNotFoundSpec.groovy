@@ -7,7 +7,7 @@ import io.micronaut.graphql.tools.annotation.GraphQLRootResolver
 import io.micronaut.graphql.tools.exceptions.MethodNotFoundException
 import org.intellij.lang.annotations.Language
 
-class RootResolverTypeMethodNotFoundSpec extends AbstractTest {
+class RootResolverMethodNotFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "RootResolverMethodNotFoundSpec"
 

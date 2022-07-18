@@ -29,7 +29,7 @@ type User {
 }
 """
 
-    void "first argument in GraphQlType method is source instance (exclude DataFetchingEnvironment)"() {
+    void "the first argument in the GraphQLTypeResolver's method should be the source instance"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 

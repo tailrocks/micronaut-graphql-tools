@@ -12,7 +12,7 @@ class TypeMethodNotFoundSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeMethodNotFoundSpec"
 
-    void "TODO"() {
+    void "type's property or method not found"() {
         given:
             @Language("GraphQL")
             String schema = """

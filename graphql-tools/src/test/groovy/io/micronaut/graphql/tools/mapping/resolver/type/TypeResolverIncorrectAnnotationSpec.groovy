@@ -13,7 +13,7 @@ class TypeResolverIncorrectAnnotationSpec extends AbstractTest {
 
     static final String SPEC_NAME = "TypeResolverIncorrectAnnotationSpec"
 
-    void "GraphQLTypeResolver annotation used with null value class"() {
+    void "the GraphQLTypeResolver annotation used without specify a value class"() {
         given:
             @Language("GraphQL")
             String schema = """

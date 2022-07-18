@@ -29,7 +29,7 @@ type User {
 }
 """
 
-    void "method in the type resolver has one argument (exclude DataFetchingEnvironment) when GraphQL schema has zero"() {
+    void "the method has more arguments (exclude DataFetchingEnvironment)"() {
         given:
             startContext(SCHEMA, SPEC_NAME)
 
