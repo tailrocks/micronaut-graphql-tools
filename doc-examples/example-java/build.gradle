@@ -1,0 +1,23 @@
+plugins {
+    id("java")
+    id("io.micronaut.application")
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = "example.Application"
+}
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+}
+
+dependencies {
+    implementation(project(":graphql-tools"))
+    implementation("io.micronaut.graphql:micronaut-graphql")
+    runtimeOnly("ch.qos.logback:logback-classic")
+}

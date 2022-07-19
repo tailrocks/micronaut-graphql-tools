@@ -1,12 +1,19 @@
 [versions]
 managed-graphql-java = "16.2"
 
+micronaut = "3.5.3"
+micronaut-docs = "2.0.0"
+micronaut-gradle-plugin = "3.5.0"
+
+groovy = "3.0.11"
+
 jetbrains-annotations = "23.0.0"
 
 [libraries]
-# Micronaut
-micronaut-jackson-databind = { module = "io.micronaut:micronaut-jackson-databind" }
-
 managed-graphql-java = { module = "com.graphql-java:graphql-java", version.ref = "managed-graphql-java" }
+
+micronaut-jackson-databind = { module = "io.micronaut:micronaut-jackson-databind" }
+micronaut-docs = { module = "io.micronaut.docs:micronaut-docs-asciidoc-config-props", version.ref = "micronaut-docs" }
+gradle-micronaut = { module = "io.micronaut.gradle:micronaut-gradle-plugin", version.ref = "micronaut-gradle-plugin" }
 
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }

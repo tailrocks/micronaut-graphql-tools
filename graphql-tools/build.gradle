@@ -1,5 +1,5 @@
 plugins {
-    id 'io.micronaut.build.internal.graphql-tools-module'
+    id("io.micronaut.build.internal.graphql-tools-module")
 }
 
 dependencies {
@@ -12,10 +12,4 @@ dependencies {
     testImplementation(mn.micronaut.test.spock)
     testImplementation(mn.spock)
     testImplementation(libs.jetbrains.annotations)
-}
-
-micronautBuild {
-    resolutionStrategy {
-        force "com.graphql-java:graphql-java:$graphqlJavaVersion"
-    }
 }
