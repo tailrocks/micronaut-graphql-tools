@@ -26,5 +26,7 @@ dependencies {
 }
 
 apollo {
-    packageName.set("com.example")
+    packageName.set("example.client")
+    schemaFile.set(file("src/main/resources/schema.graphqls"))
+    generateKotlinModels.set(false)
 }

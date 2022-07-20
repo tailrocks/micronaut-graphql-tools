@@ -26,6 +26,15 @@ input SignUpInput {
   lastName: String!
 }
 
+type ValidationError {
+  message: String!
+  code: ValidationErrorCode!
+}
+
+enum ValidationErrorCode {
+  NOT_FOUND
+}
+
 type SecurityError {
   message: String!
   code: SecurityErrorCode!
@@ -36,15 +45,7 @@ enum SecurityErrorCode {
   NOT_AUTHENTICATED
 }
 
-type ValidationError {
-  message: String
-}
-
-enum ValidationErrorCode {
-  NOT_FOUND
-}
-
-union Error = SecurityError | ValidationError
+union Error = ValidationError | SecurityError
 
 type SignInPayload {
   error: Error
