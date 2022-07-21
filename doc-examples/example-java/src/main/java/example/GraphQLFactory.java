@@ -26,7 +26,7 @@ public class GraphQLFactory {
 
     @Bean
     @Singleton
-    public SchemaMappingDictionaryCustomizer schemaParserDictionaryCustomizer() {
+    public SchemaMappingDictionaryCustomizer schemaMappingDictionaryCustomizer() {
         return schemaMappingDictionary -> schemaMappingDictionary
                 .registerType("SecurityError", SecurityError.class)
                 .registerType("ValidationError", ValidationError.class);

@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("io.micronaut.application")
-    id("com.apollographql.apollo3").version("3.4.0")
+    id("com.apollographql.apollo3").version("3.4.0") // TODO
 }
 
 repositories {
@@ -19,10 +19,10 @@ micronaut {
 
 dependencies {
     implementation(projects.graphqlTools)
-    implementation("io.micronaut.graphql:micronaut-graphql")
-    runtimeOnly("ch.qos.logback:logback-classic")
-
-    implementation("com.apollographql.apollo3:apollo-runtime:3.4.0")
+    implementation(libs.micronaut.graphql)
+    implementation(libs.apollo.runtime)
+    implementation(libs.apollo.rx3.support)
+    runtimeOnly(libs.logback.classic)
 }
 
 apollo {
