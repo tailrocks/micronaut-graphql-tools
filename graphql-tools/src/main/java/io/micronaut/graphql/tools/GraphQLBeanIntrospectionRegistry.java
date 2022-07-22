@@ -105,7 +105,9 @@ final class GraphQLBeanIntrospectionRegistry {
             return typeIntrospections.get(implementationClass);
         } else {
             if (!typeIntrospections.containsKey(clazz)) {
-                throw new ClassNotIntrospectedException(mappingContext, clazz, GraphQLType.class);
+                return (BeanIntrospection<Object>) BeanIntrospector.SHARED.findIntrospection(clazz).orElseThrow(() -> {
+                    throw new ClassNotIntrospectedException(mappingContext, clazz, GraphQLType.class);
+                });
             }
 
             return typeIntrospections.get(clazz);

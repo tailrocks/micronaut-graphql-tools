@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 @GraphQLRootResolver
-public class SearchProfileQueryResolver {
+public class SearchProfileQuery {
 
     public List<Profile> searchProfile(String contains, @Nullable Integer limit) {
         return Collections.emptyList();
